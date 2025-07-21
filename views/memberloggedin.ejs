@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Member Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <%- include('partials/Membernav.ejs') %>
+
+  <!-- Welcome Message -->
+  <div class="container mt-4">
+    <h2 class="welcome-title">Welcome, <%= member.Member_FullName %>!</h2>
+    <p class="membership-tier">Membership Tier: <strong><%= tierName %></strong></p>
+
+    <!-- Dashboard Cards -->
+    <div class="row g-4 mb-4">
+      <!-- Booking Payment Card -->
+      <div class="col-md-6">
+        <div class="glass-container p-4 h-100">
+          <h3 class="card-title mb-3"><i class="fas fa-credit-card me-2"></i>Booking Payment</h3>
+          <p class="amount-display text-success mb-0">
+            $<%= totalOutstanding.toFixed(2) %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Cashback Card -->
+      <div class="col-md-6">
+        <div class="glass-container p-4 h-100">
+          <h3 class="card-title mb-3"><i class="fas fa-coins me-2"></i>Available Cashback</h3>
+          <p class="amount-display text-info mb-3">
+            $<%= totalCashback.toFixed(2) %>
+          </p>
+          <a href="/Member/cashback" class="btn btn-info btn-sm">
+            <i class="fas fa-eye me-1"></i>View Details
+          </a>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- Announcements Section -->
+     <% if (announcements && announcements.length > 0) { %>
+      <div class="glass-container mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="section-title mb-0">
+            <i class="fas fa-bullhorn me-2 text-warning"></i>Latest Announcements
+          </h4>
+          <a href="/Member/announcements" class="btn btn-outline-light btn-sm">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+        
+        <div class="row g-3">
+          <% announcements.forEach(announcement => { %>
+            <div class="col-12">
+              <div class="announcement-card">
+                <div class="announcement-header">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <h6 class="announcement-title">
+                        <span class="priority-dot priority-<%= announcement.Priority.toLowerCase() %>"></span>
+                        <%= announcement.Title %>
+                      </h6>
+                      <div class="announcement-meta">
+                        <span class="date-badge">
+                          <i class="fas fa-calendar me-1"></i>
+                          <%= new Date(announcement.CreatedDate).toLocaleDateString() %>
+                        </span>
+                        <% if (announcement.ExpiryDate) { %>
+                          <span class="expiry-badge">
+                            <i class="fas fa-clock me-1"></i>
+                            Expires: <%= new Date(announcement.ExpiryDate).toLocaleDateString() %>
+                          </span>
+                        <% } %>
+                      </div>
+                    </div>
+                    <span class="priority-badge priority-<%= announcement.Priority.toLowerCase() %>">
+                      <%= announcement.Priority %>
+                    </span>
+                  </div>
+                </div>
+                <div class="announcement-content">
+                  <%= announcement.Content.length > 120 ? announcement.Content.substring(0, 120) + '...' : announcement.Content %>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Pending Bookings -->
+    <% if (pendingBookings.length > 0) { %>
+      <div class="glass-container mt-5">
+        <h4 class="section-title mb-4">
+          <i class="fas fa-calendar-check me-2 text-primary"></i>Your Pending Bookings
+        </h4>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover">
+            <thead>
+              <tr>
+                <th><i class="fas fa-calendar me-1"></i>Date</th>
+                <th><i class="fas fa-clock me-1"></i>Time Slot</th>
+                <th><i class="fas fa-dollar-sign me-1"></i>Amount</th>
+                <th><i class="fas fa-cogs me-1"></i>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% pendingBookings.forEach(booking => { %>
+                <tr>
+                  <td><%= new Date(booking.BookingDate).toISOString().split('T')[0] %></td>
+                  <td><%= booking.StartTime %> - <%= booking.EndTime %></td>
+                  <td class="text-success fw-bold">$<%= Number(booking.AmountPaid).toFixed(2) %></td>
+                  <td>
+                    <form action="/Booking/pay" method="GET">
+                      <input type="hidden" name="bookingId" value="<%= booking.BookingID %>" />
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-credit-card me-1"></i>Pay Now
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="glass-container mt-5">
+        <div class="text-center py-4">
+          <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">No pending bookings</h5>
+          <p class="text-muted">All your bookings are up to date!</p>
+          <p class="text-muted">View your existing bookings in your calendar.</p>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    .welcome-title {
+      color: #f49b00;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 10px;
+    }
+
+    .membership-tier {
+      color: #e0e0e0;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    .glass-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .glass-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-container:hover::before {
+      left: 100%;
+    }
+
+    .card-title {
+      color: #f49b00;
+      font-weight: 600;
+      font-size: 1.3rem;
+    }
+
+    .section-title {
+      color: #f49b00;
+      font-weight: 600;
+      font-size: 1.4rem;
+    }
+
+    .amount-display {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .btn-info {
+      background: linear-gradient(45deg, #17a2b8, #20c997);
+      border: none;
+      color: white;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+
+    .btn-info:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
+      background: linear-gradient(45deg, #138496, #1dd2af);
+    }
+
+    .btn-outline-light {
+      border-color: rgba(255,255,255,0.3);
+      color: #ffffff;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-light:hover {
+      background-color: rgba(255,255,255,0.1);
+      border-color: #f49b00;
+      color: #f49b00;
+    }
+
+    .announcement-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .announcement-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: #f49b00;
+    }
+
+    .announcement-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(5px);
+    }
+
+    .announcement-header {
+      margin-bottom: 15px;
+    }
+
+    .announcement-title {
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .priority-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .priority-dot.priority-high {
+      background-color: #dc3545;
+      box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+    }
+
+    .priority-dot.priority-medium {
+      background-color: #ffc107;
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+    }
+
+    .priority-dot.priority-low {
+      background-color: #28a745;
+      box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+    }
+
+    .announcement-meta {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .date-badge, .expiry-badge {
+      background: rgba(244, 155, 0, 0.2);
+      color: #f49b00;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .expiry-badge {
+      background: rgba(220, 53, 69, 0.2);
+      color: #ff6b7a;
+    }
+
+    .priority-badge {
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .priority-badge.priority-high {
+      background: rgba(220, 53, 69, 0.2);
+      color: #ff6b7a;
+      border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .priority-badge.priority-medium {
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .priority-badge.priority-low {
+      background: rgba(40, 167, 69, 0.2);
+      color: #4caf50;
+      border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .announcement-content {
+      color: #e0e0e0;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .table-dark {
+      --bs-table-bg: rgba(255, 255, 255, 0.05);
+      --bs-table-border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .table-dark th {
+      color: #f49b00;
+      font-weight: 600;
+      border-bottom: 2px solid rgba(244, 155, 0, 0.3);
+    }
+
+    .table-dark td {
+      color: #e0e0e0;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(45deg, #0056b3, #004085);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+    }
+
+    .text-muted {
+      color: #a0a0a0 !important;
+    }
+
+    @media (max-width: 768px) {
+      .announcement-meta {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .amount-display {
+        font-size: 2rem;
+      }
+      
+      .table-responsive {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manage Membership</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    body {
+      background-color: #0c0f18;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container {
+      margin-top: 50px;
+      max-width: 600px;
+    }
+    .membership-tier {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid white;
+      margin-bottom: 10px;
+      background-color: #1a1d29;
+    }
+    .selected {
+      background-color: #28a745 !important;
+      color: white !important;
+      border: none;
+    }
+    .select-btn {
+      border-radius: 6px;
+      padding: 5px 15px;
+      background-color: #f49b00;
+      color: white;
+      border: none;
+    }
+    .select-btn:hover {
+      background-color: #d88700;
+    }
+    .checkout-btn {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 25px;
+      font-size: 16px;
+      background-color: #f49b00;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+    .checkout-btn:hover {
+      background-color: #d88700;
+    }
+    .checkout-btn:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/Membernav.ejs') %>
+
+  <div class="container">
+    <h2 class="text-center">Manage Membership</h2>
+    <p class="text-center"><strong>Current Tier:</strong> <%= currentTier %></p>
+
+    <% const tiers = [
+         { name: 'Gold', price: '$9.99/month' },
+         { name: 'Silver', price: '$4.99/month' },
+         { name: 'Bronze', price: 'Free' }
+       ]; %>
+    <% tiers.forEach(tier => { %>
+      <div class="membership-tier">
+        <div>
+          <span><%= tier.name %></span>
+          <small class="text-muted d-block"><%= tier.price %></small>
+        </div>
+        <button 
+          type="button" 
+          class="select-btn <% if (tier.name === currentTier) { %>selected<% } %>" 
+          data-tier="<%= tier.name %>" 
+          <% if (tier.name === currentTier) { %>disabled<% } %>>
+          <% if (tier.name === currentTier) { %>Selected<% } else { %>Select<% } %>
+        </button>
+      </div>
+    <% }) %>
+
+    <button id="checkout-button" class="checkout-btn" disabled>Pay & Upgrade Membership</button>
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll('.select-btn');
+    const checkoutBtn = document.getElementById('checkout-button');
+
+    // Update checkout button text based on selected tier
+    function updateCheckoutButton(tier) {
+      if (tier === 'Bronze') {
+        checkoutBtn.textContent = 'Downgrade to Bronze (Free)';
+      } else {
+        checkoutBtn.textContent = `Pay & Upgrade to ${tier}`;
+      }
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener('click', function () {
+        const tier = this.dataset.tier;
+
+        fetch('/member/managemembership/select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tier })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to select tier');
+          
+          // Reset all buttons
+          buttons.forEach(btn => {
+            btn.classList.remove('selected');
+            btn.textContent = 'Select';
+            btn.disabled = false;
+          });
+
+          // Mark this one as selected
+          this.classList.add('selected');
+          this.textContent = 'Selected';
+          this.disabled = true;
+
+          // Enable checkout and update button text
+          checkoutBtn.disabled = false;
+          updateCheckoutButton(tier);
+        })
+        .catch(err => {
+          console.error('Failed to select tier:', err);
+          alert('Failed to select tier. Please try again.');
+        });
+      });
+    });
+
+    // Handle checkout (payment or free downgrade)
+    checkoutBtn.addEventListener('click', function() {
+      console.log("Checkout clicked");
+      
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = 'Processing...';
+
+      fetch('/member/managemembership/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.redirect) {
+          // Free tier - redirect directly
+          window.location.href = data.redirect;
+        } else if (data.url) {
+          // Paid tier - go to Stripe
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
+      })
+      .catch(error => {
+        console.error("Checkout failed:", error);
+        alert('Processing failed: ' + error.message);
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Pay & Upgrade Membership';
+      });
+    });
+  </script>
+
+</body>
+</html>

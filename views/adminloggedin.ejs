@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Page</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Prevent horizontal overflow */
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw !important;
+    }
+
+    .welcome-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 20px;
+    }
+
+    .welcome-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #f49b00;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .stat-icon {
+      font-size: 3rem;
+      color: #f49b00;
+      margin-bottom: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #cccccc;
+      font-size: 1.1rem;
+    }
+
+    /* Quick actions section */
+    .quick-actions {
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    .quick-actions h3 {
+      color: #f49b00;
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .action-btn {
+      background: linear-gradient(45deg, #f49b00, #d4850d);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(244, 155, 0, 0.3);
+      color: #000;
+      text-decoration: none;
+    }
+
+    /* Dropdown fix */
+    .dropdown-menu {
+      z-index: 9999 !important;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .welcome-title {
+        font-size: 2rem;
+      }
+      
+      .stat-card {
+        padding: 1.5rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .action-btn {
+        width: 200px;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <%- include('partials/Adminnav.ejs') %>
+
+  <!-- Main Content -->
+  <div class="welcome-container">
+    <h1 class="welcome-title">Welcome, <%= admin.Admin_FullName %>!</h1>
+    
+    <!-- Admin Dashboard Stats -->
+    <div class="admin-stats">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-number"><%= stats.totalMembers %></div>
+        <div class="stat-label">Total Members</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="stat-number"><%= stats.activeEvents %></div>
+        <div class="stat-label">Active Events</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-bullhorn"></i>
+        </div>
+        <div class="stat-number"><%= stats.announcements %></div>
+        <div class="stat-label">Announcements</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <div class="stat-number"><%= stats.ticketsSold %></div>
+        <div class="stat-label">Tickets Sold</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <div class="action-buttons">
+        <a href="/Admin/announcements" class="action-btn">
+          <i class="fas fa-plus"></i>
+          Create Announcement
+        </a>
+        <a href="/Admin/events" class="action-btn">
+          <i class="fas fa-calendar-plus"></i>
+          Add Event
+        </a>
+        <a href="/Admin/addadmins" class="action-btn">
+          <i class="fas fa-user-plus"></i>
+          Manage Admins
+        </a>
+        <a href="/Admin/ticketpage" class="action-btn">
+          <i class="fas fa-chart-bar"></i>
+          View Reports
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FontAwesome for icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  
+  <!-- NO Bootstrap JS here - it's already loaded in Adminnav.ejs -->
+</body>
+</html>

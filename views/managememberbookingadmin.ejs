@@ -1,0 +1,104 @@
+<!-- Sanjana -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Bookings</title>
+  <meta charset="UTF-8">  
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+
+  <style>
+    /* Vertically center all table cells */
+    table.table tbody tr td, 
+    table.table thead tr th {
+      vertical-align: middle;
+    }
+    /* Align buttons horizontally with some gap */
+    .action-buttons form {
+      display: inline-block;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('partials/Adminnav.ejs') %>
+
+<div class="container mt-4">
+  <h2>Manage Member Bookings</h2>
+
+  <% if (booking) { %>
+    <!-- Edit form -->
+    <div class="card mb-4 p-3">
+      <h4>Edit Booking for <%= booking.Member_FullName %></h4>
+      <form action="/admin/booking/edit/<%= booking.BookingID %>" method="POST" class="row g-3">
+        <div class="col-md-3">
+          <label for="BookingDate" class="form-label">Booking Date</label>
+          <input type="date" id="BookingDate" name="BookingDate" class="form-control" value="<%= new Date(booking.BookingDate).toISOString().split('T')[0] %>" required>
+        </div>
+        <div class="col-md-3">
+          <label for="StartTime" class="form-label">Start Time</label>
+          <input type="time" id="StartTime" name="StartTime" class="form-control" value="<%= booking.StartTime %>" required>
+        </div>
+        <div class="col-md-3">
+          <label for="EndTime" class="form-label">End Time</label>
+          <input type="time" id="EndTime" name="EndTime" class="form-control" value="<%= booking.EndTime %>" required>
+        </div>
+        <div class="col-md-3">
+          <label for="Status" class="form-label">Status</label>
+          <select id="Status" name="Status" class="form-select" required>
+            <option value="Confirmed" <%= booking.Status === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+            <option value="Cancelled" <%= booking.Status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+            <option value="Pending Payment" <%= booking.Status === 'Pending Payment' ? 'selected' : '' %>>Pending Payment</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="AmountPaid" class="form-label">Amount Paid ($)</label>
+          <input type="number" step="0.01" id="AmountPaid" name="AmountPaid" class="form-control" value="<%= booking.AmountPaid %>" required>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Update Booking</button>
+          <a href="/admin/bookings" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+      </form>
+    </div>
+  <% } %>
+
+  <!-- Booking list table -->
+  <table class="table table-hover mt-4">
+    <thead class="table-dark">
+      <tr>
+        <th>Member Name</th>
+        <th>Email</th>
+        <th>Tier</th>
+        <th>Date</th>
+        <th>Time Slot</th>
+        <th>Status</th>
+        <th>Amount Paid</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% bookings.forEach(booking => { %>
+        <tr>
+          <td><%= booking.Member_FullName %></td>
+          <td><%= booking.Member_Email %></td>
+          <td><%= booking.TierName || 'N/A' %></td>
+          <td><%= new Date(booking.BookingDate).toISOString().split('T')[0] %></td>
+          <td><%= booking.StartTime %> - <%= booking.EndTime %></td>
+          <td><%= booking.Status %></td>
+          <td>$<%= parseFloat(booking.AmountPaid).toFixed(2) %></td>
+          <td class="action-buttons">
+            <a href="/admin/booking/edit/<%= booking.BookingID %>" class="btn btn-warning btn-sm">Edit</a>
+            <form action="/admin/booking/delete/<%= booking.BookingID %>" method="POST" onsubmit="return confirm('Are you sure?')">
+              <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

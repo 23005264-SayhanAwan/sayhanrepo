@@ -1,0 +1,66 @@
+<!-- File: views/memberbookingconfirm.ejs Sanjana -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Booking Confirmation</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body class="bg-dark text-white">
+  <div class="container mt-5">
+    <h2>Booking Confirmation</h2>
+    <p><strong>Date:</strong> <%= bookingDate %></p>
+    <p><strong>Time Slot:</strong> <%= startTime %> - <%= endTime %></p>
+    <p><strong>Tier:</strong> <%= tierName %></p>
+    <p><strong>Amount to Pay:</strong> $<%= amountPaid %></p>
+
+    <!-- Stripe Button -->
+    <button id="stripeCheckoutBtn" class="btn btn-success mt-4">Pay with Stripe</button>
+
+    <!-- Cancel Payment Button -->
+    <a href="/Booking/cancel-payment?bookingId=<%= bookingId %>" class="btn btn-danger mt-4">
+      Cancel Payment
+    </a>
+
+    <a href="/Member" class="btn btn-secondary mt-4">Back to Member Page</a>
+  </div>
+
+  <script>
+    // Replace with your actual Stripe publishable key from https://dashboard.stripe.com/apikeys
+    const stripe = Stripe("pk_test_51Rbd3n2KqbnLclsGBcFa8wHSWZkZYOTAcH6o9TCXAtnLetlq3Z6BlTDjsSDbjvdZ3oHdlLIsjpbCkYZNRGw8OMwN005cSVZ2vO");
+
+    document.getElementById("stripeCheckoutBtn").addEventListener("click", () => {
+      fetch("Booking/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          bookingId: "<%= bookingId %>",
+          amountPaid: "<%= amountPaid %>" // sent as number
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.id) {
+          return stripe.redirectToCheckout({ sessionId: data.id });
+        } else {
+          alert("Failed to start Stripe Checkout.");
+          console.error(data);
+        }
+      })
+      .catch(err => {
+        alert("Stripe checkout error");
+        console.error("Stripe checkout error", err);
+      });
+    });
+  </script>
+</body>
+</html>

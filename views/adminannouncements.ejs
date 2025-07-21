@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manage Announcements</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+  body {
+    background-color: #0c0f18;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .card {
+    background-color: #1a1f2e;
+    border: none;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  }
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  .card-text {
+    color: #ccc;
+  }
+  .text-muted {
+    color: #aaa !important;
+  }
+  .btn {
+    border-radius: 0.5rem;
+  }
+  .modal-content {
+    background-color: #1a1f2e;
+    color: white;
+  }
+  
+  /* Page title styling */
+  .page-title {
+    text-align: center;
+    margin: 30px 0;
+    font-weight: 700;
+    color: #f49b00;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-size: 2.5rem;
+  }
+  
+  /* Container styling */
+  .announcements-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  /* Create announcement button */
+  .create-btn-container {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .btn-create {
+    background: linear-gradient(45deg, #f49b00, #d4850d);
+    border: none;
+    color: #000;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(244, 155, 0, 0.3);
+    color: #000;
+  }
+  
+  /* Dropdown fix for consistency */
+  .dropdown-menu {
+    z-index: 9999 !important;
+  }
+</style>
+
+</head>
+<body>
+
+  <!-- Include Admin Navbar -->
+  <%- include('partials/Adminnav.ejs') %>
+
+  <div class="announcements-container">
+    <h2 class="page-title">
+      <i class="fas fa-bullhorn me-3"></i>Manage Announcements
+    </h2>
+
+    <!-- Create New Announcement Button -->
+    <div class="create-btn-container">
+      <button class="btn btn-create" data-bs-toggle="modal" data-bs-target="#createModal">
+        <i class="fas fa-plus me-2"></i>Create New Announcement
+      </button>
+    </div>
+
+    <% if (announcements.length === 0) { %>
+      <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle me-2"></i>No announcements yet. Create your first one!
+      </div>
+    <% } %>
+
+    <% announcements.forEach(function(announcement) { %>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">
+            <%= announcement.Title %>
+            <% if (announcement.Priority === 'High') { %>
+              <span class="badge bg-danger">High</span>
+            <% } else if (announcement.Priority === 'Medium') { %>
+              <span class="badge bg-warning text-dark">Medium</span>
+            <% } else { %>
+              <span class="badge bg-secondary">Low</span>
+            <% } %>
+            <% if (announcement.Status === 'Inactive') { %>
+              <span class="badge bg-dark">Inactive</span>
+            <% } %>
+          </h5>
+          <p class="card-text"><%= announcement.Content %></p>
+          <p class="card-text"><small class="text-muted">Created: <%= new Date(announcement.CreatedDate).toLocaleDateString() %></small></p>
+          <% if (announcement.CreatedBy) { %>
+            <p class="card-text"><small class="text-muted">By: <%= announcement.CreatedBy %></small></p>
+          <% } %>
+          <% if (announcement.ExpiryDate) { %>
+            <p class="card-text"><small class="text-muted">Expires: <%= new Date(announcement.ExpiryDate).toLocaleDateString() %></small></p>
+          <% } %>
+        </div>
+        <div class="card-footer">
+          <div class="d-flex gap-2">
+            <!-- Activate/Deactivate -->
+            <form action="/Admin/announcements/toggle/<%= announcement.AnnouncementID %>" method="POST" class="flex-grow-1">
+              <input type="hidden" name="status" value="<%= announcement.Status === 'Active' ? 'Inactive' : 'Active' %>">
+              <button type="submit" class="btn btn-sm btn-<%= announcement.Status === 'Active' ? 'warning' : 'success' %> w-100">
+                <i class="fas fa-<%= announcement.Status === 'Active' ? 'pause' : 'play' %> me-1"></i>
+                <%= announcement.Status === 'Active' ? 'Deactivate' : 'Activate' %>
+              </button>
+            </form>
+
+            <!-- Edit -->
+            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editModal-<%= announcement.AnnouncementID %>">
+              <i class="fas fa-edit"></i>
+            </button>
+
+            <!-- Delete -->
+            <form action="/Admin/announcements/delete/<%= announcement.AnnouncementID %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this announcement?')">
+              <button type="submit" class="btn btn-sm btn-danger">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Modal (one per announcement) -->
+      <div class="modal fade" id="editModal-<%= announcement.AnnouncementID %>" tabindex="-1" aria-labelledby="editModalLabel-<%= announcement.AnnouncementID %>" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header" style="border-bottom: 1px solid #2d3748;">
+              <h5 class="modal-title" id="editModalLabel-<%= announcement.AnnouncementID %>">
+                <i class="fas fa-edit me-2"></i>Edit Announcement
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/Admin/announcements/edit/<%= announcement.AnnouncementID %>" method="POST">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="title-<%= announcement.AnnouncementID %>" class="form-label">Title</label>
+                  <input type="text" class="form-control" id="title-<%= announcement.AnnouncementID %>" name="title" required maxlength="255" value="<%= announcement.Title %>">
+                </div>
+                <div class="mb-3">
+                  <label for="content-<%= announcement.AnnouncementID %>" class="form-label">Content</label>
+                  <textarea class="form-control" id="content-<%= announcement.AnnouncementID %>" name="content" rows="5" required><%= announcement.Content %></textarea>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="priority-<%= announcement.AnnouncementID %>" class="form-label">Priority</label>
+                    <select class="form-select" id="priority-<%= announcement.AnnouncementID %>" name="priority" required>
+                      <option value="Low" <%= announcement.Priority === 'Low' ? 'selected' : '' %>>Low</option>
+                      <option value="Medium" <%= announcement.Priority === 'Medium' ? 'selected' : '' %>>Medium</option>
+                      <option value="High" <%= announcement.Priority === 'High' ? 'selected' : '' %>>High</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="expiryDate-<%= announcement.AnnouncementID %>" class="form-label">Expiry Date</label>
+                    <input type="date" class="form-control" id="expiryDate-<%= announcement.AnnouncementID %>" name="expiryDate"
+                      value="<%= announcement.ExpiryDate ? new Date(announcement.ExpiryDate).toISOString().split('T')[0] : '' %>">
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer" style="border-top: 1px solid #2d3748;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+
+    <!-- Create Modal -->
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header" style="border-bottom: 1px solid #2d3748;">
+            <h5 class="modal-title" id="createModalLabel">
+              <i class="fas fa-plus me-2"></i>Create New Announcement
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="/Admin/announcements/create" method="POST">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="createTitle" class="form-label">Title</label>
+                <input type="text" class="form-control" id="createTitle" name="title" required maxlength="255" placeholder="Enter announcement title">
+              </div>
+              <div class="mb-3">
+                <label for="createContent" class="form-label">Content</label>
+                <textarea class="form-control" id="createContent" name="content" rows="5" required placeholder="Enter announcement content"></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="createPriority" class="form-label">Priority</label>
+                  <select class="form-select" id="createPriority" name="priority" required>
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="createExpiryDate" class="form-label">Expiry Date (Optional)</label>
+                  <input type="date" class="form-control" id="createExpiryDate" name="expiryDate">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #2d3748;">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Create Announcement
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+</html>

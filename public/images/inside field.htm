@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head><meta charset="UTF-8"><script>if(navigator.userAgent.match(/MSIE|Internet Explorer/i)||navigator.userAgent.match(/Trident\/7\..*?rv:11/i)){var href=document.location.href;if(!href.match(/[?&]nowprocket/)){if(href.indexOf("?")==-1){if(href.indexOf("#")==-1){document.location.href=href+"?nowprocket=1"}else{document.location.href=href.replace("#","?nowprocket=1#")}}else{if(href.indexOf("#")==-1){document.location.href=href+"&nowprocket=1"}else{document.location.href=href.replace("#","&nowprocket=1#")}}}}</script><script>(()=>{class RocketLazyLoadScripts{constructor(){this.v="2.0.3",this.userEvents=["keydown","keyup","mousedown","mouseup","mousemove","mouseover","mouseenter","mouseout","mouseleave","touchmove","touchstart","touchend","touchcancel","wheel","click","dblclick","input","visibilitychange"],this.attributeEvents=["onblur","onclick","oncontextmenu","ondblclick","onfocus","onmousedown","onmouseenter","onmouseleave","onmousemove","onmouseout","onmouseover","onmouseup","onmousewheel","onscroll","onsubmit"]}async t(){this.i(),this.o(),/iP(ad|hone)/.test(navigator.userAgent)&&this.h(),this.u(),this.l(this),this.m(),this.k(this),this.p(this),this._(),await Promise.all([this.R(),this.L()]),this.lastBreath=Date.now(),this.S(this),this.P(),this.D(),this.O(),this.M(),await this.C(this.delayedScripts.normal),await this.C(this.delayedScripts.defer),await this.C(this.delayedScripts.async),this.F("domReady"),await this.T(),await this.j(),await this.I(),this.F("windowLoad"),await this.A(),window.dispatchEvent(new Event("rocket-allScriptsLoaded")),this.everythingLoaded=!0,this.lastTouchEnd&&await new Promise((t=>setTimeout(t,500-Date.now()+this.lastTouchEnd))),this.H(),this.F("all"),this.U(),this.W()}i(){this.CSPIssue=sessionStorage.getItem("rocketCSPIssue"),document.addEventListener("securitypolicyviolation",(t=>{this.CSPIssue||"script-src-elem"!==t.violatedDirective||"data"!==t.blockedURI||(this.CSPIssue=!0,sessionStorage.setItem("rocketCSPIssue",!0))}),{isRocket:!0})}o(){window.addEventListener("pageshow",(t=>{this.persisted=t.persisted,this.realWindowLoadedFired=!0}),{isRocket:!0}),window.addEventListener("pagehide",(()=>{this.onFirstUserAction=null}),{isRocket:!0})}h(){let t;function e(e){t=e}window.addEventListener("touchstart",e,{isRocket:!0}),window.addEventListener("touchend",(function i(o){Math.abs(o.changedTouches[0].pageX-t.changedTouches[0].pageX)<10&&Math.abs(o.changedTouches[0].pageY-t.changedTouches[0].pageY)<10&&o.timeStamp-t.timeStamp<200&&(o.target.dispatchEvent(new PointerEvent("click",{target:o.target,bubbles:!0,cancelable:!0,detail:1})),event.preventDefault(),window.removeEventListener("touchstart",e,{isRocket:!0}),window.removeEventListener("touchend",i,{isRocket:!0}))}),{isRocket:!0})}q(t){this.userActionTriggered||("mousemove"!==t.type||this.firstMousemoveIgnored?"keyup"===t.type||"mouseover"===t.type||"mouseout"===t.type||(this.userActionTriggered=!0,this.onFirstUserAction&&this.onFirstUserAction()):this.firstMousemoveIgnored=!0),"click"===t.type&&t.preventDefault(),this.savedUserEvents.length>0&&(t.stopPropagation(),t.stopImmediatePropagation()),"touchstart"===this.lastEvent&&"touchend"===t.type&&(this.lastTouchEnd=Date.now()),"click"===t.type&&(this.lastTouchEnd=0),this.lastEvent=t.type,this.savedUserEvents.push(t)}u(){this.savedUserEvents=[],this.userEventHandler=this.q.bind(this),this.userEvents.forEach((t=>window.addEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0})))}U(){this.userEvents.forEach((t=>window.removeEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0}))),this.savedUserEvents.forEach((t=>{t.target.dispatchEvent(new window[t.constructor.name](t.type,t))}))}m(){this.eventsMutationObserver=new MutationObserver((t=>{const e="return false";for(const i of t){if("attributes"===i.type){const t=i.target.getAttribute(i.attributeName);t&&t!==e&&(i.target.setAttribute("data-rocket-"+i.attributeName,t),i.target["rocket"+i.attributeName]=new Function("event",t),i.target.setAttribute(i.attributeName,e))}"childList"===i.type&&i.addedNodes.forEach((t=>{if(t.nodeType===Node.ELEMENT_NODE)for(const i of t.attributes)this.attributeEvents.includes(i.name)&&i.value&&""!==i.value&&(t.setAttribute("data-rocket-"+i.name,i.value),t["rocket"+i.name]=new Function("event",i.value),t.setAttribute(i.name,e))}))}})),this.eventsMutationObserver.observe(document,{subtree:!0,childList:!0,attributeFilter:this.attributeEvents})}H(){this.eventsMutationObserver.disconnect(),this.attributeEvents.forEach((t=>{document.querySelectorAll("[data-rocket-"+t+"]").forEach((e=>{e.setAttribute(t,e.getAttribute("data-rocket-"+t)),e.removeAttribute("data-rocket-"+t)}))}))}k(t){Object.defineProperty(HTMLElement.prototype,"onclick",{get(){return this.rocketonclick||null},set(e){this.rocketonclick=e,this.setAttribute(t.everythingLoaded?"onclick":"data-rocket-onclick","this.rocketonclick(event)")}})}S(t){function e(e,i){let o=e[i];e[i]=null,Object.defineProperty(e,i,{get:()=>o,set(s){t.everythingLoaded?o=s:e["rocket"+i]=o=s}})}e(document,"onreadystatechange"),e(window,"onload"),e(window,"onpageshow");try{Object.defineProperty(document,"readyState",{get:()=>t.rocketReadyState,set(e){t.rocketReadyState=e},configurable:!0}),document.readyState="loading"}catch(t){console.log("WPRocket DJE readyState conflict, bypassing")}}l(t){this.originalAddEventListener=EventTarget.prototype.addEventListener,this.originalRemoveEventListener=EventTarget.prototype.removeEventListener,this.savedEventListeners=[],EventTarget.prototype.addEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalAddEventListener.call(this,e,i,o):t.savedEventListeners.push({target:this,remove:!1,type:e,func:i,options:o})},EventTarget.prototype.removeEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalRemoveEventListener.call(this,e,i,o):t.savedEventListeners.push({target:this,remove:!0,type:e,func:i,options:o})}}F(t){"all"===t&&(EventTarget.prototype.addEventListener=this.originalAddEventListener,EventTarget.prototype.removeEventListener=this.originalRemoveEventListener),this.savedEventListeners=this.savedEventListeners.filter((e=>{let i=e.type,o=e.target||window;return"domReady"===t&&"DOMContentLoaded"!==i&&"readystatechange"!==i||("windowLoad"===t&&"load"!==i&&"readystatechange"!==i&&"pageshow"!==i||(this.B(i,o)&&(i="rocket-"+i),e.remove?o.removeEventListener(i,e.func,e.options):o.addEventListener(i,e.func,e.options),!1))}))}p(t){let e;function i(e){return t.everythingLoaded?e:e.split(" ").map((t=>"load"===t||t.startsWith("load.")?"rocket-jquery-load":t)).join(" ")}function o(o){function s(e){const s=o.fn[e];o.fn[e]=o.fn.init.prototype[e]=function(){return this[0]===window&&t.userActionTriggered&&("string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=i(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach((t=>{const e=arguments[0][t];delete arguments[0][t],arguments[0][i(t)]=e}))),s.apply(this,arguments),this}}if(o&&o.fn&&!t.allJQueries.includes(o)){const e={DOMContentLoaded:[],"rocket-DOMContentLoaded":[]};for(const t in e)document.addEventListener(t,(()=>{e[t].forEach((t=>t()))}),{isRocket:!0});o.fn.ready=o.fn.init.prototype.ready=function(i){function s(){parseInt(o.fn.jquery)>2?setTimeout((()=>i.bind(document)(o))):i.bind(document)(o)}return t.realDomReadyFired?!t.userActionTriggered||t.fauxDomReadyFired?s():e["rocket-DOMContentLoaded"].push(s):e.DOMContentLoaded.push(s),o([])},s("on"),s("one"),s("off"),t.allJQueries.push(o)}e=o}t.allJQueries=[],o(window.jQuery),Object.defineProperty(window,"jQuery",{get:()=>e,set(t){o(t)}})}P(){const t=new Map;document.write=document.writeln=function(e){const i=document.currentScript,o=document.createRange(),s=i.parentElement;let n=t.get(i);void 0===n&&(n=i.nextSibling,t.set(i,n));const c=document.createDocumentFragment();o.setStart(c,0),c.appendChild(o.createContextualFragment(e)),s.insertBefore(c,n)}}async R(){return new Promise((t=>{this.userActionTriggered?t():this.onFirstUserAction=t}))}async L(){return new Promise((t=>{document.addEventListener("DOMContentLoaded",(()=>{this.realDomReadyFired=!0,t()}),{isRocket:!0})}))}async I(){return this.realWindowLoadedFired?Promise.resolve():new Promise((t=>{window.addEventListener("load",t,{isRocket:!0})}))}M(){this.pendingScripts=[];this.scriptsMutationObserver=new MutationObserver((t=>{for(const e of t)e.addedNodes.forEach((t=>{"SCRIPT"!==t.tagName||t.noModule||t.isWPRocket||this.pendingScripts.push({script:t,promise:new Promise((e=>{const i=()=>{const i=this.pendingScripts.findIndex((e=>e.script===t));i>=0&&this.pendingScripts.splice(i,1),e()};t.addEventListener("load",i,{isRocket:!0}),t.addEventListener("error",i,{isRocket:!0}),setTimeout(i,1e3)}))})}))})),this.scriptsMutationObserver.observe(document,{childList:!0,subtree:!0})}async j(){await this.J(),this.pendingScripts.length?(await this.pendingScripts[0].promise,await this.j()):this.scriptsMutationObserver.disconnect()}D(){this.delayedScripts={normal:[],async:[],defer:[]},document.querySelectorAll("script[type$=rocketlazyloadscript]").forEach((t=>{t.hasAttribute("data-rocket-src")?t.hasAttribute("async")&&!1!==t.async?this.delayedScripts.async.push(t):t.hasAttribute("defer")&&!1!==t.defer||"module"===t.getAttribute("data-rocket-type")?this.delayedScripts.defer.push(t):this.delayedScripts.normal.push(t):this.delayedScripts.normal.push(t)}))}async _(){await this.L();let t=[];document.querySelectorAll("script[type$=rocketlazyloadscript][data-rocket-src]").forEach((e=>{let i=e.getAttribute("data-rocket-src");if(i&&!i.startsWith("data:")){i.startsWith("//")&&(i=location.protocol+i);try{const o=new URL(i).origin;o!==location.origin&&t.push({src:o,crossOrigin:e.crossOrigin||"module"===e.getAttribute("data-rocket-type")})}catch(t){}}})),t=[...new Map(t.map((t=>[JSON.stringify(t),t]))).values()],this.N(t,"preconnect")}async $(t){if(await this.G(),!0!==t.noModule||!("noModule"in HTMLScriptElement.prototype))return new Promise((e=>{let i;function o(){(i||t).setAttribute("data-rocket-status","executed"),e()}try{if(navigator.userAgent.includes("Firefox/")||""===navigator.vendor||this.CSPIssue)i=document.createElement("script"),[...t.attributes].forEach((t=>{let e=t.nodeName;"type"!==e&&("data-rocket-type"===e&&(e="type"),"data-rocket-src"===e&&(e="src"),i.setAttribute(e,t.nodeValue))})),t.text&&(i.text=t.text),t.nonce&&(i.nonce=t.nonce),i.hasAttribute("src")?(i.addEventListener("load",o,{isRocket:!0}),i.addEventListener("error",(()=>{i.setAttribute("data-rocket-status","failed-network"),e()}),{isRocket:!0}),setTimeout((()=>{i.isConnected||e()}),1)):(i.text=t.text,o()),i.isWPRocket=!0,t.parentNode.replaceChild(i,t);else{const i=t.getAttribute("data-rocket-type"),s=t.getAttribute("data-rocket-src");i?(t.type=i,t.removeAttribute("data-rocket-type")):t.removeAttribute("type"),t.addEventListener("load",o,{isRocket:!0}),t.addEventListener("error",(i=>{this.CSPIssue&&i.target.src.startsWith("data:")?(console.log("WPRocket: CSP fallback activated"),t.removeAttribute("src"),this.$(t).then(e)):(t.setAttribute("data-rocket-status","failed-network"),e())}),{isRocket:!0}),s?(t.fetchPriority="high",t.removeAttribute("data-rocket-src"),t.src=s):t.src="data:text/javascript;base64,"+window.btoa(unescape(encodeURIComponent(t.text)))}}catch(i){t.setAttribute("data-rocket-status","failed-transform"),e()}}));t.setAttribute("data-rocket-status","skipped")}async C(t){const e=t.shift();return e?(e.isConnected&&await this.$(e),this.C(t)):Promise.resolve()}O(){this.N([...this.delayedScripts.normal,...this.delayedScripts.defer,...this.delayedScripts.async],"preload")}N(t,e){this.trash=this.trash||[];let i=!0;var o=document.createDocumentFragment();t.forEach((t=>{const s=t.getAttribute&&t.getAttribute("data-rocket-src")||t.src;if(s&&!s.startsWith("data:")){const n=document.createElement("link");n.href=s,n.rel=e,"preconnect"!==e&&(n.as="script",n.fetchPriority=i?"high":"low"),t.getAttribute&&"module"===t.getAttribute("data-rocket-type")&&(n.crossOrigin=!0),t.crossOrigin&&(n.crossOrigin=t.crossOrigin),t.integrity&&(n.integrity=t.integrity),t.nonce&&(n.nonce=t.nonce),o.appendChild(n),this.trash.push(n),i=!1}})),document.head.appendChild(o)}W(){this.trash.forEach((t=>t.remove()))}async T(){try{document.readyState="interactive"}catch(t){}this.fauxDomReadyFired=!0;try{await this.G(),document.dispatchEvent(new Event("rocket-readystatechange")),await this.G(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.G(),document.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this.G(),window.dispatchEvent(new Event("rocket-DOMContentLoaded"))}catch(t){console.error(t)}}async A(){try{document.readyState="complete"}catch(t){}try{await this.G(),document.dispatchEvent(new Event("rocket-readystatechange")),await this.G(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.G(),window.dispatchEvent(new Event("rocket-load")),await this.G(),window.rocketonload&&window.rocketonload(),await this.G(),this.allJQueries.forEach((t=>t(window).trigger("rocket-jquery-load"))),await this.G();const t=new Event("rocket-pageshow");t.persisted=this.persisted,window.dispatchEvent(t),await this.G(),window.rocketonpageshow&&window.rocketonpageshow({persisted:this.persisted})}catch(t){console.error(t)}}async G(){Date.now()-this.lastBreath>45&&(await this.J(),this.lastBreath=Date.now())}async J(){return document.hidden?new Promise((t=>setTimeout(t))):new Promise((t=>requestAnimationFrame(t)))}B(t,e){return e===document&&"readystatechange"===t||(e===document&&"DOMContentLoaded"===t||(e===window&&"DOMContentLoaded"===t||(e===window&&"load"===t||e===window&&"pageshow"===t)))}static run(){(new RocketLazyLoadScripts).t()}}RocketLazyLoadScripts.run()})();</script>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />		<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+	<style>img:is([sizes="auto" i], [sizes^="auto," i]) { contain-intrinsic-size: 3000px 1500px }</style>
+	
+            <script data-no-defer="1" data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer data-cookieconsent="ignore">
+                var ctPublicFunctions = {"_ajax_nonce":"d8ae703cf1","_rest_nonce":"285ecba13e","_ajax_url":"\/wp-admin\/admin-ajax.php","_rest_url":"https:\/\/web.prairieathletic.com\/wp-json\/","data__cookies_type":"native","data__ajax_type":"rest","data__bot_detector_enabled":0,"data__frontend_data_log_enabled":1,"cookiePrefix":"","wprocket_detected":true,"host_url":"web.prairieathletic.com","text__ee_click_to_select":"Click to select the whole data","text__ee_original_email":"The original one is","text__ee_got_it":"Got it","text__ee_blocked":"Blocked","text__ee_cannot_connect":"Cannot connect","text__ee_cannot_decode":"Can not decode email. Unknown reason","text__ee_email_decoder":"CleanTalk email decoder","text__ee_wait_for_decoding":"The magic is on the way, please wait for a few seconds!","text__ee_decoding_process":"Decoding the contact data, let us a few seconds to finish."}
+            </script>
+        
+            <script data-no-defer="1" data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer data-cookieconsent="ignore">
+                var ctPublic = {"_ajax_nonce":"d8ae703cf1","settings__forms__check_internal":"0","settings__forms__check_external":"0","settings__forms__force_protection":0,"settings__forms__search_test":"1","settings__data__bot_detector_enabled":0,"settings__sfw__anti_crawler":0,"blog_home":"https:\/\/web.prairieathletic.com\/","pixel__setting":"0","pixel__enabled":false,"pixel__url":null,"data__email_check_before_post":"1","data__email_check_exist_post":0,"data__cookies_type":"native","data__key_is_ok":true,"data__visible_fields_required":true,"wl_brandname":"Anti-Spam by CleanTalk","wl_brandname_short":"CleanTalk","ct_checkjs_key":786276703,"emailEncoderPassKey":"d2e7dc250517fa0de40ec613f89351e3","bot_detector_forms_excluded":"W10=","advancedCacheExists":true,"varnishCacheExists":false,"wc_ajax_add_to_cart":true}
+            </script>
+        
+	<!-- This site is optimized with the Yoast SEO plugin v25.1 - https://yoast.com/wordpress/plugins/seo/ -->
+	<title>Soccer Field Rental | Prairie Athletic Club</title><link rel="preload" data-rocket-preload as="style" href="https://fonts.googleapis.com/css?family=Montserrat%3Aregular%2C500%2C700%7COpen%20Sans%3A300%2Cregular%2C600%2C700%2C800%7CPermanent%20Marker&#038;display=swap" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat%3Aregular%2C500%2C700%7COpen%20Sans%3A300%2Cregular%2C600%2C700%2C800%7CPermanent%20Marker&#038;display=swap" media="print" onload="this.media='all'" /><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat%3Aregular%2C500%2C700%7COpen%20Sans%3A300%2Cregular%2C600%2C700%2C800%7CPermanent%20Marker&#038;display=swap" /></noscript>
+	<meta name="description" content="Sign up for an upcoming Soccer Field Rental at Prairie Athletic Club." />
+	<link rel="canonical" href="https://web.prairieathletic.com/register/soccer-field-rental/" />
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Soccer Field Rental | Prairie Athletic Club" />
+	<meta property="og:description" content="Sign up for an upcoming Soccer Field Rental at Prairie Athletic Club." />
+	<meta property="og:url" content="https://web.prairieathletic.com/register/soccer-field-rental/" />
+	<meta property="og:site_name" content="Prairie Athletic Club" />
+	<meta property="article:publisher" content="https://www.facebook.com/prairieathleticclub/" />
+	<meta property="article:modified_time" content="2023-09-27T13:29:18+00:00" />
+	<meta property="og:image" content="https://web.prairieathletic.com/wp-content/uploads/2023/02/PAC-soccer-field.png" />
+	<meta property="og:image:width" content="1920" />
+	<meta property="og:image:height" content="1080" />
+	<meta property="og:image:type" content="image/png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@PrairieAthletic" />
+	<meta name="twitter:label1" content="Est. reading time" />
+	<meta name="twitter:data1" content="1 minute" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://web.prairieathletic.com/register/soccer-field-rental/","url":"https://web.prairieathletic.com/register/soccer-field-rental/","name":"Soccer Field Rental | Prairie Athletic Club","isPartOf":{"@id":"https://web.prairieathletic.com/#website"},"datePublished":"2019-02-28T17:48:02+00:00","dateModified":"2023-09-27T13:29:18+00:00","description":"Sign up for an upcoming Soccer Field Rental at Prairie Athletic Club.","breadcrumb":{"@id":"https://web.prairieathletic.com/register/soccer-field-rental/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https://web.prairieathletic.com/register/soccer-field-rental/"]}]},{"@type":"BreadcrumbList","@id":"https://web.prairieathletic.com/register/soccer-field-rental/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://web.prairieathletic.com/"},{"@type":"ListItem","position":2,"name":"Portfolios","item":"https://web.prairieathletic.com/register/"},{"@type":"ListItem","position":3,"name":"Soccer Field Rental"}]},{"@type":"WebSite","@id":"https://web.prairieathletic.com/#website","url":"https://web.prairieathletic.com/","name":"Prairie Athletic Club","description":"Join WI&#039;s Largest Health / Fitness Club","publisher":{"@id":"https://web.prairieathletic.com/#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://web.prairieathletic.com/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"},{"@type":"Organization","@id":"https://web.prairieathletic.com/#organization","name":"Prairie Athletic Club","url":"https://web.prairieathletic.com/","logo":{"@type":"ImageObject","inLanguage":"en-US","@id":"https://web.prairieathletic.com/#/schema/logo/image/","url":"https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png","contentUrl":"https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png","width":705,"height":345,"caption":"Prairie Athletic Club"},"image":{"@id":"https://web.prairieathletic.com/#/schema/logo/image/"},"sameAs":["https://www.facebook.com/prairieathleticclub/","https://x.com/PrairieAthletic","https://www.linkedin.com/company/sun-prairie-athletic-club","https://www.instagram.com/prairieathletic/"]}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<link href='https://fonts.gstatic.com' crossorigin rel='preconnect' />
+<link rel="alternate" type="application/rss+xml" title="Prairie Athletic Club &raquo; Feed" href="https://web.prairieathletic.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Prairie Athletic Club &raquo; Comments Feed" href="https://web.prairieathletic.com/comments/feed/" />
+
+<style id='wp-emoji-styles-inline-css' type='text/css'>
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+</style>
+<link rel='stylesheet' id='wp-block-library-css' href='https://web.prairieathletic.com/wp-includes/css/dist/block-library/style.min.css?ver=6.8' type='text/css' media='all' />
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+:root :where(.wp-block-pullquote){font-size: 1.5em;line-height: 1.6;}
+</style>
+<link rel='stylesheet' id='cleantalk-public-css-css' href='https://web.prairieathletic.com/wp-content/cache/background-css/1/web.prairieathletic.com/wp-content/plugins/cleantalk-spam-protect/css/cleantalk-public.min.css?ver=6.56_1747905109&wpr_t=1748153109' type='text/css' media='all' />
+<link rel='stylesheet' id='cleantalk-email-decoder-css-css' href='https://web.prairieathletic.com/wp-content/plugins/cleantalk-spam-protect/css/cleantalk-email-decoder.min.css?ver=6.56_1747905109' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='hg-mailchimp-styles-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/themes/kallyas/framework/hogash-mailchimp/assets/css/hg-mailchimp.css?ver=1746827891' type='text/css' media='all' />
+<link rel='stylesheet' id='kallyas-styles-css' href='https://web.prairieathletic.com/wp-content/themes/kallyas/style.css?ver=4.21.0' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='th-bootstrap-styles-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/themes/kallyas/css/bootstrap.min.css?ver=1746827891' type='text/css' media='all' />
+<link rel='stylesheet' id='th-theme-template-styles-css' href='https://web.prairieathletic.com/wp-content/cache/background-css/1/web.prairieathletic.com/wp-content/themes/kallyas/css/template.min.css?ver=4.21.0&wpr_t=1748153109' type='text/css' media='all' />
+<link rel='stylesheet' id='elementor-frontend-css' href='https://web.prairieathletic.com/wp-content/uploads/elementor/css/custom-frontend.min.css?ver=1746808709' type='text/css' media='all' />
+<link rel='stylesheet' id='widget-nav-menu-css' href='https://web.prairieathletic.com/wp-content/uploads/elementor/css/custom-pro-widget-nav-menu.min.css?ver=1746808709' type='text/css' media='all' />
+<link rel='stylesheet' id='widget-search-css' href='https://web.prairieathletic.com/wp-content/plugins/elementor-pro/assets/css/widget-search.min.css?ver=3.29.0' type='text/css' media='all' />
+<link rel='stylesheet' id='widget-search-form-css' href='https://web.prairieathletic.com/wp-content/plugins/elementor-pro/assets/css/widget-search-form.min.css?ver=3.29.0' type='text/css' media='all' />
+<link rel='stylesheet' id='elementor-icons-shared-0-css' href='https://web.prairieathletic.com/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.min.css?ver=5.15.3' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='elementor-icons-fa-solid-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.min.css?ver=1746827891' type='text/css' media='all' />
+<link rel='stylesheet' id='widget-image-css' href='https://web.prairieathletic.com/wp-content/plugins/elementor/assets/css/widget-image.min.css?ver=3.29.0' type='text/css' media='all' />
+<link rel='stylesheet' id='widget-social-icons-css' href='https://web.prairieathletic.com/wp-content/plugins/elementor/assets/css/widget-social-icons.min.css?ver=3.29.0' type='text/css' media='all' />
+<link rel='stylesheet' id='e-apple-webkit-css' href='https://web.prairieathletic.com/wp-content/uploads/elementor/css/custom-apple-webkit.min.css?ver=1746808709' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='elementor-icons-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/plugins/elementor/assets/lib/eicons/css/elementor-icons.min.css?ver=1746827891' type='text/css' media='all' />
+<link rel='stylesheet' id='elementor-post-66974-css' href='https://web.prairieathletic.com/wp-content/uploads/elementor/css/post-66974.css?ver=1746808709' type='text/css' media='all' />
+<link rel='stylesheet' id='elementor-post-68042-css' href='https://web.prairieathletic.com/wp-content/uploads/elementor/css/post-68042.css?ver=1746808710' type='text/css' media='all' />
+<link rel='stylesheet' id='elementor-post-68217-css' href='https://web.prairieathletic.com/wp-content/uploads/elementor/css/post-68217.css?ver=1746808710' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='zion-frontend-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/themes/kallyas/framework/zion-builder/assets/css/znb_frontend.css?ver=1746827891' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='32369-layout.css-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/uploads/zion-builder/cache/32369-layout.css?ver=1746831061' type='text/css' media='all' />
+<link rel='stylesheet' id='th-theme-print-stylesheet-css' href='https://web.prairieathletic.com/wp-content/themes/kallyas/css/print.css?ver=4.21.0' type='text/css' media='print' />
+<link data-minify="1" rel='stylesheet' id='th-theme-options-styles-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/uploads/zn_dynamic.css?ver=1746827891' type='text/css' media='all' />
+<style id='rocket-lazyload-inline-css' type='text/css'>
+.rll-youtube-player{position:relative;padding-bottom:56.23%;height:0;overflow:hidden;max-width:100%;}.rll-youtube-player:focus-within{outline: 2px solid currentColor;outline-offset: 5px;}.rll-youtube-player iframe{position:absolute;top:0;left:0;width:100%;height:100%;z-index:100;background:0 0}.rll-youtube-player img{bottom:0;display:block;left:0;margin:auto;max-width:100%;width:100%;position:absolute;right:0;top:0;border:none;height:auto;-webkit-transition:.4s all;-moz-transition:.4s all;transition:.4s all}.rll-youtube-player img:hover{-webkit-filter:brightness(75%)}.rll-youtube-player .play{height:100%;width:100%;left:0;top:0;position:absolute;background:var(--wpr-bg-54530197-73cd-4f20-9193-2d258dfc31e9) no-repeat center;background-color: transparent !important;cursor:pointer;border:none;}
+</style>
+<link data-minify="1" rel='stylesheet' id='elementor-gf-local-roboto-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/uploads/elementor/google-fonts/css/roboto.css?ver=1746827892' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='elementor-gf-local-robotoslab-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/uploads/elementor/google-fonts/css/robotoslab.css?ver=1746827892' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='elementor-gf-local-opensans-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/uploads/elementor/google-fonts/css/opensans.css?ver=1746827892' type='text/css' media='all' />
+<link data-minify="1" rel='stylesheet' id='elementor-icons-fa-brands-css' href='https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/plugins/elementor/assets/lib/font-awesome/css/brands.min.css?ver=1746827892' type='text/css' media='all' />
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/cleantalk-spam-protect/js/apbct-public-bundle.min.js?ver=6.56_1747905109" id="apbct-public-bundle-js-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js" data-rocket-defer defer></script>
+<script type="text/javascript" id="3d-flip-book-client-locale-loader-js-extra">
+/* <![CDATA[ */
+var FB3D_CLIENT_LOCALE = {"ajaxurl":"https:\/\/web.prairieathletic.com\/wp-admin\/admin-ajax.php","dictionary":{"Table of contents":"Table of contents","Close":"Close","Bookmarks":"Bookmarks","Thumbnails":"Thumbnails","Search":"Search","Share":"Share","Facebook":"Facebook","Twitter":"Twitter","Email":"Email","Play":"Play","Previous page":"Previous page","Next page":"Next page","Zoom in":"Zoom in","Zoom out":"Zoom out","Fit view":"Fit view","Auto play":"Auto play","Full screen":"Full screen","More":"More","Smart pan":"Smart pan","Single page":"Single page","Sounds":"Sounds","Stats":"Stats","Print":"Print","Download":"Download","Goto first page":"Goto first page","Goto last page":"Goto last page"},"images":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/interactive-3d-flipbook-powered-physics-engine\/assets\/images\/","jsData":{"urls":[],"posts":{"ids_mis":[],"ids":[]},"pages":[],"firstPages":[],"bookCtrlProps":[],"bookTemplates":[]},"key":"3d-flip-book","pdfJS":{"pdfJsLib":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/interactive-3d-flipbook-powered-physics-engine\/assets\/js\/pdf.min.js?ver=4.3.136","pdfJsWorker":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/interactive-3d-flipbook-powered-physics-engine\/assets\/js\/pdf.worker.js?ver=4.3.136","stablePdfJsLib":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/interactive-3d-flipbook-powered-physics-engine\/assets\/js\/stable\/pdf.min.js?ver=2.5.207","stablePdfJsWorker":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/interactive-3d-flipbook-powered-physics-engine\/assets\/js\/stable\/pdf.worker.js?ver=2.5.207","pdfJsCMapUrl":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/interactive-3d-flipbook-powered-physics-engine\/assets\/cmaps\/"},"cacheurl":"https:\/\/web.prairieathletic.com\/wp-content\/uploads\/3d-flip-book\/cache\/","pluginsurl":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/","pluginurl":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/interactive-3d-flipbook-powered-physics-engine\/","thumbnailSize":{"width":"150","height":"150"},"version":"1.16.15"};
+/* ]]> */
+</script>
+<script data-minify="1" type="text/javascript" src="https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/plugins/interactive-3d-flipbook-powered-physics-engine/assets/js/client-locale-loader.js?ver=1746827890" id="3d-flip-book-client-locale-loader-js" async="async" data-wp-strategy="async"></script>
+<link rel="https://api.w.org/" href="https://web.prairieathletic.com/wp-json/" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://web.prairieathletic.com/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 6.8" />
+<link rel='shortlink' href='https://web.prairieathletic.com/?p=32369' />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://web.prairieathletic.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fweb.prairieathletic.com%2Fregister%2Fsoccer-field-rental%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://web.prairieathletic.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fweb.prairieathletic.com%2Fregister%2Fsoccer-field-rental%2F&#038;format=xml" />
+        <script data-minify="1" data-accessible-account-id="wp_vFtGhKjLm"
+                id="allAccessibleWidget"
+                src="https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/plugins/allaccessible/assets/widget.js?ver=1746827891"
+                defer></script>
+        <meta name="google-site-verification" content="Yi3k3v4ffMAFdwaoRf-nhs9QkQf9oXRnAGp5Mr91Iyc" />		<meta name="theme-color"
+				content="#d89700">
+				<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+		
+		<!--[if lte IE 8]>
+		<script type="text/javascript">var \$buoop = {
+				vs: {i: 10, f: 25, o: 12.1, s: 7, n: 9}
+			};
+
+			\$buoop.ol = window.onload;
+
+			window.onload = function () {
+				try {
+					if (\$buoop.ol) {
+						\$buoop.ol()
+					}
+				}
+				catch (e) {
+				}
+
+				var e = document.createElement("script");
+				e.setAttribute("type", "text/javascript");
+				e.setAttribute("src", "https://browser-update.org/update.js");
+				document.body.appendChild(e);
+			};</script>
+		<![endif]-->
+
+		<!-- for IE6-8 support of HTML5 elements -->
+		<!--[if lt IE 9]>
+		<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		
+	<!-- Fallback for animating in viewport -->
+	<noscript>
+		<style type="text/css" media="screen">
+			.zn-animateInViewport {visibility: visible;}
+		</style>
+	</noscript>
+	<meta name="generator" content="Elementor 3.29.0; features: additional_custom_breakpoints, e_local_google_fonts; settings: css_print_method-external, google_font-enabled, font_display-auto">
+<style type="text/css" id="filter-everything-inline-css">.wpc-orderby-select{width:100%}.wpc-filters-open-button-container{display:none}.wpc-debug-message{padding:16px;font-size:14px;border:1px dashed #ccc;margin-bottom:20px}.wpc-debug-title{visibility:hidden}.wpc-button-inner,.wpc-chip-content{display:flex;align-items:center}.wpc-icon-html-wrapper{position:relative;margin-right:10px;top:2px}.wpc-icon-html-wrapper span{display:block;height:1px;width:18px;border-radius:3px;background:#2c2d33;margin-bottom:4px;position:relative}span.wpc-icon-line-1:after,span.wpc-icon-line-2:after,span.wpc-icon-line-3:after{content:"";display:block;width:3px;height:3px;border:1px solid #2c2d33;background-color:#fff;position:absolute;top:-2px;box-sizing:content-box}span.wpc-icon-line-3:after{border-radius:50%;left:2px}span.wpc-icon-line-1:after{border-radius:50%;left:5px}span.wpc-icon-line-2:after{border-radius:50%;left:12px}body .wpc-filters-open-button-container a.wpc-filters-open-widget,body .wpc-filters-open-button-container a.wpc-open-close-filters-button{display:inline-block;text-align:left;border:1px solid #2c2d33;border-radius:2px;line-height:1.5;padding:7px 12px;background-color:transparent;color:#2c2d33;box-sizing:border-box;text-decoration:none!important;font-weight:400;transition:none;position:relative}@media screen and (max-width:768px){.wpc_show_bottom_widget .wpc-filters-open-button-container,.wpc_show_open_close_button .wpc-filters-open-button-container{display:block}.wpc_show_bottom_widget .wpc-filters-open-button-container{margin-top:1em;margin-bottom:1em}}</style>
+<link data-minify="1" href="https://web.prairieathletic.com/wp-content/cache/min/1/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css?ver=1746827943" rel="stylesheet" />
+<script data-minify="1" src="https://web.prairieathletic.com/wp-content/cache/min/1/ajax/libs/moment.js/2.17.1/moment.min.js?ver=1746827943" data-rocket-defer defer></script>
+<script data-minify="1" src="https://web.prairieathletic.com/wp-content/cache/min/1/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js?ver=1746827943" data-rocket-defer defer></script><link rel="icon" href="https://web.prairieathletic.com/wp-content/uploads/2022/10/cropped-PAC_Favicon-32x32.png" sizes="32x32" />
+<link rel="icon" href="https://web.prairieathletic.com/wp-content/uploads/2022/10/cropped-PAC_Favicon-192x192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://web.prairieathletic.com/wp-content/uploads/2022/10/cropped-PAC_Favicon-180x180.png" />
+<meta name="msapplication-TileImage" content="https://web.prairieathletic.com/wp-content/uploads/2022/10/cropped-PAC_Favicon-270x270.png" />
+<!-- Google tag (gtag.js) -->
+<script type="rocketlazyloadscript" async data-rocket-src="https://www.googletagmanager.com/gtag/js?id=G-1267RXGLQZ"></script>
+<script type="rocketlazyloadscript">
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1267RXGLQZ');
+</script><noscript><style id="rocket-lazyload-nojs-css">.rll-youtube-player, [data-lazy-src]{display:none !important;}</style></noscript><style id="wpr-lazyload-bg-container"></style><style id="wpr-lazyload-bg-exclusion"></style>
+<noscript>
+<style id="wpr-lazyload-bg-nostyle">.apbct-check_email_exist-load{--wpr-bg-b646728f-70eb-4d0d-bd73-ef85387a1357: url('https://web.prairieathletic.com/wp-content/plugins/cleantalk-spam-protect/css/images/checking_email.gif');}.apbct-check_email_exist-good_email{--wpr-bg-ec09be46-72dc-4569-8bdd-dab8d3d9c7d7: url('https://web.prairieathletic.com/wp-content/plugins/cleantalk-spam-protect/css/images/good_email.svg');}.apbct-check_email_exist-bad_email{--wpr-bg-e0bff435-cbd2-4a14-98ce-187d7d290d78: url('https://web.prairieathletic.com/wp-content/plugins/cleantalk-spam-protect/css/images/bad_email.svg');}.kl-mask--mask1{--wpr-bg-170201af-4fa8-4434-904f-57a054a6c62a: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/bottom_mask.png');}.kl-mask--mask2{--wpr-bg-eb5a9046-5a41-4e1e-adce-fbf084427694: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/bottom_mask2.png');}img[data-echo]{--wpr-bg-b18204de-6946-4592-89e1-8cba449a6dec: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/ring-alt.svg');}.logo-infocard .contact-details{--wpr-bg-cdd85179-36e5-4a81-acf4-8c963b4f6bfc: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/say_hi.png');}.widget_tp_widget_recent_tweets .twitter-feed-wrapper{--wpr-bg-368e3cd0-cdfc-47b9-b50c-cd215fd387b7: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/twitter-bird.png');}.kl-fancy-form-select{--wpr-bg-63d2aa7d-54e7-4903-9f17-f053add4dec9: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/select-arrow.svg');}.kl-material-form-select{--wpr-bg-2c5ac61c-215d-4779-a545-cddf3e11657c: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/select-arrow.svg');}.site-footer .contact-details{--wpr-bg-44801cdc-5c67-42bb-b8b3-ef192fa9b7f0: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/say_hi_smaller.png');}.site-footer .contact-details{--wpr-bg-b5bcc3bb-dd06-48ce-8134-6209c5734123: url('https://web.prairieathletic.com/wp-content/themes/kallyas/images/say_hi.png');}.rll-youtube-player .play{--wpr-bg-54530197-73cd-4f20-9193-2d258dfc31e9: url('https://web.prairieathletic.com/wp-content/plugins/wp-rocket/assets/img/youtube.png');}</style>
+</noscript>
+<script type="application/javascript">const rocket_pairs = [{"selector":".apbct-check_email_exist-load","style":".apbct-check_email_exist-load{--wpr-bg-b646728f-70eb-4d0d-bd73-ef85387a1357: url('https:\/\/web.prairieathletic.com\/wp-content\/plugins\/cleantalk-spam-protect\/css\/images\/checking_email.gif');}","hash":"b646728f-70eb-4d0d-bd73-ef85387a1357","url":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/cleantalk-spam-protect\/css\/images\/checking_email.gif"},{"selector":".apbct-check_email_exist-good_email","style":".apbct-check_email_exist-good_email{--wpr-bg-ec09be46-72dc-4569-8bdd-dab8d3d9c7d7: url('https:\/\/web.prairieathletic.com\/wp-content\/plugins\/cleantalk-spam-protect\/css\/images\/good_email.svg');}","hash":"ec09be46-72dc-4569-8bdd-dab8d3d9c7d7","url":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/cleantalk-spam-protect\/css\/images\/good_email.svg"},{"selector":".apbct-check_email_exist-bad_email","style":".apbct-check_email_exist-bad_email{--wpr-bg-e0bff435-cbd2-4a14-98ce-187d7d290d78: url('https:\/\/web.prairieathletic.com\/wp-content\/plugins\/cleantalk-spam-protect\/css\/images\/bad_email.svg');}","hash":"e0bff435-cbd2-4a14-98ce-187d7d290d78","url":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/cleantalk-spam-protect\/css\/images\/bad_email.svg"},{"selector":".kl-mask--mask1","style":".kl-mask--mask1{--wpr-bg-170201af-4fa8-4434-904f-57a054a6c62a: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/bottom_mask.png');}","hash":"170201af-4fa8-4434-904f-57a054a6c62a","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/bottom_mask.png"},{"selector":".kl-mask--mask2","style":".kl-mask--mask2{--wpr-bg-eb5a9046-5a41-4e1e-adce-fbf084427694: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/bottom_mask2.png');}","hash":"eb5a9046-5a41-4e1e-adce-fbf084427694","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/bottom_mask2.png"},{"selector":"img[data-echo]","style":"img[data-echo]{--wpr-bg-b18204de-6946-4592-89e1-8cba449a6dec: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/ring-alt.svg');}","hash":"b18204de-6946-4592-89e1-8cba449a6dec","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/ring-alt.svg"},{"selector":".logo-infocard .contact-details","style":".logo-infocard .contact-details{--wpr-bg-cdd85179-36e5-4a81-acf4-8c963b4f6bfc: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/say_hi.png');}","hash":"cdd85179-36e5-4a81-acf4-8c963b4f6bfc","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/say_hi.png"},{"selector":".widget_tp_widget_recent_tweets .twitter-feed-wrapper","style":".widget_tp_widget_recent_tweets .twitter-feed-wrapper{--wpr-bg-368e3cd0-cdfc-47b9-b50c-cd215fd387b7: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/twitter-bird.png');}","hash":"368e3cd0-cdfc-47b9-b50c-cd215fd387b7","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/twitter-bird.png"},{"selector":".kl-fancy-form-select","style":".kl-fancy-form-select{--wpr-bg-63d2aa7d-54e7-4903-9f17-f053add4dec9: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/select-arrow.svg');}","hash":"63d2aa7d-54e7-4903-9f17-f053add4dec9","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/select-arrow.svg"},{"selector":".kl-material-form-select","style":".kl-material-form-select{--wpr-bg-2c5ac61c-215d-4779-a545-cddf3e11657c: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/select-arrow.svg');}","hash":"2c5ac61c-215d-4779-a545-cddf3e11657c","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/select-arrow.svg"},{"selector":".site-footer .contact-details","style":".site-footer .contact-details{--wpr-bg-44801cdc-5c67-42bb-b8b3-ef192fa9b7f0: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/say_hi_smaller.png');}","hash":"44801cdc-5c67-42bb-b8b3-ef192fa9b7f0","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/say_hi_smaller.png"},{"selector":".site-footer .contact-details","style":".site-footer .contact-details{--wpr-bg-b5bcc3bb-dd06-48ce-8134-6209c5734123: url('https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/say_hi.png');}","hash":"b5bcc3bb-dd06-48ce-8134-6209c5734123","url":"https:\/\/web.prairieathletic.com\/wp-content\/themes\/kallyas\/images\/say_hi.png"},{"selector":".rll-youtube-player .play","style":".rll-youtube-player .play{--wpr-bg-54530197-73cd-4f20-9193-2d258dfc31e9: url('https:\/\/web.prairieathletic.com\/wp-content\/plugins\/wp-rocket\/assets\/img\/youtube.png');}","hash":"54530197-73cd-4f20-9193-2d258dfc31e9","url":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/wp-rocket\/assets\/img\/youtube.png"}]; const rocket_excluded_pairs = [];</script><meta name="generator" content="WP Rocket 3.18.3" data-wpr-features="wpr_lazyload_css_bg_img wpr_delay_js wpr_defer_js wpr_minify_js wpr_lazyload_images wpr_lazyload_iframes wpr_image_dimensions wpr_minify_css wpr_preload_links wpr_desktop" /></head>
+<body class="wp-singular portfolio-template-default single single-portfolio postid-32369 wp-theme-kallyas res1170 kl-follow-menu kl-skin--light elementor-default elementor-kit-66974">
+		<div  data-elementor-type="header" data-elementor-id="68042" class="elementor elementor-68042 elementor-location-header" data-elementor-post-type="elementor_library">
+					<section class="elementor-section elementor-top-section elementor-element elementor-element-456fabf elementor-section-full_width elementor-hidden-mobile elementor-section-height-default elementor-section-height-default" data-id="456fabf" data-element_type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+						<div  class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-50 elementor-top-column elementor-element elementor-element-0733e30" data-id="0733e30" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-71928fd elementor-nav-menu__align-start elementor-nav-menu--dropdown-mobile elementor-nav-menu__text-align-aside elementor-nav-menu--toggle elementor-nav-menu--burger elementor-widget elementor-widget-nav-menu" data-id="71928fd" data-element_type="widget" data-settings="{&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;i class=\&quot;\&quot;&gt;&lt;\/i&gt;&quot;,&quot;library&quot;:&quot;&quot;},&quot;layout&quot;:&quot;horizontal&quot;,&quot;toggle&quot;:&quot;burger&quot;}" data-widget_type="nav-menu.default">
+				<div class="elementor-widget-container">
+								<nav aria-label="Menu" class="elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-horizontal e--pointer-none">
+				<ul id="menu-1-71928fd" class="elementor-nav-menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-31638"><a href="https://web.prairieathletic.com/pac-schedules-all/" class="elementor-item">SCHEDULES</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31639"><a href="https://www.prairieathletic.com/My-Rewards" class="elementor-item">MY REWARDS</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31640"><a href="https://www.prairieathletic.com/Member-Login" class="elementor-item">MY ACCOUNT</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31641"><a href="https://www.prairieathletic.com/Shopping-Cart" class="elementor-item">CART</a></li>
+</ul>			</nav>
+					<div class="elementor-menu-toggle" role="button" tabindex="0" aria-label="Menu Toggle" aria-expanded="false">
+			<i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--open eicon-menu-bar"></i><i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--close eicon-close"></i>		</div>
+					<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" aria-hidden="true">
+				<ul id="menu-2-71928fd" class="elementor-nav-menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-31638"><a href="https://web.prairieathletic.com/pac-schedules-all/" class="elementor-item" tabindex="-1">SCHEDULES</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31639"><a href="https://www.prairieathletic.com/My-Rewards" class="elementor-item" tabindex="-1">MY REWARDS</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31640"><a href="https://www.prairieathletic.com/Member-Login" class="elementor-item" tabindex="-1">MY ACCOUNT</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31641"><a href="https://www.prairieathletic.com/Shopping-Cart" class="elementor-item" tabindex="-1">CART</a></li>
+</ul>			</nav>
+						</div>
+				</div>
+					</div>
+		</div>
+				<div class="elementor-column elementor-col-50 elementor-top-column elementor-element elementor-element-d52bc4d" data-id="d52bc4d" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-94871ea elementor-widget elementor-widget-search" data-id="94871ea" data-element_type="widget" data-settings="{&quot;submit_trigger&quot;:&quot;both&quot;,&quot;pagination_type_options&quot;:&quot;none&quot;}" data-widget_type="search.default">
+				<div class="elementor-widget-container">
+							<search class="e-search hidden" role="search">
+			<form class="e-search-form" action="https://web.prairieathletic.com" method="get">
+
+				
+				<label class="e-search-label" for="search-94871ea">
+					<span class="elementor-screen-only">
+						Search					</span>
+									</label>
+
+				<div class="e-search-input-wrapper">
+					<input id="search-94871ea" placeholder="" class="e-search-input" type="search" name="s" value="" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="results-94871ea" aria-haspopup="listbox">
+					<i aria-hidden="true" class="fas fa-times"></i>										<output id="results-94871ea" class="e-search-results-container hide-loader" aria-live="polite" aria-atomic="true" aria-label="Results for search" tabindex="0">
+						<div class="e-search-results"></div>
+											</output>
+									</div>
+				
+				
+				<button class="e-search-submit  " type="submit" aria-label="Search">
+					<i aria-hidden="true" class="fas fa-search"></i>
+									</button>
+				<input type="hidden" name="e_search_props" value="94871ea-68042">
+			</form>
+		</search>
+						</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section class="elementor-section elementor-top-section elementor-element elementor-element-64d940c elementor-section-full_width elementor-hidden-mobile elementor-hidden-desktop elementor-hidden-tablet elementor-section-height-default elementor-section-height-default" data-id="64d940c" data-element_type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+						<div  class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-50 elementor-top-column elementor-element elementor-element-1d91203" data-id="1d91203" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-55fc8e5 elementor-nav-menu__align-start elementor-nav-menu--dropdown-mobile elementor-nav-menu__text-align-aside elementor-nav-menu--toggle elementor-nav-menu--burger elementor-widget elementor-widget-nav-menu" data-id="55fc8e5" data-element_type="widget" data-settings="{&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;i class=\&quot;\&quot;&gt;&lt;\/i&gt;&quot;,&quot;library&quot;:&quot;&quot;},&quot;layout&quot;:&quot;horizontal&quot;,&quot;toggle&quot;:&quot;burger&quot;}" data-widget_type="nav-menu.default">
+				<div class="elementor-widget-container">
+								<nav aria-label="Menu" class="elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-horizontal e--pointer-none">
+				<ul id="menu-1-55fc8e5" class="elementor-nav-menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-31638"><a href="https://web.prairieathletic.com/pac-schedules-all/" class="elementor-item">SCHEDULES</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31639"><a href="https://www.prairieathletic.com/My-Rewards" class="elementor-item">MY REWARDS</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31640"><a href="https://www.prairieathletic.com/Member-Login" class="elementor-item">MY ACCOUNT</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31641"><a href="https://www.prairieathletic.com/Shopping-Cart" class="elementor-item">CART</a></li>
+</ul>			</nav>
+					<div class="elementor-menu-toggle" role="button" tabindex="0" aria-label="Menu Toggle" aria-expanded="false">
+			<i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--open eicon-menu-bar"></i><i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--close eicon-close"></i>		</div>
+					<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" aria-hidden="true">
+				<ul id="menu-2-55fc8e5" class="elementor-nav-menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-31638"><a href="https://web.prairieathletic.com/pac-schedules-all/" class="elementor-item" tabindex="-1">SCHEDULES</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31639"><a href="https://www.prairieathletic.com/My-Rewards" class="elementor-item" tabindex="-1">MY REWARDS</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31640"><a href="https://www.prairieathletic.com/Member-Login" class="elementor-item" tabindex="-1">MY ACCOUNT</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-31641"><a href="https://www.prairieathletic.com/Shopping-Cart" class="elementor-item" tabindex="-1">CART</a></li>
+</ul>			</nav>
+						</div>
+				</div>
+					</div>
+		</div>
+				<div class="elementor-column elementor-col-50 elementor-top-column elementor-element elementor-element-d3d99d3" data-id="d3d99d3" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-3265964 elementor-search-form--skin-minimal elementor-widget elementor-widget-search-form" data-id="3265964" data-element_type="widget" data-settings="{&quot;skin&quot;:&quot;minimal&quot;}" data-widget_type="search-form.default">
+				<div class="elementor-widget-container">
+							<search role="search">
+			<form class="elementor-search-form" action="https://web.prairieathletic.com" method="get">
+												<div class="elementor-search-form__container">
+					<label class="elementor-screen-only" for="elementor-search-form-3265964">Search</label>
+
+											<div class="elementor-search-form__icon">
+							<i aria-hidden="true" class="fas fa-search"></i>							<span class="elementor-screen-only">Search</span>
+						</div>
+					
+					<input id="elementor-search-form-3265964" placeholder="" class="elementor-search-form__input" type="search" name="s" value="">
+					
+					
+									</div>
+			</form>
+		</search>
+						</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section  class="elementor-section elementor-top-section elementor-element elementor-element-ae3593a elementor-hidden-mobile elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="ae3593a" data-element_type="section">
+						<div  class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-07063f7" data-id="07063f7" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-f23b012 elementor-widget__width-initial elementor-widget elementor-widget-image" data-id="f23b012" data-element_type="widget" data-widget_type="image.default">
+				<div class="elementor-widget-container">
+																<a href="https://web.prairieathletic.com/">
+							<img width="300" height="147" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20147'%3E%3C/svg%3E" class="attachment-medium size-medium wp-image-68072" alt="Prairie Athletic Club Logo" data-lazy-srcset="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-300x147.png 300w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-280x137.png 280w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png 705w" data-lazy-sizes="(max-width: 300px) 100vw, 300px" data-lazy-src="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-300x147.png" /><noscript><img width="300" height="147" src="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-300x147.png" class="attachment-medium size-medium wp-image-68072" alt="Prairie Athletic Club Logo" srcset="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-300x147.png 300w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-280x137.png 280w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png 705w" sizes="(max-width: 300px) 100vw, 300px" /></noscript>								</a>
+															</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section  class="elementor-section elementor-top-section elementor-element elementor-element-cab822f elementor-hidden-mobile elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="cab822f" data-element_type="section">
+						<div  class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-5208857" data-id="5208857" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-69fd95f elementor-nav-menu__align-center elementor-nav-menu--dropdown-mobile elementor-nav-menu__text-align-aside elementor-nav-menu--toggle elementor-nav-menu--burger elementor-widget elementor-widget-nav-menu" data-id="69fd95f" data-element_type="widget" data-settings="{&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;i class=\&quot;\&quot;&gt;&lt;\/i&gt;&quot;,&quot;library&quot;:&quot;&quot;},&quot;layout&quot;:&quot;horizontal&quot;,&quot;toggle&quot;:&quot;burger&quot;}" data-widget_type="nav-menu.default">
+				<div class="elementor-widget-container">
+								<nav aria-label="Menu" class="elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-horizontal e--pointer-none">
+				<ul id="menu-1-69fd95f" class="elementor-nav-menu"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68083"><a href="/pac-join/" class="elementor-item">Join PAC</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68084"><a href="/pac-members/" class="elementor-item">Members</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68086"><a href="/pac-dolphins-cove/" class="elementor-item">Dolphins Cove</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68087"><a class="elementor-item">Programs</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68092"><a href="https://web.prairieathletic.com/pac-programs-adult-all/" class="elementor-sub-item">All Adult</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68117"><a href="https://web.prairieathletic.com/pac-programs-youth-all/" class="elementor-sub-item">All Youth</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68093"><a href="https://web.prairieathletic.com/pac-programs-all/" class="elementor-sub-item">All Programs</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68094"><a href="https://web.prairieathletic.com/pac-programs-aqua-fitness/" class="elementor-sub-item">Aqua Fitness</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68095"><a href="https://web.prairieathletic.com/pac-programs-baseball/" class="elementor-sub-item">Baseball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68096"><a href="https://web.prairieathletic.com/pac-programs-basketball/" class="elementor-sub-item">Basketball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68098"><a href="https://web.prairieathletic.com/pac-programs-crossfit/" class="elementor-sub-item">Crossfit</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70115"><a href="https://web.prairieathletic.com/esp/" class="elementor-sub-item">ESP Elite Sports Performance</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68102"><a href="https://web.prairieathletic.com/pac-programs-group-fitness-classes/" class="elementor-sub-item">Group Fitness Classes</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68103"><a href="https://web.prairieathletic.com/pac-programs-martial-arts/" class="elementor-sub-item">Martial Arts</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68105"><a href="https://web.prairieathletic.com/pac-programs-pac-kids-summer-camps/" class="elementor-sub-item">PAC Kids / Summer Camps</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70374"><a href="https://web.prairieathletic.com/pac-programs-personal-training/" class="elementor-sub-item">Personal Training</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68107"><a href="https://web.prairieathletic.com/pac-programs-pickleball/" class="elementor-sub-item">Pickleball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-74367"><a href="https://web.prairieathletic.com/learning-academy/" class="elementor-sub-item">Preschool: The Learning Academy</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68108"><a href="https://web.prairieathletic.com/pac-programs-racquetball/" class="elementor-sub-item">Racquetball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68109"><a href="https://web.prairieathletic.com/pac-programs-red-cross/" class="elementor-sub-item">Red Cross</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68110"><a href="https://web.prairieathletic.com/pac-programs-soccer/" class="elementor-sub-item">Soccer</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68111"><a href="https://web.prairieathletic.com/pac-programs-sol-yoga/" class="elementor-sub-item">SOL Yoga</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-75683"><a href="https://web.prairieathletic.com/pac-programs-swimming/" class="elementor-sub-item">Swimming</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68113"><a href="https://web.prairieathletic.com/pac-programs-training-zone/" class="elementor-sub-item">Training Zone</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68115"><a href="https://web.prairieathletic.com/pac-programs-volleyball/" class="elementor-sub-item">Volleyball</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68088"><a href="/news/" class="elementor-item">News &#038; Events</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68119"><a href="https://web.prairieathletic.com/pac-newsletter/" class="elementor-sub-item">PAC Newsletter</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68089"><a href="/pac-general-information/" class="elementor-item">PAC Information</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68121"><a href="https://web.prairieathletic.com/fit-rewards/" class="elementor-sub-item">Fit Rewards</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68122"><a href="https://web.prairieathletic.com/pac-employment/" class="elementor-sub-item">PAC Employment</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68123"><a href="https://web.prairieathletic.com/parties-room-rentals/" class="elementor-sub-item">Parties &#038; Room Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68124"><a href="https://web.prairieathletic.com/facility-rentals/" class="elementor-sub-item">Facility Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68125"><a href="https://web.prairieathletic.com/food-beverage/" class="elementor-sub-item">Food &#038; Beverage</a></li>
+</ul>
+</li>
+</ul>			</nav>
+					<div class="elementor-menu-toggle" role="button" tabindex="0" aria-label="Menu Toggle" aria-expanded="false">
+			<i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--open eicon-menu-bar"></i><i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--close eicon-close"></i>		</div>
+					<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" aria-hidden="true">
+				<ul id="menu-2-69fd95f" class="elementor-nav-menu"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68083"><a href="/pac-join/" class="elementor-item" tabindex="-1">Join PAC</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68084"><a href="/pac-members/" class="elementor-item" tabindex="-1">Members</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68086"><a href="/pac-dolphins-cove/" class="elementor-item" tabindex="-1">Dolphins Cove</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68087"><a class="elementor-item" tabindex="-1">Programs</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68092"><a href="https://web.prairieathletic.com/pac-programs-adult-all/" class="elementor-sub-item" tabindex="-1">All Adult</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68117"><a href="https://web.prairieathletic.com/pac-programs-youth-all/" class="elementor-sub-item" tabindex="-1">All Youth</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68093"><a href="https://web.prairieathletic.com/pac-programs-all/" class="elementor-sub-item" tabindex="-1">All Programs</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68094"><a href="https://web.prairieathletic.com/pac-programs-aqua-fitness/" class="elementor-sub-item" tabindex="-1">Aqua Fitness</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68095"><a href="https://web.prairieathletic.com/pac-programs-baseball/" class="elementor-sub-item" tabindex="-1">Baseball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68096"><a href="https://web.prairieathletic.com/pac-programs-basketball/" class="elementor-sub-item" tabindex="-1">Basketball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68098"><a href="https://web.prairieathletic.com/pac-programs-crossfit/" class="elementor-sub-item" tabindex="-1">Crossfit</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70115"><a href="https://web.prairieathletic.com/esp/" class="elementor-sub-item" tabindex="-1">ESP Elite Sports Performance</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68102"><a href="https://web.prairieathletic.com/pac-programs-group-fitness-classes/" class="elementor-sub-item" tabindex="-1">Group Fitness Classes</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68103"><a href="https://web.prairieathletic.com/pac-programs-martial-arts/" class="elementor-sub-item" tabindex="-1">Martial Arts</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68105"><a href="https://web.prairieathletic.com/pac-programs-pac-kids-summer-camps/" class="elementor-sub-item" tabindex="-1">PAC Kids / Summer Camps</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70374"><a href="https://web.prairieathletic.com/pac-programs-personal-training/" class="elementor-sub-item" tabindex="-1">Personal Training</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68107"><a href="https://web.prairieathletic.com/pac-programs-pickleball/" class="elementor-sub-item" tabindex="-1">Pickleball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-74367"><a href="https://web.prairieathletic.com/learning-academy/" class="elementor-sub-item" tabindex="-1">Preschool: The Learning Academy</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68108"><a href="https://web.prairieathletic.com/pac-programs-racquetball/" class="elementor-sub-item" tabindex="-1">Racquetball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68109"><a href="https://web.prairieathletic.com/pac-programs-red-cross/" class="elementor-sub-item" tabindex="-1">Red Cross</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68110"><a href="https://web.prairieathletic.com/pac-programs-soccer/" class="elementor-sub-item" tabindex="-1">Soccer</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68111"><a href="https://web.prairieathletic.com/pac-programs-sol-yoga/" class="elementor-sub-item" tabindex="-1">SOL Yoga</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-75683"><a href="https://web.prairieathletic.com/pac-programs-swimming/" class="elementor-sub-item" tabindex="-1">Swimming</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68113"><a href="https://web.prairieathletic.com/pac-programs-training-zone/" class="elementor-sub-item" tabindex="-1">Training Zone</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68115"><a href="https://web.prairieathletic.com/pac-programs-volleyball/" class="elementor-sub-item" tabindex="-1">Volleyball</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68088"><a href="/news/" class="elementor-item" tabindex="-1">News &#038; Events</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68119"><a href="https://web.prairieathletic.com/pac-newsletter/" class="elementor-sub-item" tabindex="-1">PAC Newsletter</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68089"><a href="/pac-general-information/" class="elementor-item" tabindex="-1">PAC Information</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68121"><a href="https://web.prairieathletic.com/fit-rewards/" class="elementor-sub-item" tabindex="-1">Fit Rewards</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68122"><a href="https://web.prairieathletic.com/pac-employment/" class="elementor-sub-item" tabindex="-1">PAC Employment</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68123"><a href="https://web.prairieathletic.com/parties-room-rentals/" class="elementor-sub-item" tabindex="-1">Parties &#038; Room Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68124"><a href="https://web.prairieathletic.com/facility-rentals/" class="elementor-sub-item" tabindex="-1">Facility Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68125"><a href="https://web.prairieathletic.com/food-beverage/" class="elementor-sub-item" tabindex="-1">Food &#038; Beverage</a></li>
+</ul>
+</li>
+</ul>			</nav>
+						</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section  class="elementor-section elementor-top-section elementor-element elementor-element-e01bb46 elementor-hidden-desktop elementor-hidden-tablet elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="e01bb46" data-element_type="section">
+						<div  class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-50 elementor-top-column elementor-element elementor-element-9d5abdc" data-id="9d5abdc" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-a732295 elementor-widget__width-initial elementor-widget elementor-widget-image" data-id="a732295" data-element_type="widget" data-widget_type="image.default">
+				<div class="elementor-widget-container">
+																<a href="https://web.prairieathletic.com/">
+							<img width="705" height="345" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20705%20345'%3E%3C/svg%3E" class="attachment-full size-full wp-image-68072" alt="Prairie Athletic Club Logo" data-lazy-srcset="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png 705w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-300x147.png 300w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-280x137.png 280w" data-lazy-sizes="(max-width: 705px) 100vw, 705px" data-lazy-src="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png" /><noscript><img width="705" height="345" src="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png" class="attachment-full size-full wp-image-68072" alt="Prairie Athletic Club Logo" srcset="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo.png 705w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-300x147.png 300w, https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC-logo-280x137.png 280w" sizes="(max-width: 705px) 100vw, 705px" /></noscript>								</a>
+															</div>
+				</div>
+					</div>
+		</div>
+				<div class="elementor-column elementor-col-50 elementor-top-column elementor-element elementor-element-dccce26" data-id="dccce26" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-5fbcbb9 elementor-nav-menu__align-center elementor-nav-menu--dropdown-mobile elementor-nav-menu--stretch elementor-nav-menu__text-align-center elementor-nav-menu--toggle elementor-nav-menu--burger elementor-widget elementor-widget-nav-menu" data-id="5fbcbb9" data-element_type="widget" data-settings="{&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;i class=\&quot;\&quot;&gt;&lt;\/i&gt;&quot;,&quot;library&quot;:&quot;&quot;},&quot;full_width&quot;:&quot;stretch&quot;,&quot;layout&quot;:&quot;vertical&quot;,&quot;toggle&quot;:&quot;burger&quot;}" data-widget_type="nav-menu.default">
+				<div class="elementor-widget-container">
+								<nav aria-label="Menu" class="elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-vertical e--pointer-none">
+				<ul id="menu-1-5fbcbb9" class="elementor-nav-menu sm-vertical"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68168"><a href="/pac-join/" class="elementor-item">Join PAC</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68169"><a href="/pac-members/" class="elementor-item">Members</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68170"><a href="/pac-dolphins-cove/" class="elementor-item">Dolphins Cove</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-74462"><a href="https://prairiepinesgolfclub.com/" class="elementor-item">Prairie Pines Golf Club</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68171"><a href="#" class="elementor-item elementor-item-anchor">Programs</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68174"><a href="https://web.prairieathletic.com/pac-programs-adult-all/" class="elementor-sub-item">All Adult</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68199"><a href="https://web.prairieathletic.com/pac-programs-youth-all/" class="elementor-sub-item">All Youth</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68175"><a href="https://web.prairieathletic.com/pac-programs-all/" class="elementor-sub-item">All Programs</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68176"><a href="https://web.prairieathletic.com/pac-programs-aqua-fitness/" class="elementor-sub-item">Aqua Fitness</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68177"><a href="https://web.prairieathletic.com/pac-programs-baseball/" class="elementor-sub-item">Baseball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68178"><a href="https://web.prairieathletic.com/pac-programs-basketball/" class="elementor-sub-item">Basketball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68180"><a href="https://web.prairieathletic.com/pac-programs-crossfit/" class="elementor-sub-item">Crossfit</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70214"><a href="https://web.prairieathletic.com/esp/" class="elementor-sub-item">ESP Elite Sports Performance</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68184"><a href="https://web.prairieathletic.com/pac-programs-group-fitness-classes/" class="elementor-sub-item">Group Fitness Classes</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68185"><a href="https://web.prairieathletic.com/pac-programs-martial-arts/" class="elementor-sub-item">Martial Arts</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68187"><a href="https://web.prairieathletic.com/pac-programs-pac-kids-summer-camps/" class="elementor-sub-item">PAC Kids / Summer Camps</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70376"><a href="https://web.prairieathletic.com/pac-programs-personal-training/" class="elementor-sub-item">Personal Training</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68189"><a href="https://web.prairieathletic.com/pac-programs-pickleball/" class="elementor-sub-item">Pickleball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-74366"><a href="https://web.prairieathletic.com/learning-academy/" class="elementor-sub-item">Preschool: The Learning Academy</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68190"><a href="https://web.prairieathletic.com/pac-programs-racquetball/" class="elementor-sub-item">Racquetball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68191"><a href="https://web.prairieathletic.com/pac-programs-red-cross/" class="elementor-sub-item">Red Cross</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68192"><a href="https://web.prairieathletic.com/pac-programs-soccer/" class="elementor-sub-item">Soccer</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68193"><a href="https://web.prairieathletic.com/pac-programs-sol-yoga/" class="elementor-sub-item">SOL Yoga</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-75682"><a href="https://web.prairieathletic.com/pac-programs-swimming/" class="elementor-sub-item">Swimming</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68195"><a href="https://web.prairieathletic.com/pac-programs-training-zone/" class="elementor-sub-item">Training Zone</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68197"><a href="https://web.prairieathletic.com/pac-programs-volleyball/" class="elementor-sub-item">Volleyball</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68172"><a href="/news/" class="elementor-item">News + Events</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68201"><a href="https://web.prairieathletic.com/pac-newsletter/" class="elementor-sub-item">PAC Newsletter</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68173"><a class="elementor-item">PAC Information</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68215"><a href="https://web.prairieathletic.com/pac-general-information/" class="elementor-sub-item">PAC General Information</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68202"><a href="https://web.prairieathletic.com/fit-rewards/" class="elementor-sub-item">Fit Rewards</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68203"><a href="https://web.prairieathletic.com/pac-employment/" class="elementor-sub-item">PAC Employment</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68204"><a href="https://web.prairieathletic.com/parties-room-rentals/" class="elementor-sub-item">Parties &amp; Room Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68205"><a href="https://web.prairieathletic.com/facility-rentals/" class="elementor-sub-item">Facility Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68206"><a href="https://web.prairieathletic.com/food-beverage/" class="elementor-sub-item">Food &amp; Beverage</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68207"><a href="https://web.prairieathletic.com/pac-schedules-all/" class="elementor-item">PAC Schedules</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68208"><a href="https://www.prairieathletic.com/Member-Login" class="elementor-item">My Account</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68209"><a href="https://www.prairieathletic.com/Shopping-Cart" class="elementor-item">Cart</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68216"><a href="#searchwp-modal-652ea0d21b1427a1bfa685e40d9bc1de" class="elementor-item elementor-item-anchor" data-searchwp-modal-trigger="searchwp-modal-652ea0d21b1427a1bfa685e40d9bc1de">Search</a></li>
+</ul>			</nav>
+					<div class="elementor-menu-toggle" role="button" tabindex="0" aria-label="Menu Toggle" aria-expanded="false">
+			<i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--open eicon-menu-bar"></i><i aria-hidden="true" role="presentation" class="elementor-menu-toggle__icon--close eicon-close"></i>		</div>
+					<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" aria-hidden="true">
+				<ul id="menu-2-5fbcbb9" class="elementor-nav-menu sm-vertical"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68168"><a href="/pac-join/" class="elementor-item" tabindex="-1">Join PAC</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68169"><a href="/pac-members/" class="elementor-item" tabindex="-1">Members</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68170"><a href="/pac-dolphins-cove/" class="elementor-item" tabindex="-1">Dolphins Cove</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-74462"><a href="https://prairiepinesgolfclub.com/" class="elementor-item" tabindex="-1">Prairie Pines Golf Club</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68171"><a href="#" class="elementor-item elementor-item-anchor" tabindex="-1">Programs</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68174"><a href="https://web.prairieathletic.com/pac-programs-adult-all/" class="elementor-sub-item" tabindex="-1">All Adult</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68199"><a href="https://web.prairieathletic.com/pac-programs-youth-all/" class="elementor-sub-item" tabindex="-1">All Youth</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68175"><a href="https://web.prairieathletic.com/pac-programs-all/" class="elementor-sub-item" tabindex="-1">All Programs</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68176"><a href="https://web.prairieathletic.com/pac-programs-aqua-fitness/" class="elementor-sub-item" tabindex="-1">Aqua Fitness</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68177"><a href="https://web.prairieathletic.com/pac-programs-baseball/" class="elementor-sub-item" tabindex="-1">Baseball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68178"><a href="https://web.prairieathletic.com/pac-programs-basketball/" class="elementor-sub-item" tabindex="-1">Basketball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68180"><a href="https://web.prairieathletic.com/pac-programs-crossfit/" class="elementor-sub-item" tabindex="-1">Crossfit</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70214"><a href="https://web.prairieathletic.com/esp/" class="elementor-sub-item" tabindex="-1">ESP Elite Sports Performance</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68184"><a href="https://web.prairieathletic.com/pac-programs-group-fitness-classes/" class="elementor-sub-item" tabindex="-1">Group Fitness Classes</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68185"><a href="https://web.prairieathletic.com/pac-programs-martial-arts/" class="elementor-sub-item" tabindex="-1">Martial Arts</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68187"><a href="https://web.prairieathletic.com/pac-programs-pac-kids-summer-camps/" class="elementor-sub-item" tabindex="-1">PAC Kids / Summer Camps</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70376"><a href="https://web.prairieathletic.com/pac-programs-personal-training/" class="elementor-sub-item" tabindex="-1">Personal Training</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68189"><a href="https://web.prairieathletic.com/pac-programs-pickleball/" class="elementor-sub-item" tabindex="-1">Pickleball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-74366"><a href="https://web.prairieathletic.com/learning-academy/" class="elementor-sub-item" tabindex="-1">Preschool: The Learning Academy</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68190"><a href="https://web.prairieathletic.com/pac-programs-racquetball/" class="elementor-sub-item" tabindex="-1">Racquetball</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68191"><a href="https://web.prairieathletic.com/pac-programs-red-cross/" class="elementor-sub-item" tabindex="-1">Red Cross</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68192"><a href="https://web.prairieathletic.com/pac-programs-soccer/" class="elementor-sub-item" tabindex="-1">Soccer</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68193"><a href="https://web.prairieathletic.com/pac-programs-sol-yoga/" class="elementor-sub-item" tabindex="-1">SOL Yoga</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-75682"><a href="https://web.prairieathletic.com/pac-programs-swimming/" class="elementor-sub-item" tabindex="-1">Swimming</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68195"><a href="https://web.prairieathletic.com/pac-programs-training-zone/" class="elementor-sub-item" tabindex="-1">Training Zone</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68197"><a href="https://web.prairieathletic.com/pac-programs-volleyball/" class="elementor-sub-item" tabindex="-1">Volleyball</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68172"><a href="/news/" class="elementor-item" tabindex="-1">News + Events</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68201"><a href="https://web.prairieathletic.com/pac-newsletter/" class="elementor-sub-item" tabindex="-1">PAC Newsletter</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-68173"><a class="elementor-item" tabindex="-1">PAC Information</a>
+<ul class="sub-menu elementor-nav-menu--dropdown">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68215"><a href="https://web.prairieathletic.com/pac-general-information/" class="elementor-sub-item" tabindex="-1">PAC General Information</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68202"><a href="https://web.prairieathletic.com/fit-rewards/" class="elementor-sub-item" tabindex="-1">Fit Rewards</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68203"><a href="https://web.prairieathletic.com/pac-employment/" class="elementor-sub-item" tabindex="-1">PAC Employment</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68204"><a href="https://web.prairieathletic.com/parties-room-rentals/" class="elementor-sub-item" tabindex="-1">Parties &amp; Room Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68205"><a href="https://web.prairieathletic.com/facility-rentals/" class="elementor-sub-item" tabindex="-1">Facility Rentals</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68206"><a href="https://web.prairieathletic.com/food-beverage/" class="elementor-sub-item" tabindex="-1">Food &amp; Beverage</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-68207"><a href="https://web.prairieathletic.com/pac-schedules-all/" class="elementor-item" tabindex="-1">PAC Schedules</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68208"><a href="https://www.prairieathletic.com/Member-Login" class="elementor-item" tabindex="-1">My Account</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68209"><a href="https://www.prairieathletic.com/Shopping-Cart" class="elementor-item" tabindex="-1">Cart</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68216"><a href="#searchwp-modal-652ea0d21b1427a1bfa685e40d9bc1de" class="elementor-item elementor-item-anchor" tabindex="-1" data-searchwp-modal-trigger="searchwp-modal-652ea0d21b1427a1bfa685e40d9bc1de">Search</a></li>
+</ul>			</nav>
+						</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section  class="elementor-section elementor-top-section elementor-element elementor-element-cde5ac7 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="cde5ac7" data-element_type="section">
+						<div  class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-18d8178" data-id="18d8178" data-element_type="column">
+			<div class="elementor-widget-wrap">
+							</div>
+		</div>
+					</div>
+		</section>
+				</div>
+		
+<section id="content" class="site-content" >
+	<div  class="container">
+		<div  class="row">
+
+		<div id="mainbody" class="col-md-12"  role="main" itemprop="mainContentOfPage" >
+			<div class="row hg-portfolio-item portfolio-item--light" itemscope="itemscope" itemtype="https://schema.org/CreativeWork" >
+
+	<div class="col-sm-12 col-md-5">
+		<div class="portfolio-item-content affixcontent" >
+			<h1 class="page-title portfolio-item-title" itemprop="headline" >Soccer Field Rental</h1>
+						<div class="portfolio-item-desc">
+
+				
+				<div class="portfolio-item-desc-inner " data-collapse-at="150">
+					<div>Our soccer field is approximately 70 feet wide and 165 feet long. We also have a drop down curtain that divides the field in half. We do rent half the field. Long term rentals are also available.</div>
+<h3>Full Soccer Field 1 Hour Rental</h3>
+<p><strong>All Rates Are Per Hour:</strong></p>
+<ul>
+<li>$200 / hour</li>
+</ul>
+<div>
+<h3 class="BlueTitle"><span id="dnn_ctr3713_dnnTITLE_titleLabel" class="Head">Half Soccer Field Rental</span></h3>
+<p><strong>All Rates Are Per Hour:</strong></p>
+<ul>
+<li>$105 / hour</li>
+</ul>
+</div>
+<div>Reservations or to inquire more please click button below. Rentals requested without 7 days notice may not be honored.</div>
+				</div>
+							</div>
+			
+			<ul class="portfolio-item-details clearfix"></ul><div class="portfolio-item-otherdetails clearfix">
+			<div class="portfolio-item-share clearfix">
+			<div class="zn-shareIcons" data-share-title="SHARE:"><a href="#" onclick="javascript:window.open('https://twitter.com/intent/tweet?url=https%3A%2F%2Fweb.prairieathletic.com%2Fregister%2Fsoccer-field-rental%2F%3Futm_source%3Dsharetw&text=Check out this awesome project: Soccer Field Rental','SHARE','width=600,height=400'); return false;" title="SHARE ON TWITTER" class="zn-shareIcons-item zn-shareIcons-item--twitter"><span data-zniconfam="kl-social-icons" data-zn_icon=""></span></a><a href="#" onclick="javascript:window.open('https://www.facebook.com/sharer/sharer.php?display=popup&u=https%3A%2F%2Fweb.prairieathletic.com%2Fregister%2Fsoccer-field-rental%2F%3Futm_source%3Dsharefb','SHARE','width=600,height=400'); return false;" title="SHARE ON FACEBOOK" class="zn-shareIcons-item zn-shareIcons-item--facebook"><span data-zniconfam="kl-social-icons" data-zn_icon=""></span></a><a href="#" onclick="javascript:window.open('https://plus.google.com/share?url=https%3A%2F%2Fweb.prairieathletic.com%2Fregister%2Fsoccer-field-rental%2F%3Futm_source%3Dsharegp','SHARE','width=600,height=400'); return false;" title="SHARE ON GPLUS" class="zn-shareIcons-item zn-shareIcons-item--gplus"><span data-zniconfam="kl-social-icons" data-zn_icon=""></span></a><a href="#" onclick="javascript:window.open('http://pinterest.com/pin/create/button?url=https%3A%2F%2Fweb.prairieathletic.com%2Fregister%2Fsoccer-field-rental%2F%3Futm_source%3Dsharepi&description=Check out this awesome project: Soccer Field Rental&media=https%3A%2F%2Fweb.prairieathletic.com%2Fwp-content%2Fuploads%2F2019%2F02%2FPrairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field.jpg','SHARE','width=600,height=400'); return false;" title="SHARE ON PINTEREST" class="zn-shareIcons-item zn-shareIcons-item--pinterest"><span data-zniconfam="kl-social-icons" data-zn_icon=""></span></a><a href="/cdn-cgi/l/email-protection#251a5650474f40465118664d40464e054a505105514d4c5605445240564a48400555574a4f4046511f05764a4646405705634c4049410577404b51444903474a415c187c4a500546444b05564040054c5105494c5340054d405740054d515155561f0a0a5240470b5557444c574c4044514d4940514c460b464a480a5740424c565140570a564a4646405708434c4049410857404b5144490a1a5051487a564a5057464018564d44574048444c490b052f2f056844414005475c057557444c574c400564514d4940514c460566495047054d515155561f0a0a5240470b5557444c574c4044514d4940514c460b464a48050b" title="SHARE ON MAIL" class="zn-shareIcons-item zn-shareIcons-item--mail"><span data-zniconfam="kl-social-icons" data-zn_icon=""></span></a></div>		</div><!-- social links -->
+		
+		<div class="portfolio-item-livelink">
+			<a href="https://web.prairieathletic.com/register/pac-facility-rental-form/"  class="btn btn-lined lined-custom" title="CLICK HERE TO RESERVE" target="_self"  itemprop="url" >
+				<span class="visible-sm visible-xs visible-lg">CLICK HERE TO RESERVE</span>
+				<span class="visible-md">PREVIEW</span>
+			</a>
+		</div>
+</div><!-- /.portfolio-item-otherdetails -->
+
+		</div><!-- /.portfolio-item-content -->
+	</div>
+
+	<div class="col-sm-12 col-md-7">
+		<div class="img-full portfolio-item-right mfp-gallery mfp-gallery--misc">
+			<a href="https://web.prairieathletic.com/wp-content/uploads/2019/02/Prairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field.jpg" data-lightbox="mfp" data-mfp="image" class="hoverBorder"><img width="600" height="337" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20600%20337'%3E%3C/svg%3E" alt="Prairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field"  title="Prairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field" class="img-responsive" data-lazy-src="https://web.prairieathletic.com/wp-content/uploads/2019/02/Prairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field-600x337_c.jpg" /><noscript><img width="600" height="337" src="https://web.prairieathletic.com/wp-content/uploads/2019/02/Prairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field-600x337_c.jpg" alt="Prairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field"  title="Prairie-Athletic-Club-Facility-Rentals-Indoor-Soccer-Field" class="img-responsive" /></noscript></a>
+		</div>
+	</div>
+	<!-- right side -->
+
+	<div class="clearfix"></div>
+
+
+
+</div><!-- end Portfolio page -->
+
+		</div>
+		
+		</div><!--// End .row -->
+	</div><!--// End .container -->
+</section><!--// #content -->
+		<div data-elementor-type="footer" data-elementor-id="68217" class="elementor elementor-68217 elementor-location-footer" data-elementor-post-type="elementor_library">
+					<section class="elementor-section elementor-top-section elementor-element elementor-element-164aae2 elementor-section-full_width elementor-section-height-default elementor-section-height-default" data-id="164aae2" data-element_type="section">
+							<div class="elementor-background-overlay"></div>
+							<div class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-bda3975" data-id="bda3975" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-03684b5 elementor-widget__width-initial elementor-widget-tablet__width-initial elementor-widget elementor-widget-image" data-id="03684b5" data-element_type="widget" data-widget_type="image.default">
+				<div class="elementor-widget-container">
+																<a href="https://web.prairieathletic.com/">
+							<img width="612" height="792" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20612%20792'%3E%3C/svg%3E" class="attachment-full size-full wp-image-68234" alt="PAC Footer Logo White" data-lazy-src="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC_logo_White.svg" /><noscript><img width="612" height="792" src="https://web.prairieathletic.com/wp-content/uploads/2022/10/PAC_logo_White.svg" class="attachment-full size-full wp-image-68234" alt="PAC Footer Logo White" /></noscript>								</a>
+															</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section class="elementor-section elementor-top-section elementor-element elementor-element-909d55b elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="909d55b" data-element_type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+						<div class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-be3e694" data-id="be3e694" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-6f46348 elementor-widget elementor-widget-text-editor" data-id="6f46348" data-element_type="widget" data-widget_type="text-editor.default">
+				<div class="elementor-widget-container">
+									<div style="text-align: center; color: white;">1010 N. BIRD ST. SUN PRAIRIE, WI 53590 | 608-837-4646</div>								</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section class="elementor-section elementor-top-section elementor-element elementor-element-4def7e7 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="4def7e7" data-element_type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+						<div class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-ac64a3c" data-id="ac64a3c" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-a507ea6 elementor-shape-rounded elementor-grid-0 e-grid-align-center elementor-widget elementor-widget-social-icons" data-id="a507ea6" data-element_type="widget" data-widget_type="social-icons.default">
+				<div class="elementor-widget-container">
+							<div class="elementor-social-icons-wrapper elementor-grid" role="list">
+							<span class="elementor-grid-item" role="listitem">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-facebook elementor-repeater-item-e8cd0f2" href="https://www.facebook.com/prairieathleticclub/" target="_blank">
+						<span class="elementor-screen-only">Facebook</span>
+						<i class="fab fa-facebook"></i>					</a>
+				</span>
+							<span class="elementor-grid-item" role="listitem">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-instagram elementor-repeater-item-bfb4f58" href="https://www.instagram.com/prairieathletic/" target="_blank">
+						<span class="elementor-screen-only">Instagram</span>
+						<i class="fab fa-instagram"></i>					</a>
+				</span>
+							<span class="elementor-grid-item" role="listitem">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-google-plus elementor-repeater-item-8279e74" href="https://www.google.com/maps/place/Prairie+Athletic+Club/@43.194386,-89.224265,15z/data=!4m5!3m4!1s0x0:0x80552486d9d22b56!8m2!3d43.194386!4d-89.224265" target="_blank">
+						<span class="elementor-screen-only">Google-plus</span>
+						<i class="fab fa-google-plus"></i>					</a>
+				</span>
+							<span class="elementor-grid-item" role="listitem">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-linkedin elementor-repeater-item-86847bf" href="https://www.linkedin.com/authwall?trk=gf&#038;trkInfo=AQEIDPqHZZUSuwAAAYOlIH-Qc9ecUWd3-SZYYQm8pYKDrf8puvhPd5QIYdIs4E1btP1FZ4JVzhLgqfVGMENGD_oU789pl3Y62wPBhGeyIuoV26Z4SOir43L02DVmwokg57r-0WA=&#038;original_referer=https://web.prairieathletic.com/&#038;sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fsun-prairie-athletic-club" target="_blank">
+						<span class="elementor-screen-only">Linkedin</span>
+						<i class="fab fa-linkedin"></i>					</a>
+				</span>
+							<span class="elementor-grid-item" role="listitem">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-twitter elementor-repeater-item-48fc2c0" href="https://twitter.com/PrairieAthletic" target="_blank">
+						<span class="elementor-screen-only">Twitter</span>
+						<i class="fab fa-twitter"></i>					</a>
+				</span>
+					</div>
+						</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section class="elementor-section elementor-top-section elementor-element elementor-element-0a83fb8 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="0a83fb8" data-element_type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+						<div class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-4704173" data-id="4704173" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-f7c7df7 elementor-nav-menu__align-center elementor-nav-menu--dropdown-none elementor-widget elementor-widget-nav-menu" data-id="f7c7df7" data-element_type="widget" data-settings="{&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;i class=\&quot;\&quot;&gt;&lt;\/i&gt;&quot;,&quot;library&quot;:&quot;&quot;},&quot;layout&quot;:&quot;horizontal&quot;}" data-widget_type="nav-menu.default">
+				<div class="elementor-widget-container">
+								<nav aria-label="Menu" class="elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-horizontal e--pointer-none">
+				<ul id="menu-1-f7c7df7" class="elementor-nav-menu"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68240"><a href="https://www.prairieathletic.com/My-Rewards" class="elementor-item">MY REWARDS</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68664"><a href="/register/contact-us/" class="elementor-item">CONTACT US</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68226"><a href="https://clients.mindbodyonline.com/ASP/su1.asp?studioid=25730&#038;tg=&#038;vt=&#038;lvl=&#038;stype=-98&#038;view=&#038;trn=0&#038;page=&#038;catid=&#038;prodid=&#038;date=10%2f4%2f2022&#038;classid=0&#038;prodGroupId=&#038;sSU=&#038;optForwardingLink=&#038;qParam=&#038;justloggedin=&#038;nLgIn=&#038;pMode=0&#038;loc=1" class="elementor-item">MINDBODY</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68228"><a href="/register/privacy-policy/" class="elementor-item">PRIVACY POLICY</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68229"><a href="/register/pac-terms-of-use/" class="elementor-item">TERMS OF USE</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68230"><a href="http://www.prairieathletic.com/Staff-Menu" class="elementor-item">STAFF MENU</a></li>
+</ul>			</nav>
+						<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" aria-hidden="true">
+				<ul id="menu-2-f7c7df7" class="elementor-nav-menu"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68240"><a href="https://www.prairieathletic.com/My-Rewards" class="elementor-item" tabindex="-1">MY REWARDS</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68664"><a href="/register/contact-us/" class="elementor-item" tabindex="-1">CONTACT US</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68226"><a href="https://clients.mindbodyonline.com/ASP/su1.asp?studioid=25730&#038;tg=&#038;vt=&#038;lvl=&#038;stype=-98&#038;view=&#038;trn=0&#038;page=&#038;catid=&#038;prodid=&#038;date=10%2f4%2f2022&#038;classid=0&#038;prodGroupId=&#038;sSU=&#038;optForwardingLink=&#038;qParam=&#038;justloggedin=&#038;nLgIn=&#038;pMode=0&#038;loc=1" class="elementor-item" tabindex="-1">MINDBODY</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68228"><a href="/register/privacy-policy/" class="elementor-item" tabindex="-1">PRIVACY POLICY</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68229"><a href="/register/pac-terms-of-use/" class="elementor-item" tabindex="-1">TERMS OF USE</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-68230"><a href="http://www.prairieathletic.com/Staff-Menu" class="elementor-item" tabindex="-1">STAFF MENU</a></li>
+</ul>			</nav>
+						</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section class="elementor-section elementor-top-section elementor-element elementor-element-9f1ca64 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="9f1ca64" data-element_type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+						<div class="elementor-container elementor-column-gap-default">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-ade0423" data-id="ade0423" data-element_type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-d9db32d elementor-widget elementor-widget-text-editor" data-id="d9db32d" data-element_type="widget" data-widget_type="text-editor.default">
+				<div class="elementor-widget-container">
+									© 2025 All Rights Reserved Prairie Athletic Club Built and maintained by KWSM: a digital marketing agency								</div>
+				</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				</div>
+		
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="rocketlazyloadscript">				
+                    document.addEventListener('DOMContentLoaded', function () {
+                        setTimeout(function(){
+                            if( document.querySelectorAll('[name^=ct_checkjs]').length > 0 ) {
+                                if (typeof apbct_public_sendREST === 'function' && typeof apbct_js_keys__set_input_value === 'function') {
+                                    apbct_public_sendREST(
+                                    'js_keys__get',
+                                    { callback: apbct_js_keys__set_input_value })
+                                }
+                            }
+                        },0)					    
+                    })				
+                </script><script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"\/*"},{"not":{"href_matches":["\/wp-*.php","\/wp-admin\/*","\/wp-content\/uploads\/*","\/wp-content\/*","\/wp-content\/plugins\/*","\/wp-content\/themes\/kallyas\/*","\/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <div  class="searchwp-modal-form" id="searchwp-modal-652ea0d21b1427a1bfa685e40d9bc1de" aria-hidden="true">
+			
+<div  class="searchwp-modal-form-default">
+	<div  class="searchwp-modal-form__overlay" tabindex="-1" data-searchwp-modal-form-close>
+		<div class="searchwp-modal-form__container" role="dialog" aria-modal="true">
+			<div class="searchwp-modal-form__content">
+				
+<form id="searchform" class="gensearch__form" action="https://web.prairieathletic.com/" method="get">
+	<input id="s" name="s" value="" class="inputbox gensearch__input" type="text" placeholder="SEARCH ..." />
+	<button type="submit" id="searchsubmit" value="go" class="gensearch__submit glyphicon glyphicon-search"></button>
+	<label id="apbct_label_id_50808" class="apbct_special_field"><input
+                    class="apbct_special_field apbct__email_id__search_form"
+                    name="apbct_email_id__search_form"
+                    type="text" size="30" maxlength="200" autocomplete="off"
+                    value=""
+                /></label><input
+                   id="apbct_submit_id__search_form" 
+                   class="apbct_special_field apbct__email_id__search_form"
+                   name="apbct_submit_id__search_form"  
+                   type="submit"
+                   size="30"
+                   maxlength="200"
+                   value="19808"
+               /><input type="hidden" name="swpmfe" value="652ea0d21b1427a1bfa685e40d9bc1de" /></form>			</div>
+			<footer class="searchwp-modal-form__footer">
+				<button class="searchwp-modal-form__close button" aria-label="Close" data-searchwp-modal-form-close></button>
+			</footer>
+		</div>
+	</div>
+</div>
+
+
+<style>
+    .searchwp-modal-form {
+        display: none;
+    }
+
+    .searchwp-modal-form.is-open {
+        display: block;
+    }
+
+    
+	/* ************************************
+	 *
+	 * 1) Overlay and container positioning
+	 *
+	 ************************************ */
+	.searchwp-modal-form-default .searchwp-modal-form__overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 9999990;
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__container {
+		width: 100%;
+		max-width: 500px;
+		max-height: 100vh;
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__content {
+		overflow-y: auto;
+		box-sizing: border-box;
+		position: relative;
+		z-index: 9999998;
+	}
+
+    .searchwp-modal-form-default .searchwp-modal-form__close {
+        display: block;
+    }
+
+    .searchwp-modal-form-default .searchwp-modal-form__close:before {
+        content: "\00d7";
+    }
+
+    
+
+    
+	/* **************************************
+	 *
+	 * 2) WordPress search form customization
+	 *
+	 ************************************** */
+
+    .searchwp-modal-form-default .searchwp-modal-form__overlay {
+        background: rgba(45, 45, 45 ,0.6);
+    }
+
+    .searchwp-modal-form-default .searchwp-modal-form__content {
+        background-color: #fff;
+        padding: 2em;
+        border-radius: 2px;
+    }
+
+	.searchwp-modal-form-default .searchwp-modal-form__content .search-form {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__content .search-form label {
+		flex: 1;
+		padding-right: 0.75em; /* This may cause issues depending on your theme styles. */
+
+		/* Some common resets */
+		float: none;
+		margin: 0;
+		width: auto;
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__content .search-form label input {
+		display: block;
+		width: 100%;
+		margin-left: 0.75em;
+
+		/* Some common resets */
+		float: none;
+		margin: 0;
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__footer {
+		padding-top: 1em;
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__close {
+        line-height: 1em;
+		background: transparent;
+		padding: 0.4em 0.5em;
+        border: 0;
+        margin: 0 auto;
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__close:before {
+		font-size: 2em;
+	}
+
+	/* ******************************************
+	 *
+	 * 3) Animation and display interaction setup
+	 *
+	 ***************************************** */
+	@keyframes searchwpModalFadeIn {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	@keyframes searchwpModalFadeOut {
+		from { opacity: 1; }
+		to { opacity: 0; }
+	}
+
+	@keyframes searchwpModalSlideIn {
+		from { transform: translateY(15%); }
+		to { transform: translateY(0); }
+	}
+
+	@keyframes searchwpModalSlideOut {
+		from { transform: translateY(0); }
+		to { transform: translateY(-10%); }
+	}
+
+	.searchwp-modal-form[aria-hidden="false"] .searchwp-modal-form-default .searchwp-modal-form__overlay {
+		animation: searchwpModalFadeIn .3s cubic-bezier(0.0, 0.0, 0.2, 1);
+	}
+
+	.searchwp-modal-form[aria-hidden="false"] .searchwp-modal-form-default .searchwp-modal-form__container {
+		animation: searchwpModalSlideIn .3s cubic-bezier(0, 0, .2, 1);
+	}
+
+	.searchwp-modal-form[aria-hidden="true"] .searchwp-modal-form-default .searchwp-modal-form__overlay {
+		animation: searchwpModalFadeOut .3s cubic-bezier(0.0, 0.0, 0.2, 1);
+	}
+
+	.searchwp-modal-form[aria-hidden="true"] .searchwp-modal-form-default .searchwp-modal-form__container {
+		animation: searchwpModalSlideOut .3s cubic-bezier(0, 0, .2, 1);
+	}
+
+	.searchwp-modal-form-default .searchwp-modal-form__container,
+	.searchwp-modal-form-default .searchwp-modal-form__overlay {
+		will-change: transform;
+	}
+    </style>
+        </div>
+		<div  class="wpc-filters-overlay"></div>
+<script type="text/javascript" id="rocket-browser-checker-js-after">
+/* <![CDATA[ */
+"use strict";var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||!1,descriptor.configurable=!0,"value"in descriptor&&(descriptor.writable=!0),Object.defineProperty(target,descriptor.key,descriptor)}}return function(Constructor,protoProps,staticProps){return protoProps&&defineProperties(Constructor.prototype,protoProps),staticProps&&defineProperties(Constructor,staticProps),Constructor}}();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}var RocketBrowserCompatibilityChecker=function(){function RocketBrowserCompatibilityChecker(options){_classCallCheck(this,RocketBrowserCompatibilityChecker),this.passiveSupported=!1,this._checkPassiveOption(this),this.options=!!this.passiveSupported&&options}return _createClass(RocketBrowserCompatibilityChecker,[{key:"_checkPassiveOption",value:function(self){try{var options={get passive(){return!(self.passiveSupported=!0)}};window.addEventListener("test",null,options),window.removeEventListener("test",null,options)}catch(err){self.passiveSupported=!1}}},{key:"initRequestIdleCallback",value:function(){!1 in window&&(window.requestIdleCallback=function(cb){var start=Date.now();return setTimeout(function(){cb({didTimeout:!1,timeRemaining:function(){return Math.max(0,50-(Date.now()-start))}})},1)}),!1 in window&&(window.cancelIdleCallback=function(id){return clearTimeout(id)})}},{key:"isDataSaverModeOn",value:function(){return"connection"in navigator&&!0===navigator.connection.saveData}},{key:"supportsLinkPrefetch",value:function(){var elem=document.createElement("link");return elem.relList&&elem.relList.supports&&elem.relList.supports("prefetch")&&window.IntersectionObserver&&"isIntersecting"in IntersectionObserverEntry.prototype}},{key:"isSlowConnection",value:function(){return"connection"in navigator&&"effectiveType"in navigator.connection&&("2g"===navigator.connection.effectiveType||"slow-2g"===navigator.connection.effectiveType)}}]),RocketBrowserCompatibilityChecker}();
+/* ]]> */
+</script>
+<script type="text/javascript" id="rocket-preload-links-js-extra">
+/* <![CDATA[ */
+var RocketPreloadLinksConfig = {"excludeUris":"\/register\/pac-employment-application\/|\/pac-teen-tag-exam\/|\/register\/contact-us\/|\/register\/esp-baseball-survey\/|\/register\/pt-consultation-form\/|\/register\/trainerize-profile-request\/|\/register\/basketball-court-rental-agreement\/|\/register\/pac-facility-rental-form\/|\/register\/soccer-field-agreement\/|\/online-personal-training\/|\/register\/prairie-pines-event-booking-request\/|\/register\/personal-training-contact\/|\/(?:.+\/)?feed(?:\/(?:.+\/?)?)?$|\/(?:.+\/)?embed\/|\/(index.php\/)?(.*)wp-json(\/.*|$)|\/refer\/|\/go\/|\/recommend\/|\/recommends\/","usesTrailingSlash":"1","imageExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php","fileExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php|html|htm","siteUrl":"https:\/\/web.prairieathletic.com","onHoverDelay":"100","rateThrottle":"3"};
+/* ]]> */
+</script>
+<script type="text/javascript" id="rocket-preload-links-js-after">
+/* <![CDATA[ */
+(function() {
+"use strict";var r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},e=function(){function i(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,n){return t&&i(e.prototype,t),n&&i(e,n),e}}();function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var t=function(){function n(e,t){i(this,n),this.browser=e,this.config=t,this.options=this.browser.options,this.prefetched=new Set,this.eventTime=null,this.threshold=1111,this.numOnHover=0}return e(n,[{key:"init",value:function(){!this.browser.supportsLinkPrefetch()||this.browser.isDataSaverModeOn()||this.browser.isSlowConnection()||(this.regex={excludeUris:RegExp(this.config.excludeUris,"i"),images:RegExp(".("+this.config.imageExt+")$","i"),fileExt:RegExp(".("+this.config.fileExt+")$","i")},this._initListeners(this))}},{key:"_initListeners",value:function(e){-1<this.config.onHoverDelay&&document.addEventListener("mouseover",e.listener.bind(e),e.listenerOptions),document.addEventListener("mousedown",e.listener.bind(e),e.listenerOptions),document.addEventListener("touchstart",e.listener.bind(e),e.listenerOptions)}},{key:"listener",value:function(e){var t=e.target.closest("a"),n=this._prepareUrl(t);if(null!==n)switch(e.type){case"mousedown":case"touchstart":this._addPrefetchLink(n);break;case"mouseover":this._earlyPrefetch(t,n,"mouseout")}}},{key:"_earlyPrefetch",value:function(t,e,n){var i=this,r=setTimeout(function(){if(r=null,0===i.numOnHover)setTimeout(function(){return i.numOnHover=0},1e3);else if(i.numOnHover>i.config.rateThrottle)return;i.numOnHover++,i._addPrefetchLink(e)},this.config.onHoverDelay);t.addEventListener(n,function e(){t.removeEventListener(n,e,{passive:!0}),null!==r&&(clearTimeout(r),r=null)},{passive:!0})}},{key:"_addPrefetchLink",value:function(i){return this.prefetched.add(i.href),new Promise(function(e,t){var n=document.createElement("link");n.rel="prefetch",n.href=i.href,n.onload=e,n.onerror=t,document.head.appendChild(n)}).catch(function(){})}},{key:"_prepareUrl",value:function(e){if(null===e||"object"!==(void 0===e?"undefined":r(e))||!1 in e||-1===["http:","https:"].indexOf(e.protocol))return null;var t=e.href.substring(0,this.config.siteUrl.length),n=this._getPathname(e.href,t),i={original:e.href,protocol:e.protocol,origin:t,pathname:n,href:t+n};return this._isLinkOk(i)?i:null}},{key:"_getPathname",value:function(e,t){var n=t?e.substring(this.config.siteUrl.length):e;return n.startsWith("/")||(n="/"+n),this._shouldAddTrailingSlash(n)?n+"/":n}},{key:"_shouldAddTrailingSlash",value:function(e){return this.config.usesTrailingSlash&&!e.endsWith("/")&&!this.regex.fileExt.test(e)}},{key:"_isLinkOk",value:function(e){return null!==e&&"object"===(void 0===e?"undefined":r(e))&&(!this.prefetched.has(e.href)&&e.origin===this.config.siteUrl&&-1===e.href.indexOf("?")&&-1===e.href.indexOf("#")&&!this.regex.excludeUris.test(e.href)&&!this.regex.images.test(e.href))}}],[{key:"run",value:function(){"undefined"!=typeof RocketPreloadLinksConfig&&new n(new RocketBrowserCompatibilityChecker({capture:!0,passive:!0}),RocketPreloadLinksConfig).init()}}]),n}();t.run();
+}());
+/* ]]> */
+</script>
+<script type="text/javascript" id="rocket_lazyload_css-js-extra">
+/* <![CDATA[ */
+var rocket_lazyload_css_data = {"threshold":"300"};
+/* ]]> */
+</script>
+<script type="text/javascript" id="rocket_lazyload_css-js-after">
+/* <![CDATA[ */
+!function o(n,c,a){function u(t,e){if(!c[t]){if(!n[t]){var r="function"==typeof require&&require;if(!e&&r)return r(t,!0);if(s)return s(t,!0);throw(e=new Error("Cannot find module '"+t+"'")).code="MODULE_NOT_FOUND",e}r=c[t]={exports:{}},n[t][0].call(r.exports,function(e){return u(n[t][1][e]||e)},r,r.exports,o,n,c,a)}return c[t].exports}for(var s="function"==typeof require&&require,e=0;e<a.length;e++)u(a[e]);return u}({1:[function(e,t,r){"use strict";{const c="undefined"==typeof rocket_pairs?[]:rocket_pairs,a=(("undefined"==typeof rocket_excluded_pairs?[]:rocket_excluded_pairs).map(t=>{var e=t.selector;document.querySelectorAll(e).forEach(e=>{e.setAttribute("data-rocket-lazy-bg-"+t.hash,"excluded")})}),document.querySelector("#wpr-lazyload-bg-container"));var o=rocket_lazyload_css_data.threshold||300;const u=new IntersectionObserver(e=>{e.forEach(t=>{t.isIntersecting&&c.filter(e=>t.target.matches(e.selector)).map(t=>{var e;t&&((e=document.createElement("style")).textContent=t.style,a.insertAdjacentElement("afterend",e),t.elements.forEach(e=>{u.unobserve(e),e.setAttribute("data-rocket-lazy-bg-"+t.hash,"loaded")}))})})},{rootMargin:o+"px"});function n(){0<(0<arguments.length&&void 0!==arguments[0]?arguments[0]:[]).length&&c.forEach(t=>{try{document.querySelectorAll(t.selector).forEach(e=>{"loaded"!==e.getAttribute("data-rocket-lazy-bg-"+t.hash)&&"excluded"!==e.getAttribute("data-rocket-lazy-bg-"+t.hash)&&(u.observe(e),(t.elements||=[]).push(e))})}catch(e){console.error(e)}})}n(),function(){const r=window.MutationObserver;return function(e,t){if(e&&1===e.nodeType)return(t=new r(t)).observe(e,{attributes:!0,childList:!0,subtree:!0}),t}}()(document.querySelector("body"),n)}},{}]},{},[1]);
+/* ]]> */
+</script>
+<script type="text/javascript" id="hg-mailchimp-js-js-extra">
+/* <![CDATA[ */
+var hgMailchimpConfig = {"ajaxurl":"\/wp-admin\/admin-ajax.php","l10n":{"error":"Error:"}};
+/* ]]> */
+</script>
+<script data-minify="1" type="text/javascript" src="https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/themes/kallyas/framework/hogash-mailchimp/assets/js/hg-mailchimp.js?ver=1746827891" id="hg-mailchimp-js-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/themes/kallyas/js/plugins.min.js?ver=4.21.0" id="kallyas_vendors-js" data-rocket-defer defer></script>
+<script data-minify="1" type="text/javascript" src="https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/themes/kallyas/addons/scrollmagic/scrollmagic.js?ver=1746827891" id="scrollmagic-js" data-rocket-defer defer></script>
+<script type="text/javascript" id="zn-script-js-extra">
+/* <![CDATA[ */
+var zn_do_login = {"ajaxurl":"\/wp-admin\/admin-ajax.php","add_to_cart_text":"Item Added to cart!"};
+var ZnThemeAjax = {"ajaxurl":"\/wp-admin\/admin-ajax.php","zn_back_text":"Back","zn_color_theme":"light","res_menu_trigger":"2561","top_offset_tolerance":"","logout_url":"https:\/\/web.prairieathletic.com\/wppac\/?action=logout&redirect_to=https%3A%2F%2Fweb.prairieathletic.com&_wpnonce=7e76f7bb58"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/themes/kallyas/js/znscript.min.js?ver=4.21.0" id="zn-script-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/elementor-pro/assets/lib/smartmenus/jquery.smartmenus.min.js?ver=1.2.1" id="smartmenus-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/themes/kallyas/addons/slick/slick.min.js?ver=4.21.0" id="slick-js" data-rocket-defer defer></script>
+<script type="text/javascript" id="zion-frontend-js-js-extra">
+/* <![CDATA[ */
+var ZionBuilderFrontend = {"allow_video_on_mobile":""};
+/* ]]> */
+</script>
+<script data-minify="1" type="text/javascript" src="https://web.prairieathletic.com/wp-content/cache/min/1/wp-content/themes/kallyas/framework/zion-builder/dist/znpb_frontend.js?ver=1746827891" id="zion-frontend-js-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/elementor/assets/js/webpack.runtime.min.js?ver=3.29.0" id="elementor-webpack-runtime-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/elementor/assets/js/frontend-modules.min.js?ver=3.29.0" id="elementor-frontend-modules-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-includes/js/jquery/ui/core.min.js?ver=1.13.3" id="jquery-ui-core-js" data-rocket-defer defer></script>
+<script type="text/javascript" id="elementor-frontend-js-before">
+/* <![CDATA[ */
+var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false,"isScriptDebug":false},"i18n":{"shareOnFacebook":"Share on Facebook","shareOnTwitter":"Share on Twitter","pinIt":"Pin it","download":"Download","downloadImage":"Download image","fullscreen":"Fullscreen","zoom":"Zoom","share":"Share","playVideo":"Play Video","previous":"Previous","next":"Next","close":"Close","a11yCarouselPrevSlideMessage":"Previous slide","a11yCarouselNextSlideMessage":"Next slide","a11yCarouselFirstSlideMessage":"This is the first slide","a11yCarouselLastSlideMessage":"This is the last slide","a11yCarouselPaginationBulletMessage":"Go to slide"},"is_rtl":false,"breakpoints":{"xs":0,"sm":480,"md":781,"lg":1331,"xl":1440,"xxl":1600},"responsive":{"breakpoints":{"mobile":{"label":"Mobile Portrait","value":780,"default_value":767,"direction":"max","is_enabled":true},"mobile_extra":{"label":"Mobile Landscape","value":880,"default_value":880,"direction":"max","is_enabled":false},"tablet":{"label":"Tablet Portrait","value":1330,"default_value":1024,"direction":"max","is_enabled":true},"tablet_extra":{"label":"Tablet Landscape","value":1200,"default_value":1200,"direction":"max","is_enabled":false},"laptop":{"label":"Laptop","value":1366,"default_value":1366,"direction":"max","is_enabled":false},"widescreen":{"label":"Widescreen","value":2400,"default_value":2400,"direction":"min","is_enabled":false}},"hasCustomBreakpoints":true},"version":"3.29.0","is_static":false,"experimentalFeatures":{"additional_custom_breakpoints":true,"e_local_google_fonts":true,"theme_builder_v2":true,"editor_v2":true,"home_screen":true,"cloud-library":true,"e_opt_in_v4_page":true},"urls":{"assets":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/elementor\/assets\/","ajaxurl":"https:\/\/web.prairieathletic.com\/wp-admin\/admin-ajax.php","uploadUrl":"https:\/\/web.prairieathletic.com\/wp-content\/uploads"},"nonces":{"floatingButtonsClickTracking":"974aa3e674"},"swiperClass":"swiper","settings":{"page":[],"editorPreferences":[]},"kit":{"viewport_tablet":1330,"viewport_mobile":780,"active_breakpoints":["viewport_mobile","viewport_tablet"],"global_image_lightbox":"yes","lightbox_enable_counter":"yes","lightbox_enable_fullscreen":"yes","lightbox_enable_zoom":"yes","lightbox_enable_share":"yes","lightbox_title_src":"title","lightbox_description_src":"description"},"post":{"id":32369,"title":"Soccer%20Field%20Rental%20%7C%20Prairie%20Athletic%20Club","excerpt":"","featuredImage":false}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=3.29.0" id="elementor-frontend-js" data-rocket-defer defer></script>
+<script type="text/javascript" id="searchwp-modal-form-js-extra">
+/* <![CDATA[ */
+var searchwp_modal_form_params = {"disableScroll":""};
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/searchwp-modal-search-form/assets/dist/searchwp-modal-form.min.js?ver=0.5.5" id="searchwp-modal-form-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/elementor-pro/assets/js/webpack-pro.runtime.min.js?ver=3.29.0" id="elementor-pro-webpack-runtime-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-includes/js/dist/hooks.min.js?ver=4d63a3d491d11ffd8ac6" id="wp-hooks-js"></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-includes/js/dist/i18n.min.js?ver=5e580eb46a90c2b997e6" id="wp-i18n-js"></script>
+<script type="text/javascript" id="wp-i18n-js-after">
+/* <![CDATA[ */
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+/* ]]> */
+</script>
+<script type="text/javascript" id="elementor-pro-frontend-js-before">
+/* <![CDATA[ */
+var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/web.prairieathletic.com\/wp-admin\/admin-ajax.php","nonce":"ae4bd286f9","urls":{"assets":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/elementor-pro\/assets\/","rest":"https:\/\/web.prairieathletic.com\/wp-json\/"},"settings":{"lazy_load_background_images":false},"popup":{"hasPopUps":true},"shareButtonsNetworks":{"facebook":{"title":"Facebook","has_counter":true},"twitter":{"title":"Twitter"},"linkedin":{"title":"LinkedIn","has_counter":true},"pinterest":{"title":"Pinterest","has_counter":true},"reddit":{"title":"Reddit","has_counter":true},"vk":{"title":"VK","has_counter":true},"odnoklassniki":{"title":"OK","has_counter":true},"tumblr":{"title":"Tumblr"},"digg":{"title":"Digg"},"skype":{"title":"Skype"},"stumbleupon":{"title":"StumbleUpon","has_counter":true},"mix":{"title":"Mix"},"telegram":{"title":"Telegram"},"pocket":{"title":"Pocket","has_counter":true},"xing":{"title":"XING","has_counter":true},"whatsapp":{"title":"WhatsApp"},"email":{"title":"Email"},"print":{"title":"Print"},"x-twitter":{"title":"X"},"threads":{"title":"Threads"}},"facebook_sdk":{"lang":"en_US","app_id":""},"lottie":{"defaultAnimationUrl":"https:\/\/web.prairieathletic.com\/wp-content\/plugins\/elementor-pro\/modules\/lottie\/assets\/animations\/default.json"}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/elementor-pro/assets/js/frontend.min.js?ver=3.29.0" id="elementor-pro-frontend-js" data-rocket-defer defer></script>
+<script type="text/javascript" src="https://web.prairieathletic.com/wp-content/plugins/elementor-pro/assets/js/elements-handlers.min.js?ver=3.29.0" id="pro-elements-handlers-js" data-rocket-defer defer></script>
+<svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+
+  <symbol id="icon-znb_close-thin" viewBox="0 0 100 100">
+   <path d="m87.801 12.801c-1-1-2.6016-1-3.5 0l-33.801 33.699-34.699-34.801c-1-1-2.6016-1-3.5 0-1 1-1 2.6016 0 3.5l34.699 34.801-34.801 34.801c-1 1-1 2.6016 0 3.5 0.5 0.5 1.1016 0.69922 1.8008 0.69922s1.3008-0.19922 1.8008-0.69922l34.801-34.801 33.699 33.699c0.5 0.5 1.1016 0.69922 1.8008 0.69922 0.69922 0 1.3008-0.19922 1.8008-0.69922 1-1 1-2.6016 0-3.5l-33.801-33.699 33.699-33.699c0.89844-1 0.89844-2.6016 0-3.5z"/>
+  </symbol>
+
+
+  <symbol id="icon-znb_play" viewBox="0 0 22 28">
+   <path d="M21.625 14.484l-20.75 11.531c-0.484 0.266-0.875 0.031-0.875-0.516v-23c0-0.547 0.391-0.781 0.875-0.516l20.75 11.531c0.484 0.266 0.484 0.703 0 0.969z"></path>
+  </symbol>
+
+ </defs>
+</svg>
+<script>window.lazyLoadOptions=[{elements_selector:"img[data-lazy-src],.rocket-lazyload,iframe[data-lazy-src]",data_src:"lazy-src",data_srcset:"lazy-srcset",data_sizes:"lazy-sizes",class_loading:"lazyloading",class_loaded:"lazyloaded",threshold:300,callback_loaded:function(element){if(element.tagName==="IFRAME"&&element.dataset.rocketLazyload=="fitvidscompatible"){if(element.classList.contains("lazyloaded")){if(typeof window.jQuery!="undefined"){if(jQuery.fn.fitVids){jQuery(element).parent().fitVids()}}}}}},{elements_selector:".rocket-lazyload",data_src:"lazy-src",data_srcset:"lazy-srcset",data_sizes:"lazy-sizes",class_loading:"lazyloading",class_loaded:"lazyloaded",threshold:300,}];window.addEventListener('LazyLoad::Initialized',function(e){var lazyLoadInstance=e.detail.instance;if(window.MutationObserver){var observer=new MutationObserver(function(mutations){var image_count=0;var iframe_count=0;var rocketlazy_count=0;mutations.forEach(function(mutation){for(var i=0;i<mutation.addedNodes.length;i++){if(typeof mutation.addedNodes[i].getElementsByTagName!=='function'){continue}
+if(typeof mutation.addedNodes[i].getElementsByClassName!=='function'){continue}
+images=mutation.addedNodes[i].getElementsByTagName('img');is_image=mutation.addedNodes[i].tagName=="IMG";iframes=mutation.addedNodes[i].getElementsByTagName('iframe');is_iframe=mutation.addedNodes[i].tagName=="IFRAME";rocket_lazy=mutation.addedNodes[i].getElementsByClassName('rocket-lazyload');image_count+=images.length;iframe_count+=iframes.length;rocketlazy_count+=rocket_lazy.length;if(is_image){image_count+=1}
+if(is_iframe){iframe_count+=1}}});if(image_count>0||iframe_count>0||rocketlazy_count>0){lazyLoadInstance.update()}});var b=document.getElementsByTagName("body")[0];var config={childList:!0,subtree:!0};observer.observe(b,config)}},!1)</script><script data-no-minify="1" async src="https://web.prairieathletic.com/wp-content/plugins/wp-rocket/assets/js/lazyload/17.8.3/lazyload.min.js"></script><script>function lazyLoadThumb(e,alt,l){var t='<img data-lazy-src="https://i.ytimg.com/vi/ID/hqdefault.jpg" alt="" width="480" height="360"><noscript><img src="https://i.ytimg.com/vi/ID/hqdefault.jpg" alt="" width="480" height="360"></noscript>',a='<button class="play" aria-label="Play Youtube video"></button>';if(l){t=t.replace('data-lazy-','');t=t.replace('loading="lazy"','');t=t.replace(/<noscript>.*?<\/noscript>/g,'');}t=t.replace('alt=""','alt="'+alt+'"');return t.replace("ID",e)+a}function lazyLoadYoutubeIframe(){var e=document.createElement("iframe"),t="ID?autoplay=1";t+=0===this.parentNode.dataset.query.length?"":"&"+this.parentNode.dataset.query;e.setAttribute("src",t.replace("ID",this.parentNode.dataset.src)),e.setAttribute("frameborder","0"),e.setAttribute("allowfullscreen","1"),e.setAttribute("allow","accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"),this.parentNode.parentNode.replaceChild(e,this.parentNode)}document.addEventListener("DOMContentLoaded",function(){var exclusions=[];var e,t,p,u,l,a=document.getElementsByClassName("rll-youtube-player");for(t=0;t<a.length;t++)(e=document.createElement("div")),(u='https://i.ytimg.com/vi/ID/hqdefault.jpg'),(u=u.replace('ID',a[t].dataset.id)),(l=exclusions.some(exclusion=>u.includes(exclusion))),e.setAttribute("data-id",a[t].dataset.id),e.setAttribute("data-query",a[t].dataset.query),e.setAttribute("data-src",a[t].dataset.src),(e.innerHTML=lazyLoadThumb(a[t].dataset.id,a[t].dataset.alt,l)),a[t].appendChild(e),(p=e.querySelector(".play")),(p.onclick=lazyLoadYoutubeIframe)});</script>
+<script>(()=>{class RocketElementorPreload{constructor(){this.deviceMode=document.createElement("span"),this.deviceMode.id="elementor-device-mode-wpr",this.deviceMode.setAttribute("class","elementor-screen-only"),document.body.appendChild(this.deviceMode)}t(){let t=getComputedStyle(this.deviceMode,":after").content.replace(/"/g,"");this.animationSettingKeys=this.i(t),document.querySelectorAll(".elementor-invisible[data-settings]").forEach((t=>{const e=t.getBoundingClientRect();if(e.bottom>=0&&e.top<=window.innerHeight)try{this.o(t)}catch(t){}}))}o(t){const e=JSON.parse(t.dataset.settings),i=e.m||e.animation_delay||0,n=e[this.animationSettingKeys.find((t=>e[t]))];if("none"===n)return void t.classList.remove("elementor-invisible");t.classList.remove(n),this.currentAnimation&&t.classList.remove(this.currentAnimation),this.currentAnimation=n;let o=setTimeout((()=>{t.classList.remove("elementor-invisible"),t.classList.add("animated",n),this.l(t,e)}),i);window.addEventListener("rocket-startLoading",(function(){clearTimeout(o)}))}i(t="mobile"){const e=[""];switch(t){case"mobile":e.unshift("_mobile");case"tablet":e.unshift("_tablet");case"desktop":e.unshift("_desktop")}const i=[];return["animation","_animation"].forEach((t=>{e.forEach((e=>{i.push(t+e)}))})),i}l(t,e){this.i().forEach((t=>delete e[t])),t.dataset.settings=JSON.stringify(e)}static run(){const t=new RocketElementorPreload;requestAnimationFrame(t.t.bind(t))}}document.addEventListener("DOMContentLoaded",RocketElementorPreload.run)})();</script></body>
+</html>
+
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me - Debug: cached@1748171109 -->

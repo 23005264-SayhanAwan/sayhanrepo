@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Events</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0c0f18 0%, #1a1f2e 100%);
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+    .main-header {
+      background: rgba(26, 31, 46, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #ffc107;
+    }
+    .event-card {
+      background: rgba(26, 31, 46, 0.95);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      border-radius: 15px;
+      padding: 0;
+      margin-bottom: 2rem;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .event-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(255, 193, 7, 0.2);
+    }
+    .event-image-container {
+      width: 100%;
+      min-height: 200px;
+      max-height: 400px;
+      overflow: hidden;
+      background: linear-gradient(45deg, #2c3e50, #3498db);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .event-image {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+    }
+    .no-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(45deg, #34495e, #2c3e50);
+      color: #bdc3c7;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+    .event-content { padding: 2rem; }
+    .event-header { border-bottom: 1px solid rgba(255, 193, 7, 0.2); margin-bottom: 1.5rem; }
+    .event-title { font-size: 1.5rem; font-weight: 600; color: #ffc107; margin: 0; }
+    .event-meta { display: flex; gap: 1rem; font-size: 0.9rem; color: #bdc3c7; margin-top: 0.5rem; }
+    .form-label { font-weight: 500; color: #ecf0f1; margin-bottom: 0.5rem; }
+    .form-control { background-color: rgba(52, 73, 94, 0.8); border: 1px solid rgba(255, 193, 7, 0.3); color: white; border-radius: 8px; padding: 0.75rem; }
+    .btn-save { background: linear-gradient(45deg, #f39c12, #ffc107); border: none; color: #2c3e50; font-weight: 600; padding: 0.75rem 2rem; border-radius: 25px; }
+    .btn-danger { border-radius: 25px; }
+    .event-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .form-section {
+      margin-bottom: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 193, 7, 0.1);
+    }
+    .form-section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #ffc107;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .form-grid-full {
+      grid-column: 1 / -1;
+    }
+    @media (max-width: 768px) {
+      .event-meta { flex-direction: column; gap: 0.5rem; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/Adminnav.ejs') %>
+
+  <div class="main-header text-center">
+    <h1>Event Management Panel</h1>
+    <p class="text-muted">Manage and update your events</p>
+  </div>
+
+  <div class="container">
+    <% if (events.length === 0) { %>
+      <div class="alert alert-warning text-center">No events available.</div>
+    <% } else { %>
+      <% events.forEach(event => { %>
+        <div class="event-card">
+          <form action="/Admin/events/update/<%= event.EventID %>" method="POST" enctype="application/x-www-form-urlencoded">
+
+            <div class="event-image-container">
+              <% if (event.Eventpic) { %>
+                <img src="/images/<%= event.Eventpic %>" alt="Event Image" class="event-image">
+              <% } else { %>
+                <div class="no-image-placeholder">
+                  <div class="text-center">
+                    <i class="fas fa-image fa-3x mb-2"></i>
+                    <div>No Image Available</div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="event-content">
+              <div class="event-header">
+                <h3 class="event-title"><%= event.Title %></h3>
+                <div class="event-meta">
+                  <span><strong>Date:</strong> <%= event.EventDate.toLocaleDateString() %></span>
+                  <% if (event.Start_Time && event.End_Time) { %>
+                    <span><strong>Time:</strong> <%= event.Start_Time.toString().slice(0,5) %> - <%= event.End_Time.toString().slice(0,5) %></span>
+                  <% } %>
+                  <span><strong>Location:</strong> <%= event.Location %></span>
+                  <% if (event.EventType) { %>
+                    <span><strong>Type:</strong> <%= event.EventType %></span>
+                  <% } %>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Basic Information</div>
+                <div class="form-grid">
+                  <div class="mb-3">
+                    <label class="form-label">Event Title</label>
+                    <input type="text" name="Title" class="form-control" value="<%= event.Title %>" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Event Type</label>
+                    <select name="EventType" class="form-control" required>
+                      <option value="">-- Select Event Type --</option>
+                      <option value="Club Match" <%= event.EventType === 'Club Match' ? 'selected' : '' %>>Club Match</option>
+                      <option value="Training Session" <%= event.EventType === 'Training Session' ? 'selected' : '' %>>Training Session</option>
+                      <option value="AGM" <%= event.EventType === 'AGM' ? 'selected' : '' %>>Annual General Meeting</option>
+                      <option value="Trial" <%= event.EventType === 'Trial' ? 'selected' : '' %>>Trial</option>
+                      <option value="Regular Event" <%= event.EventType === 'Regular Event' ? 'selected' : '' %>>Regular Event</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Event Date</label>
+                    <input type="date" name="EventDate" class="form-control" value="<%= event.EventDate.toISOString().slice(0,10) %>" required>
+                  </div>
+
+                  <!-- TIMING SECTION - NOW FOR ALL EVENTS -->
+                  <div class="mb-3">
+                    <label class="form-label">Start Time</label>
+                    <input type="time" name="Start_Time" class="form-control" 
+                      value="<%= event.Start_Time ? event.Start_Time.toString().slice(0,5) : '' %>" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">End Time</label>
+                    <input type="time" name="End_Time" class="form-control" 
+                      value="<%= event.End_Time ? event.End_Time.toString().slice(0,5) : '' %>" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" name="Location" class="form-control" value="<%= event.Location %>" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Session</label>
+                    <input type="text" name="EventSession" class="form-control" value="<%= event.EventSession || '' %>" placeholder="e.g., Morning, Afternoon">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">Capacity</label>
+                    <input type="number" name="Capacity" class="form-control" value="<%= event.Capacity || '' %>" placeholder="Max attendees">
+                  </div>
+
+                  <div class="mb-3 form-grid-full">
+                    <label class="form-label">Description</label>
+                    <textarea name="Description" class="form-control" rows="3" placeholder="Enter event description..."><%= event.Description %></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Event Details</div>
+                <div class="form-grid">
+
+                  <div class="mb-3">
+                    <label class="form-label">Coach</label>
+                    <input type="text" name="Coach" class="form-control" value="<%= event.Coach || '' %>" placeholder="Coach name">
+                  </div>
+
+                  <% if(event.EventType === 'AGM') { %>
+                    <div class="mb-3">
+                      <label class="form-label">Meeting Room</label>
+                      <input type="text" name="Meeting_Room" class="form-control" value="<%= event.Meeting_Room || '' %>" placeholder="Room number/name">
+                    </div>
+                  <% } %>
+
+                  <% if(event.EventType === 'Trial') { %>
+                    <!-- No additional fields needed for trials -->
+                  <% } %>
+
+                </div>
+              </div>
+
+              <div class="event-actions">
+                <button type="submit" class="btn btn-save">
+                  <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+              </form>
+
+              <form action="/Admin/events/delete/<%= event.EventID %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this event?');" style="margin:0;">
+                <button type="submit" class="btn btn-danger">
+                  <i class="fas fa-trash-alt me-2"></i>Delete Event
+                </button>
+              </form>
+              </div>
+            </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+</body>
+</html>

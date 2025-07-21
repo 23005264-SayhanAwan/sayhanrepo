@@ -1,0 +1,105 @@
+<!DOCTYPE html>         
+<html>
+<head>
+  <title>Homepage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+ <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: 
+#0c0f18; /* match dark background */
+      color: white;
+      font-weight: bold;
+    }
+
+    .navbar-custom {
+      background-color:  
+#f49b00; /* dark from logo */
+    }
+
+    .navbar-custom .nav-link {
+      color: 
+#ffffff; /* white text */
+    }
+
+    .navbar-custom .nav-link:hover {
+      color: 
+#cccccc; /* subtle hover effect */
+    }
+
+    .navbar-brand img {
+      height: 100px; /* Adjust logo size /
+      margin-right: 10px; / Space between logo and text /
+    }
+    .navbar-nav {
+      margin-left: auto;
+    }
+    .nav-item {
+      font-size: 20px; / Adjust text size */
+    }
+    .btn-orange {
+    background-color: 
+#f49b00;
+    color: white;
+    border: none;
+  }
+
+  .btn-orange:hover {
+    background-color: 
+#d88700;
+    color: white;
+  }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        <img src="/images/logo.png" alt="Logo">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar" aria-controls="collapsibleNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/login">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/signup">Signup</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Add Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Close the navbar when a dropdown item is clicked (mobile view)
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const navbarCollapse = document.querySelector('.navbar-collapse');
+          const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+            toggle: false
+          });
+          bsCollapse.hide();
+        });
+      });
+
+      // Initialize all dropdown menus
+      const dropdowns = Array.from(document.querySelectorAll('.dropdown-toggle'));
+      dropdowns.forEach(el => new bootstrap.Dropdown(el));
+    });
+  </script>
+
+</body>
+</html>

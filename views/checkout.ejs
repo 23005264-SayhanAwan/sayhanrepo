@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkout</title>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <h1>Checkout</h1>
+  <p>Total amount: S$<%= amount %></p>
+  <p>Cashback earned: S$<%= cashback %></p>
+
+  <form id="payment-form">
+    <div id="card-element"></div>
+    <button type="submit">Pay Now</button>
+  </form>
+
+  <script>
+    const stripe = Stripe('YOUR_PUBLIC_KEY');
+    const elements = stripe.elements();
+    const card = elements.create('card');
+    card.mount('#card-element');
+
+    const form = document.getElementById('payment-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const {error, paymentIntent} = await stripe.confirmCardPayment('<%= clientSecret %>', {
+        payment_method: {
+          card: card
+        }
+      });
+
+      if (error) {
+        alert(error.message);
+      } else if (paymentIntent.status === 'succeeded') {
+        window.location.href = '/success';
+      }
+    });
+  </script>
+</body>
+</html>

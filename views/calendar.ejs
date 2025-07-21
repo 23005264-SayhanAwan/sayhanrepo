@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Calendar</title>
+
+  <!-- Bootstrap & FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page-title {
+      text-align: center;
+      margin: 30px 0;
+      font-weight: 700;
+      color: #f49b00;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 2.5rem;
+    }
+
+    .calendar-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    #calendar {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    #calendar:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* FullCalendar Customizations */
+    .fc-toolbar-title {
+      color: #f49b00 !important;
+      font-weight: 700 !important;
+      font-size: 1.8rem !important;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .fc-button-primary {
+      background-color: #f49b00 !important;
+      border-color: #f49b00 !important;
+      color: #000 !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .fc-button-primary:hover {
+      background-color: #d4850d !important;
+      border-color: #d4850d !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 15px rgba(244, 155, 0, 0.3) !important;
+    }
+
+    .fc-button-primary:not(:disabled):active,
+    .fc-button-primary:focus {
+      background-color: #d4850d !important;
+      border-color: #d4850d !important;
+    }
+
+    .fc-daygrid-day {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      transition: background-color 0.3s ease !important;
+    }
+
+    .fc-daygrid-day:hover {
+      background-color: rgba(244, 155, 0, 0.1) !important;
+    }
+
+    .fc-day-today {
+      background-color: rgba(244, 155, 0, 0.2) !important;
+    }
+
+    .fc-daygrid-day-number {
+      color: #ffffff !important;
+      font-weight: 600 !important;
+    }
+
+    .fc-col-header-cell {
+      background-color: rgba(244, 155, 0, 0.3) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .fc-col-header-cell-cushion {
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 1px !important;
+    }
+
+    .fc-event {
+      max-width: 100%;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
+      padding: 2px 6px !important;
+      font-size: 0.85rem !important;
+      border-radius: 4px !important;
+      background-color: inherit; /* So eventColor from JS applies */
+      color: inherit; /* So eventTextColor from JS applies */
+    }
+
+    .fc-event:hover {
+      transform: scale(1.05) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    }
+
+    .fc-event-title {
+      font-size: 0.85rem !important;
+    }
+
+    .fc-daygrid-event {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.85rem;
+      padding: 2px 6px;
+      border-radius: 5px;
+      margin-bottom: 2px;
+    }
+    .fc-daygrid-day-frame {
+      padding: 2px 4px !important;
+    }
+
+    .fc-event.Announcement {
+      background-color: #ffcc80;
+      color: #000;
+    }
+
+    .fc-event.Booking {
+      background-color: #90caf9;
+      color: #000;
+    }
+
+    .modal-content {
+      background: rgba(26, 31, 46, 0.95) !important;
+      backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      border-radius: 15px !important;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .modal-header {
+      background: linear-gradient(45deg, #f49b00, #d4850d) !important;
+      color: #000 !important;
+      border-top-left-radius: 15px !important;
+      border-top-right-radius: 15px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .modal-title {
+      font-weight: 700 !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    .modal-body {
+      background: transparent !important;
+      color: #ffffff !important;
+      padding: 25px !important;
+    }
+
+    .modal-body p {
+      margin-bottom: 15px !important;
+      padding: 10px 15px !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-radius: 8px !important;
+      border-left: 3px solid #f49b00 !important;
+    }
+
+    .modal-body strong {
+      color: #f49b00 !important;
+      margin-right: 10px !important;
+    }
+
+    .btn-close-white {
+      filter: brightness(0) invert(1) !important;
+    }
+
+    /* Dropdown fix for navbar */
+    .dropdown-menu {
+      z-index: 9999 !important;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 2rem;
+        margin: 20px 0;
+      }
+
+      #calendar {
+        padding: 20px 15px;
+      }
+
+      .fc-toolbar-title {
+        font-size: 1.4rem !important;
+      }
+
+      .fc-button {
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.9rem !important;
+      }
+
+      .modal-body {
+        padding: 20px !important;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #f49b00;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #d4850d;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Include Navbar -->
+  <%- include('partials/Membernav.ejs') %>
+
+  <div class="calendar-container">
+    <h2 class="page-title">
+      <i class="fas fa-calendar-alt me-3"></i>My Calendar
+    </h2>
+    <div id="calendar"></div>
+  </div>
+
+  <!-- Announcement Modal -->
+  <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="eventModalLabel">
+            <i class="fas fa-bullhorn me-2"></i>Announcement Details
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong><i class="fas fa-tag"></i> Title:</strong> <span id="modalTitle"></span></p>
+          <p><strong><i class="fas fa-file-text"></i> Content:</strong> <span id="modalContent"></span></p>
+          <p><strong><i class="fas fa-calendar-plus"></i> Created:</strong> <span id="modalStart"></span></p>
+          <p><strong><i class="fas fa-exclamation-triangle"></i> Priority:</strong> <span id="modalPriority"></span></p>
+          <p><strong><i class="fas fa-info-circle"></i> Status:</strong> <span id="modalStatus"></span></p>
+          <p><strong><i class="fas fa-clock"></i> Expires:</strong> <span id="modalExpiry"></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bookingModalLabel">
+            <i class="fas fa-calendar-check me-2"></i>Booking Details
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong><i class="fas fa-calendar-day"></i> Date:</strong> <span id="bookingModalDate"></span></p>
+          <p><strong><i class="fas fa-clock"></i> Time:</strong> <span id="bookingModalTime"></span></p>
+          <p><strong><i class="fas fa-check-circle"></i> Status:</strong> <span id="bookingModalStatus"></span></p>
+          <p><strong><i class="fas fa-info-circle"></i> Booking ID:</strong> <span id="bookingModalId"></span></p>
+          <p><strong><i class="fas fa-hourglass-half"></i> Duration:</strong> <span id="bookingModalDuration"></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts - Load FullCalendar AFTER Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    // Get separated events from server
+    const announcementEvents = <%- JSON.stringify(announcementEvents || []) %>;
+    const bookingEvents = <%- JSON.stringify(bookingEvents || []) %>;
+    
+    console.log('Announcement Events:', announcementEvents.length);
+    console.log('Booking Events:', bookingEvents.length);
+
+    // Process events for FullCalendar
+    const processedEvents = [
+      // Process announcements
+      ...announcementEvents.map(event => ({
+        ...event,
+        className: 'announcement-event',
+        backgroundColor: '#ffc107',
+        borderColor: '#ff8f00',
+        textColor: '#000'
+      })),
+      // Process bookings
+      ...bookingEvents.map(event => ({
+        ...event,
+        className: 'booking-event',
+        backgroundColor: '#0d6efd',
+        borderColor: '#0056b3',
+        textColor: '#fff'
+      }))
+    ];
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      height: 'auto',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek,listAll'
+      },
+      views: {
+        listAll: {
+          type: 'list',
+          duration: { years: 10 },
+          buttonText: 'All Events'
+        }
+      },
+      events: processedEvents,
+      eventDidMount: function (info) {
+        const event = info.event;
+        const details = event.extendedProps;
+
+        // Apply custom styling based on event type
+        if (event.extendedProps.type === 'Announcement') {
+          info.el.style.backgroundColor = '#ffc107';
+          info.el.style.color = '#000';
+          info.el.style.fontWeight = 'bold';
+        } else if (event.extendedProps.type === 'Booking') {
+          info.el.style.backgroundColor = '#0d6efd';
+          info.el.style.color = '#fff';
+        }
+      },
+      eventClick: function (info) {
+        const event = info.event;
+        const details = event.extendedProps;
+
+        if (details.type === 'Announcement') {
+          // Show announcement details in existing modal
+          document.getElementById('modalTitle').innerText = details.originalTitle || event.title || 'N/A';
+          document.getElementById('modalContent').innerText = details.content || 'No content';
+          document.getElementById('modalStart').innerText = event.start ? event.start.toLocaleString() : 'N/A';
+          document.getElementById('modalPriority').innerText = details.priority || 'Normal';
+          document.getElementById('modalStatus').innerText = details.status || 'Active';
+          document.getElementById('modalExpiry').innerText = details.expiry || 'N/A';
+
+          const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+          modal.show();
+        } else if (details.type === 'Booking') {
+          // Show booking details in fancy modal
+          const startTime = event.start;
+          const endTime = event.end;
+          
+          // Calculate duration
+          const duration = endTime ? 
+            Math.round((endTime - startTime) / (1000 * 60)) + ' minutes' : 
+            'N/A';
+          
+          // Format date and time
+          const bookingDate = startTime.toLocaleDateString('en-GB', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+          
+          const timeRange = startTime.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }) + ' - ' + (endTime ? endTime.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : 'N/A');
+          
+          // Populate modal fields
+          document.getElementById('bookingModalDate').innerText = bookingDate;
+          document.getElementById('bookingModalTime').innerText = timeRange;
+          document.getElementById('bookingModalStatus').innerText = details.status || 'Confirmed';
+          document.getElementById('bookingModalId').innerText = event.id.replace('b-', '');
+          document.getElementById('bookingModalDuration').innerText = duration;
+
+          // Show the booking modal
+          const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+          bookingModal.show();
+        }
+      },
+      eventDisplay: 'block',
+      eventMaxStack: 3,
+      eventDurationEditable: false,
+      displayEventEnd: false
+    });
+
+    calendar.render();
+    
+    // Log summary for debugging
+    console.log('Calendar initialized with:');
+    console.log('- Announcements:', announcementEvents.length);
+    console.log('- Confirmed Bookings:', bookingEvents.length);
+    console.log('- Total Events:', processedEvents.length);
+  });
+  </script>
+
+</body>
+</html>

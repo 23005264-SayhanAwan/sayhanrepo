@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Page</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #0c0f18;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .navbar-custom {
+      background-color: #f49b00;
+    }
+
+    .navbar-custom .nav-link {
+      color: #ffffff;
+      font-size: 18px;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .navbar-custom .nav-link:hover {
+      color: #cccccc;
+    }
+
+    .navbar-brand img {
+      height: 80px;
+      margin-right: 10px;
+    }
+
+    .navbar-nav {
+      align-items: center;
+    }
+
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      background-color: #1a1f2e;
+      z-index: 9999 !important;
+    }
+
+    .dropdown-item {
+      color: #ffffff;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .navbar-custom .nav-link {
+        font-size: 16px;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .navbar-custom .nav-link {
+        font-size: 14px;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <img src="/images/logo.png" alt="Logo" />
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#collapsibleNavbar"
+        aria-controls="collapsibleNavbar"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/Admin/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/members">Members</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/store-items">Store</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/items">Restaurant</a></li>
+          <li class="nav-item"><a class="nav-link" href="/Admin/events">Events</a></li>
+          <li class="nav-item"><a class="nav-link" href="/Admin/eventmanagementadmin">Manage Events</a></li>
+          <li class="nav-item"><a class="nav-link" href="/Admin/announcements">Announcements</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/bookings">Bookings</a></li>
+          <li class="nav-item"><a class="nav-link" href="/Admin/ticketpage">Tickets</a></li>
+          <!-- Profile picture dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              href="#"
+              class="nav-link dropdown-toggle d-flex align-items-center"
+              id="profileDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <img 
+                id="profilePicImg"
+                src="<%= admin.Admin_ProfilePicture ? '/images/' + admin.Admin_ProfilePicture + '?' + Date.now() : '/images/profilepc.jpeg' %>" 
+                alt="Profile Picture" 
+                class="profile-pic"
+              />
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+              <li>
+                <form id="profilePicForm" action="/Admin/uploadProfilePic" method="POST" enctype="multipart/form-data" style="margin:0;">
+                  <button type="button" class="dropdown-item" onclick="document.getElementById('profileUploadInput').click();">
+                    Change Profile Picture
+                  </button>
+                  <input type="file" id="profileUploadInput" name="profileImage" accept="image/*" style="display: none;" onchange="document.getElementById('profilePicForm').submit();" />
+                </form>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+</body>
+
+<script>
+  // After successful upload, update the profile picture to the new uploaded image
+  document.getElementById('profilePicForm').addEventListener('submit', function(e) {
+    setTimeout(function() {
+      var img = document.getElementById('profilePicImg');
+      if (img) {
+        // Always use the latest uploaded image, fallback to default if not present
+        var newSrc = "<%= admin.Admin_ProfilePicture ? '/images/' + admin.Admin_ProfilePicture : '/images/profilepc.jpeg' %>?" + new Date().getTime();
+        img.src = newSrc;
+      }
+    }, 1000); // Adjust timeout as needed for your backend to complete upload
+  });
+</script>
+
+</html>

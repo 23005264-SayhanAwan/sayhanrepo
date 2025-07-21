@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Member Announcements</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e);
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+      background-color: #121620;
+    }
+
+    .announcement-card {
+      background-color: #1f273a;
+      border-left: 5px solid #0d6efd;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      margin-bottom: 25px;
+      padding: 20px;
+    }
+
+    .priority-high {
+      border-left-color: #dc3545 !important;
+    }
+
+    .priority-medium {
+      border-left-color: #ffc107 !important;
+    }
+
+    .priority-low {
+      border-left-color: #198754 !important;
+    }
+
+    .card-header {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .card-meta {
+      font-size: 0.9rem;
+      color: #b0b8c3;
+      margin-bottom: 10px;
+    }
+
+    .btn-view, .btn-calendar {
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-size: 0.875rem;
+    }
+
+    .btn-view {
+      background-color: #00bcd4;
+      color: white;
+      border: none;
+    }
+
+    .btn-view:hover {
+      background-color: #00acc1;
+    }
+
+    .btn-calendar {
+      border: 1px solid #0d6efd;
+      color: #0d6efd;
+      background-color: transparent;
+    }
+
+    .btn-calendar:hover {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .container {
+      max-width: 900px;
+      margin-top: 30px;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-weight: 600;
+      color: #f8f9fa;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/Membernav.ejs') %>
+
+  <div class="container">
+    <h1>📢 All Announcements</h1>
+
+    <% if (announcements.length === 0) { %>
+      <div class="text-center mt-5">
+        <p class="text-muted">No announcements have been posted yet.</p>
+      </div>
+    <% } else { %>
+      <% announcements.forEach(announcement => { %>
+        <div class="announcement-card 
+          <% if (announcement.Priority === 'High') { %> priority-high 
+          <% } else if (announcement.Priority === 'Medium') { %> priority-medium 
+          <% } else { %> priority-low <% } %>">
+          
+          <div class="card-header"><%= announcement.Title %></div>
+          <div class="card-meta">
+            Posted on <%= new Date(announcement.CreatedDate).toLocaleDateString() %>
+            <% if (announcement.ExpiryDate) { %> | Expires on <%= new Date(announcement.ExpiryDate).toLocaleDateString() %><% } %>
+            | Priority: <strong><%= announcement.Priority %></strong>
+          </div>
+          
+          <p><%= announcement.Content.length > 300 ? announcement.Content.substring(0, 300) + '...' : announcement.Content %></p>
+
+          <div class="d-flex justify-content-between mt-3">
+            <% if (announcement.Content.length > 300) { %>
+              <a href="/Member/announcement/<%= announcement.AnnouncementID %>" class="btn btn-view">View More</a>
+            <% } %>
+
+            <form action="/Member/calendar/add" method="POST">
+              <input type="hidden" name="announcementID" value="<%= announcement.AnnouncementID %>">
+              <button type="submit" class="btn btn-calendar">➕ Add to Calendar</button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <div class="text-center mt-4">
+      <a href="/Member/" class="btn btn-secondary">⬅ Back to Home</a>
+    </div>
+  </div>
+</body>
+</html>
+
