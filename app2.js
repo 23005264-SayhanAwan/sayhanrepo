@@ -3391,43 +3391,194 @@ app.get('/store/past-orders', (req, res) => {
   });
 });
 
-
-
-
-
-
-
-
-
 app.get('/Admin/addadmins', (req, res) => {
   if (!req.session.admin) return res.redirect('/login');
-  res.render('addadmins', { admin: req.session.admin });
+  
+  // Fetch all admins from database
+  connection.query('SELECT * FROM clubadmin ORDER BY Admin_FullName', (err, admins) => {
+    if (err) {
+      console.error('Error fetching admins:', err);
+      return res.status(500).send('Failed to load admins');
+    }
+    
+    res.render('addadmins', {  // Render addadmins.ejs (not manageadmins)
+      admin: req.session.admin, 
+      admins: admins,
+      message: req.query.message || null
+    });
+  });
 });
 
+// POST - Add new admin
 app.post('/Admin/addadmins', async (req, res) => {
-  const { fullName, email, phone, password } = req.body;
+  const { fullName, email, phone, password, role } = req.body;
   if (!req.session.admin) return res.redirect('/login');
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if email already exists
+    connection.query('SELECT * FROM clubadmin WHERE Admin_Email = ?', [email], async (err, existingAdmins) => {
+      if (err) {
+        console.error('Error checking existing admin:', err);
+        return res.redirect('/Admin/addadmins?message=Error checking existing admin');
+      }
 
+      if (existingAdmins.length > 0) {
+        return res.redirect('/Admin/addadmins?message=Admin with this email already exists');
+      }
+
+      // Hash password and create admin
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      connection.query(
+        `INSERT INTO clubadmin (Admin_FullName, Admin_Email, Admin_Phone, Admin_Password, Role) VALUES (?, ?, ?, ?, ?)`,
+        [fullName, email, phone, hashedPassword, role || 'Admin'],
+        (err, result) => {
+          if (err) {
+            console.error('Error creating admin:', err);
+            return res.redirect('/Admin/addadmins?message=Failed to add admin');
+          }
+          res.redirect('/Admin/addadmins?message=Admin added successfully');
+        }
+      );
+    });
+  } catch (err) {
+    console.error('Hashing error:', err);
+    res.redirect('/Admin/addadmins?message=Internal server error');
+  }
+});
+
+// POST - Edit admin details
+app.post('/Admin/editadmin/:id', (req, res) => {
+  const adminId = req.params.id;
+  const { fullName, email, phone, role } = req.body;
+  
+  if (!req.session.admin) return res.redirect('/login');
+
+  // Check if email already exists for other admins
+  connection.query(
+    'SELECT * FROM clubadmin WHERE Admin_Email = ? AND AdminID != ?', 
+    [email, adminId], 
+    (err, existingAdmins) => {
+      if (err) {
+        console.error('Error checking existing admin:', err);
+        return res.redirect('/Admin/addadmins?message=Error checking existing admin');
+      }
+
+      if (existingAdmins.length > 0) {
+        return res.redirect('/Admin/addadmins?message=Another admin with this email already exists');
+      }
+
+      // Update admin details
+      connection.query(
+        `UPDATE clubadmin SET Admin_FullName = ?, Admin_Email = ?, Admin_Phone = ?, Role = ? WHERE AdminID = ?`,
+        [fullName, email, phone, role, adminId],
+        (err, result) => {
+          if (err) {
+            console.error('Error updating admin:', err);
+            return res.redirect('/Admin/addadmins?message=Failed to update admin');
+          }
+          
+          if (result.affectedRows === 0) {
+            return res.redirect('/Admin/addadmins?message=Admin not found');
+          }
+          
+          // If current user updated their own info, update session
+          if (parseInt(adminId) === req.session.admin.AdminID) {
+            req.session.admin.Admin_FullName = fullName;
+            req.session.admin.Admin_Email = email;
+            req.session.admin.Admin_Phone = phone;
+            req.session.admin.Role = role;
+          }
+          
+          res.redirect('/Admin/addadmins?message=Admin updated successfully');
+        }
+      );
+    }
+  );
+});
+
+// POST - Change admin password
+app.post('/Admin/changepassword/:id', async (req, res) => {
+  const adminId = req.params.id;
+  const { newPassword } = req.body;
+  
+  if (!req.session.admin) return res.redirect('/login');
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
     connection.query(
-      `INSERT INTO clubadmin (Admin_FullName, Admin_Email, Admin_Phone, Admin_Password, Role) VALUES (?, ?, ?, ?, 'Admin')`,
-      [fullName, email, phone, hashedPassword],
+      'UPDATE clubadmin SET Admin_Password = ? WHERE AdminID = ?',
+      [hashedPassword, adminId],
       (err, result) => {
         if (err) {
-          console.error('Error creating admin:', err);
-          return res.status(500).send('Failed to add admin');
+          console.error('Error changing password:', err);
+          return res.redirect('/Admin/addadmins?message=Failed to change password');
         }
-        res.redirect('/Admin');
+        
+        if (result.affectedRows === 0) {
+          return res.redirect('/Admin/addadmins?message=Admin not found');
+        }
+        
+        const message = parseInt(adminId) === req.session.admin.AdminID 
+          ? 'Your password has been changed successfully' 
+          : 'Admin password changed successfully';
+        
+        res.redirect(`/Admin/addadmins?message=${encodeURIComponent(message)}`);
       }
     );
   } catch (err) {
-    console.error('Hashing error:', err);
-    res.status(500).send('Internal server error');
+    console.error('Password hashing error:', err);
+    res.redirect('/Admin/addadmins?message=Internal server error');
   }
 });
-// app.js (Relevant Routes for Admin Event Management)
+
+// POST - Delete admin
+app.post('/Admin/deleteadmin/:id', (req, res) => {
+  const adminId = req.params.id;
+  
+  if (!req.session.admin) return res.redirect('/login');
+  
+  // Prevent admin from deleting themselves
+  if (parseInt(adminId) === req.session.admin.AdminID) {
+    return res.redirect('/Admin/addadmins?message=Cannot delete your own account');
+  }
+
+  // Check if this is the last admin (optional safety check)
+  connection.query('SELECT COUNT(*) as count FROM clubadmin', (err, countResult) => {
+    if (err) {
+      console.error('Error counting admins:', err);
+      return res.redirect('/Admin/addadmins?message=Error checking admin count');
+    }
+
+    if (countResult[0].count <= 1) {
+      return res.redirect('/Admin/addadmins?message=Cannot delete the last admin account');
+    }
+
+    // Delete the admin
+    connection.query(
+      'DELETE FROM clubadmin WHERE AdminID = ?',
+      [adminId],
+      (err, result) => {
+        if (err) {
+          console.error('Error deleting admin:', err);
+          return res.redirect('/Admin/addadmins?message=Failed to delete admin');
+        }
+        
+        if (result.affectedRows === 0) {
+          return res.redirect('/Admin/addadmins?message=Admin not found');
+        }
+        
+        res.redirect('/Admin/addadmins?message=Admin deleted successfully');
+      }
+    );
+  });
+});
+
+
+
+
+
 
 // Display event management page - UPDATED for new time fields
 app.get('/Admin/eventmanagementadmin', (req, res) => {

@@ -9,33 +9,33 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background-color: #0c0f18; /* match dark background */
+      background-color: #0c0f18;
       color: white;
+      overflow-x: hidden;
     }
 
     .navbar-custom {
-      background-color:  #f49b00; /* dark from logo */
+      background-color: #f49b00;
     }
 
     .navbar-custom .nav-link {
-      color: #ffffff; /* white text */
+      color: #ffffff;
+      font-size: 18px;
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
 
     .navbar-custom .nav-link:hover {
-      color: #cccccc; /* subtle hover effect */
+      color: #cccccc;
     }
 
     .navbar-brand img {
-      height: 100px; /* Adjust logo size */
-      margin-right: 10px; /* Space between logo and text */
+      height: 80px;
+      margin-right: 10px;
     }
 
     .navbar-nav {
-      margin-left: auto;
-    }
-
-    .nav-item {
-      font-size: 20px; /* Adjust text size */
+      align-items: center;
     }
 
     .profile-pic {
@@ -48,35 +48,96 @@
     }
 
     .dropdown-menu {
-      background-color: #1a1f2e; /* dark background for dropdown */
+      background-color: #1a1f2e;
+      z-index: 9999 !important;
+      border: 1px solid #444;
     }
 
     .dropdown-item {
-      color: #ffffff; /* white text */
+      color: #ffffff;
     }
 
-
-
-     /* Fix dropdown toggle behavior */
-    .dropdown-toggle::after {
-      transition: transform 0.2s ease;
+    .dropdown-item:hover {
+      background-color: #2a2f3e;
+      color: #ffffff;
     }
 
-    .dropdown-toggle[aria-expanded="true"]::after {
-      transform: rotate(180deg);
+    .dropdown-divider {
+      border-top: 1px solid #444;
     }
 
-    /* Ensure dropdown works on hover and click */
-    .dropdown:hover .dropdown-menu {
-      display: block;
+    /* Fix dropdown positioning */
+    .dropdown-menu-end {
+      right: 0 !important;
+      left: auto !important;
     }
 
-    .dropdown-menu {
-      display: none;
+    /* Ensure dropdowns don't go off-screen */
+    .dropdown {
+      position: static;
     }
 
-    .dropdown.show .dropdown-menu {
-      display: block;
+    @media (min-width: 992px) {
+      .dropdown {
+        position: relative;
+      }
+    }
+
+    /* Responsive adjustments to match admin nav */
+    @media (max-width: 1200px) {
+      .navbar-custom .nav-link {
+        font-size: 16px;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+      
+      .navbar-brand img {
+        height: 70px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .navbar-custom .nav-link {
+        font-size: 14px;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      
+      .navbar-brand img {
+        height: 60px;
+      }
+
+      /* Stack dropdown items vertically on mobile */
+      .dropdown-menu {
+        position: static !important;
+        float: none;
+        width: auto;
+        margin-top: 0;
+        background-color: #1a1f2e;
+        border: 0;
+        box-shadow: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar-custom .nav-link {
+        font-size: 12px;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+      }
+      
+      .navbar-brand img {
+        height: 50px;
+      }
+    }
+
+    /* Fix navbar toggler */
+    .navbar-toggler {
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
     }
   </style>
 </head>
@@ -105,32 +166,31 @@
           <li class="nav-item"><a class="nav-link" href="/Member">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="/Booking">Booking</a></li>
           <!-- Store with dropdown menu -->
-<li class="nav-item dropdown">
-  <a
-    href="/store-items" 
-    class="nav-link dropdown-toggle" 
-    id="storeDropdown" 
-    role="button" 
-    data-bs-toggle="dropdown" 
-    aria-expanded="false"
-  >
-    Store
-  </a>
-  <ul class="dropdown-menu" aria-labelledby="storeDropdown">
-    <li><a class="dropdown-item" href="/store-items">🏪 All Items</a></li>
-    <li><hr class="dropdown-divider" /></li>
-    <li><a class="dropdown-item" href="/store-items?category=Balls">⚽ Balls</a></li>
-    <li><a class="dropdown-item" href="/store-items?category=Jerseys">👕 Jerseys</a></li>
-    <li><a class="dropdown-item" href="/store-items?category=Bags">🎒 Bags</a></li>
-  </ul>
-</li>
-
+          <li class="nav-item dropdown">
+            <a
+              href="/store-items" 
+              class="nav-link dropdown-toggle" 
+              id="storeDropdown" 
+              role="button" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              Store
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="storeDropdown">
+              <li><a class="dropdown-item" href="/store-items">🏪 All Items</a></li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item" href="/store-items?category=Balls">⚽ Balls</a></li>
+              <li><a class="dropdown-item" href="/store-items?category=Jerseys">👕 Jerseys</a></li>
+              <li><a class="dropdown-item" href="/store-items?category=Bags">🎒 Bags</a></li>
+            </ul>
+          </li>
           <li class="nav-item"><a class="nav-link" href="/restaurant">Restaurant</a></li>
-          <li class="nav-item"><a class="nav-link" href="/events">Events and Tickets</a></li>
+          <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
           <li class="nav-item"><a class="nav-link" href="/Member/calendar">Calendar</a></li>
           <li class="nav-item"><a class="nav-link" href="/membership">Membership</a></li>
           <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
-          <li class="nav-item"><a class="nav-link" href="/store/past-orders">Past Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="/store/past-orders">Orders</a></li>
           <!-- Profile picture dropdown -->
           <li class="nav-item dropdown">
             <a
@@ -162,7 +222,6 @@
               <li><a class="dropdown-item" href="/logout">Logout</a></li>
             </ul>
           </li>
-
         </ul>
       </div>
     </div>
