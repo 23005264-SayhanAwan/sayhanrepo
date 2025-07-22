@@ -15,10 +15,10 @@
         <input type="text" class="form-control" id="Name" name="Name" value="<%= item.Name %>" required>
       </div>
       
-      <!-- UPDATED: Category dropdown with current value selected -->
+      <!-- FIXED: Use form-select for Bootstrap 5 -->
       <div class="mb-3">
         <label for="Category" class="form-label">Category</label>
-        <select class="form-control" id="Category" name="Category" required>
+        <select class="form-select" id="Category" name="Category" required>
           <option value="">Select Category</option>
           <option value="Balls" <%= item.Category === 'Balls' ? 'selected' : '' %>>⚽ Balls</option>
           <option value="Jerseys" <%= item.Category === 'Jerseys' ? 'selected' : '' %>>👕 Jerseys</option>
@@ -47,5 +47,18 @@
       <a href="/admin/store-items" class="btn btn-secondary ms-2">Cancel</a>
     </form>
   </div>
+
+  <!-- Add debugging script -->
+  <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const category = document.getElementById('Category').value;
+      console.log('Selected category:', category);
+      
+      if (!category) {
+        e.preventDefault();
+        alert('Please select a category');
+      }
+    });
+  </script>
 </body>
 </html>
