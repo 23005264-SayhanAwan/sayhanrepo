@@ -107,9 +107,12 @@ app.get('/', (req, res) => {
 });
 //@MahendraTheCurryMan
 
+
+
+
+
 //kamali
-//kamali
-// Retrieve restaurant items (KEEP - just updated for cart integration)
+// Retrieve restaurant items (UPDATED - exclude removed items)
 app.get('/restaurant', (req, res) => {
   const member = req.session.member;
 
@@ -117,7 +120,14 @@ app.get('/restaurant', (req, res) => {
     return res.redirect('/login');
   }
 
-  const sql = 'SELECT ItemID, Name, Description, Price, Image FROM restaurantitem';
+  // UPDATED SQL: Filter out removed items and items with price 0
+  const sql = `
+    SELECT ItemID, Name, Description, Price, Image 
+    FROM restaurantitem 
+    WHERE Price > 0 
+      AND Name NOT LIKE '[REMOVED]%'
+    ORDER BY Name ASC
+  `;
 
   connection.query(sql, (err, results) => {
     if (err) {
@@ -125,6 +135,7 @@ app.get('/restaurant', (req, res) => {
       return res.status(500).send('Error retrieving restaurant items.');
     }
 
+    console.log(`Found ${results.length} available restaurant items`);
     res.render('restaurant', { foodItems: results, member });
   });
 });
@@ -274,17 +285,62 @@ app.post('/admin/items/edit/:id', upload.single('Image'), (req, res) => {
   });
 });
 
-// Admin - Handle item deletion (KEEP UNCHANGED)
+// REPLACE your existing admin delete route with this updated version
+// This handles foreign key constraints properly
+
 app.post('/admin/items/delete/:id', (req, res) => {
   const id = req.params.id;
 
-  const sql = 'DELETE FROM restaurantitem WHERE ItemID = ?';
-  connection.query(sql, [id], (err) => {
-    if (err) {
-      console.error('Error deleting item:', err);
-      return res.status(500).send('Failed to delete item.');
+  // First check if this item has been ordered (has restaurant bills)
+  const checkOrdersSql = 'SELECT COUNT(*) as orderCount FROM restaurantbill WHERE fk_ItemID = ?';
+  
+  connection.query(checkOrdersSql, [id], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking for existing orders:', checkErr);
+      return res.status(500).send('Error checking for existing orders');
     }
-    res.redirect('/admin/items');
+
+    const orderCount = checkResults[0].orderCount;
+
+    if (orderCount > 0) {
+      // Item has been ordered - use soft delete (mark as inactive)
+      console.log(`Item ${id} has ${orderCount} orders, using soft delete`);
+      
+      const softDeleteSql = `
+        UPDATE restaurantitem 
+        SET 
+          Name = CONCAT('[REMOVED] ', Name),
+          Description = CONCAT('This item is no longer available. ', COALESCE(Description, '')),
+          Price = 0
+        WHERE ItemID = ?
+      `;
+      
+      connection.query(softDeleteSql, [id], (updateErr) => {
+        if (updateErr) {
+          console.error('Error soft deleting item:', updateErr);
+          return res.status(500).send('Failed to remove item');
+        }
+        
+        console.log(` Item ${id} soft deleted (has ${orderCount} existing orders)`);
+        res.redirect('/admin/items?message=Item removed (order history preserved)');
+      });
+      
+    } else {
+      // Item has never been ordered - safe to hard delete
+      console.log(`Item ${id} has no orders, safe to delete`);
+      
+      const hardDeleteSql = 'DELETE FROM restaurantitem WHERE ItemID = ?';
+      
+      connection.query(hardDeleteSql, [id], (deleteErr) => {
+        if (deleteErr) {
+          console.error('Error deleting item:', deleteErr);
+          return res.status(500).send('Failed to delete item');
+        }
+        
+        console.log(`✅ Item ${id} permanently deleted`);
+        res.redirect('/admin/items?message=Item permanently deleted');
+      });
+    }
   });
 });
 
@@ -3038,7 +3094,7 @@ function completeOrder(req, res, purchaseID, cashbackEarned) {
   });
 }
 
-// UPDATED: Past orders route - Using foreign key instead of timestamp matching
+// REPLACE your existing /store/past-orders route with this updated version
 app.get('/store/past-orders', (req, res) => {
   const email = req.session.member?.Member_Email;
   if (!email) return res.redirect('/login');
@@ -3119,7 +3175,7 @@ app.get('/store/past-orders', (req, res) => {
         // Sort all orders by date
         allOrderGroups.sort((a, b) => new Date(b.PurchaseDate) - new Date(a.PurchaseDate));
 
-        // Process each order to get both store items and tickets
+        // Process each order to get store items, restaurant items, and tickets
         let processedOrders = 0;
         const detailedOrders = [];
 
@@ -3128,14 +3184,15 @@ app.get('/store/past-orders', (req, res) => {
             ...order,
             orderId: order.PurchaseTransactionID || `TICKET-${new Date(order.PurchaseDate).getTime()}`,
             storeItems: [],
+            restaurantItems: [],  // IMPORTANT: Initialize restaurant items
             tickets: []
           };
 
           let subOperations = 0;
-          const totalSubOperations = 2; // Store items + tickets
+          const totalSubOperations = 3; // Store items + Restaurant items + Tickets
 
           if (order.OrderType === 'main') {
-            // UPDATED: Get store items with soft delete support - shows ALL items (active and inactive)
+            // Get store items
             const storeItemsSql = `
               SELECT 
                 pi.fk_ItemID, 
@@ -3158,20 +3215,49 @@ app.get('/store/past-orders', (req, res) => {
                 orderDetails.storeItems = [];
               } else {
                 orderDetails.storeItems = itemResults || [];
-                console.log(`Found ${itemResults.length} store items for order ${order.PurchaseTransactionID}`);
+                console.log(`Found ${(itemResults || []).length} store items for order ${order.PurchaseTransactionID}`);
               }
 
               subOperations++;
-              if (subOperations === totalSubOperations) {
-                detailedOrders.push(orderDetails);
-                processedOrders++;
-                if (processedOrders === allOrderGroups.length) {
-                  renderUnifiedOrdersPage();
-                }
-              }
+              checkComplete();
             });
 
-            // Get tickets using foreign key - NO MORE TIMESTAMP MATCHING!
+            // CRITICAL: Get restaurant items
+            const restaurantItemsSql = `
+              SELECT 
+                rb.fk_ItemID,
+                rb.TotalAmount,
+                rb.BillDate,
+                COALESCE(ri.Name, 'Removed Food Item') as Name,
+                COALESCE(ri.Description, '') as Description,
+                COALESCE(ri.Price, 0) as Price,
+                ri.Image,
+                COUNT(*) as quantity
+              FROM restaurantbill rb
+              LEFT JOIN restaurantitem ri ON rb.fk_ItemID = ri.ItemID
+              WHERE rb.fk_PurchaseTransactionID = ?
+              GROUP BY rb.fk_ItemID, ri.Name, ri.Description, ri.Price, ri.Image
+            `;
+
+            connection.query(restaurantItemsSql, [order.PurchaseTransactionID], (restaurantErr, restaurantResults) => {
+              if (restaurantErr) {
+                console.error('Error fetching restaurant items for order', order.PurchaseTransactionID, ':', restaurantErr);
+                orderDetails.restaurantItems = [];
+              } else {
+                orderDetails.restaurantItems = restaurantResults || [];
+                console.log(`Found ${(restaurantResults || []).length} restaurant items for order ${order.PurchaseTransactionID}`);
+                
+                // DEBUG: Log what we found
+                if (restaurantResults && restaurantResults.length > 0) {
+                  console.log('Restaurant items data:', restaurantResults);
+                }
+              }
+
+              subOperations++;
+              checkComplete();
+            });
+
+            // Get tickets
             const ticketsSql = `
               SELECT 
                 tp.TicketPurchaseID, 
@@ -3194,22 +3280,17 @@ app.get('/store/past-orders', (req, res) => {
                 orderDetails.tickets = [];
               } else {
                 orderDetails.tickets = ticketResults || [];
-                console.log(`Found ${ticketResults.length} tickets for order ${order.PurchaseTransactionID}`);
+                console.log(`Found ${(ticketResults || []).length} tickets for order ${order.PurchaseTransactionID}`);
               }
 
               subOperations++;
-              if (subOperations === totalSubOperations) {
-                detailedOrders.push(orderDetails);
-                processedOrders++;
-                if (processedOrders === allOrderGroups.length) {
-                  renderUnifiedOrdersPage();
-                }
-              }
+              checkComplete();
             });
 
           } else {
-            // For standalone ticket orders, no store items
+            // For standalone ticket orders, no store items or restaurant items
             orderDetails.storeItems = [];
+            orderDetails.restaurantItems = [];
             
             // Get tickets for standalone orders using NULL foreign key
             const standaloneTicketDetailsSql = `
@@ -3236,7 +3317,7 @@ app.get('/store/past-orders', (req, res) => {
                 orderDetails.tickets = [];
               } else {
                 orderDetails.tickets = ticketResults || [];
-                console.log(`Found ${ticketResults.length} standalone tickets for date ${order.PurchaseDate}`);
+                console.log(`Found ${(ticketResults || []).length} standalone tickets for date ${order.PurchaseDate}`);
               }
 
               detailedOrders.push(orderDetails);
@@ -3246,6 +3327,16 @@ app.get('/store/past-orders', (req, res) => {
               }
             });
           }
+
+          function checkComplete() {
+            if (subOperations === totalSubOperations) {
+              detailedOrders.push(orderDetails);
+              processedOrders++;
+              if (processedOrders === allOrderGroups.length) {
+                renderUnifiedOrdersPage();
+              }
+            }
+          }
         });
 
         function renderUnifiedOrdersPage() {
@@ -3254,17 +3345,33 @@ app.get('/store/past-orders', (req, res) => {
           
           console.log('Rendering unified orders page with', detailedOrders.length, 'orders');
           
+          // DEBUG: Log order details
+          detailedOrders.forEach((order, index) => {
+            console.log(`Order ${index + 1}:`, {
+              orderId: order.orderId,
+              storeItems: order.storeItems.length,
+              restaurantItems: order.restaurantItems.length,
+              tickets: order.tickets.length
+            });
+          });
+          
           // Add order type classification for display
           detailedOrders.forEach(order => {
             const hasStoreItems = order.storeItems && order.storeItems.length > 0;
+            const hasRestaurantItems = order.restaurantItems && order.restaurantItems.length > 0;
             const hasTickets = order.tickets && order.tickets.length > 0;
             
-            if (hasStoreItems && hasTickets) {
+            const itemCount = (hasStoreItems ? 1 : 0) + (hasRestaurantItems ? 1 : 0) + (hasTickets ? 1 : 0);
+            
+            if (itemCount > 1) {
               order.orderType = 'mixed';
               order.orderTypeLabel = 'Mixed Order';
             } else if (hasStoreItems) {
               order.orderType = 'store';
               order.orderTypeLabel = 'Store Order';
+            } else if (hasRestaurantItems) {
+              order.orderType = 'restaurant';
+              order.orderTypeLabel = 'Restaurant Order';
             } else if (hasTickets) {
               order.orderType = 'ticket';
               order.orderTypeLabel = 'Ticket Order';
@@ -3283,23 +3390,6 @@ app.get('/store/past-orders', (req, res) => {
     });
   });
 });
-
-app.get('/listItem/:id', (req, res) => {
-    if (!req.session.admin) return res.redirect('/login');
-    
-    const itemId = req.params.id;
-    const sql = 'UPDATE storeitem SET is_active = TRUE WHERE ItemID = ?';
-    
-    connection.query(sql, [itemId], (error, results) => {
-        if (error) {
-            console.error("Error listing item:", error);
-            return res.status(500).send('Error listing item');
-        }
-        
-        res.redirect('/admin/store-items?message=Item successfully listed in store');
-    });
-});
-
 
 app.get('/Admin/addadmins', (req, res) => {
   if (!req.session.admin) return res.redirect('/login');

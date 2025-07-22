@@ -20,11 +20,14 @@
     .store-order-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
+    .restaurant-order-header {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    }
     .ticket-order-header {
       background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
     .mixed-order-header {
-      background: linear-gradient(135deg, #667eea 0%, #f093fb 50%, #f5576c 100%);
+      background: linear-gradient(135deg, #667eea 0%, #ff9a9e 50%, #f093fb 100%);
     }
     .order-body {
       padding: 1rem;
@@ -92,6 +95,7 @@
             <p>You haven't placed any orders yet. Start shopping to see your order history here!</p>
             <div class="d-flex gap-2 justify-content-center">
               <a href="/store-items" class="btn btn-primary">🛍️ Browse Store</a>
+              <a href="/restaurant" class="btn btn-success">🍽️ Order Food</a>
               <a href="/events" class="btn btn-outline-primary">🎫 Browse Events</a>
             </div>
           </div>
@@ -100,18 +104,28 @@
             <div class="col-md-8">
               <% orders.forEach(order => { %>
                 <div class="order-card">
-                  <div class="order-header <%= order.orderType === 'store' ? 'store-order-header' : (order.orderType === 'ticket' ? 'ticket-order-header' : 'mixed-order-header') %>">
+                  <div class="order-header <%= 
+                    order.orderType === 'store' ? 'store-order-header' : 
+                    (order.orderType === 'restaurant' ? 'restaurant-order-header' :
+                    (order.orderType === 'ticket' ? 'ticket-order-header' : 'mixed-order-header')) 
+                  %>">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="d-flex align-items-center">
                           <h5 class="mb-1">
-                            <% if (order.orderType === 'mixed') { %>
-                              🛍️🎫 Order #<%= order.orderId %>
-                            <% } else if (order.orderType === 'store') { %>
-                              🛍️ Order #<%= order.orderId %>
-                            <% } else { %>
-                              🎫 Order #<%= order.orderId %>
-                            <% } %>
+                            <% 
+                              const headerHasStore = order.storeItems && order.storeItems.length > 0;
+                              const headerHasRestaurant = order.restaurantItems && order.restaurantItems.length > 0;
+                              const headerHasTickets = order.tickets && order.tickets.length > 0;
+                              
+                              let icons = '';
+                              if (headerHasStore) icons += '🛍️';
+                              if (headerHasRestaurant) icons += '🍽️';
+                              if (headerHasTickets) icons += '🎫';
+                              
+                              if (icons === '') icons = '📦';
+                            %>
+                            <%= icons %> Order #<%= order.orderId %>
                           </h5>
                           <span class="badge bg-light text-dark order-type-badge ms-2">
                             <%= order.orderTypeLabel %>
@@ -157,6 +171,9 @@
                             </div>
                             <div class="col-md-6">
                               <strong><%= item.Name %></strong>
+                              <% if (!item.is_active) { %>
+                                <br><small class="text-muted">(No longer available)</small>
+                              <% } %>
                             </div>
                             <div class="col-md-2 text-center">
                               Qty: <%= item.Quantity %>
@@ -168,13 +185,52 @@
                         </div>
                       <% }) %>
                     <% } %>
+
+                    <!-- Restaurant Items Section -->
+                    <% if (order.restaurantItems && order.restaurantItems.length > 0) { %>
+                      <h6 class="mb-3">🍽️ Restaurant Items:</h6>
+                      <% order.restaurantItems.forEach(item => { %>
+                        <div class="item-row">
+                          <div class="row align-items-center">
+                            <div class="col-md-2">
+                              <% if (item.Image) { %>
+                                <img src="<%= item.Image %>" alt="<%= item.Name %>" 
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                              <% } else { %>
+                                <div style="width: 50px; height: 50px; background-color: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                  🍽️
+                                </div>
+                              <% } %>
+                            </div>
+                            <div class="col-md-6">
+                              <strong><%= item.Name %></strong>
+                              <% if (item.Description) { %>
+                                <br><small class="text-muted"><%= item.Description %></small>
+                              <% } %>
+                            </div>
+                            <div class="col-md-2 text-center">
+                              Qty: <%= item.quantity %>
+                            </div>
+                            <div class="col-md-2 text-center">
+                              $<%= parseFloat(item.Price || 0).toFixed(2) %> each
+                            </div>
+                          </div>
+                        </div>
+                      <% }) %>
+                    <% } %>
                     
                     <!-- Section Divider for Mixed Orders -->
-                    <% if (order.storeItems.length > 0 && order.tickets.length > 0) { %>
+                    <% 
+                      const dividerHasStoreItems = order.storeItems && order.storeItems.length > 0;
+                      const dividerHasRestaurantItems = order.restaurantItems && order.restaurantItems.length > 0;
+                      const dividerHasTickets = order.tickets && order.tickets.length > 0;
+                      const showDivider = ((dividerHasStoreItems || dividerHasRestaurantItems) && dividerHasTickets);
+                    %>
+                    <% if (showDivider) { %>
                       <div class="section-divider"></div>
                     <% } %>
                     
-                    <!-- Event Tickets Section - FIXED: Shows tickets per individual order -->
+                    <!-- Event Tickets Section -->
                     <% if (order.tickets && order.tickets.length > 0) { %>
                       <h6 class="mb-3">🎫 Event Tickets:</h6>
                       
@@ -304,34 +360,51 @@
                 </div>
                 <div class="card-body">
                   <%
-                    const storeOrders = orders.filter(o => o.storeItems.length > 0);
-                    const ticketOrders = orders.filter(o => o.tickets.length > 0);
-                    const mixedOrders = orders.filter(o => o.storeItems.length > 0 && o.tickets.length > 0);
+                    const summaryStoreOrders = orders.filter(o => o.storeItems.length > 0);
+                    const summaryRestaurantOrders = orders.filter(o => o.restaurantItems && o.restaurantItems.length > 0);
+                    const summaryTicketOrders = orders.filter(o => o.tickets.length > 0);
+                    const summaryMixedOrders = orders.filter(o => 
+                      (o.storeItems.length > 0 ? 1 : 0) + 
+                      (o.restaurantItems && o.restaurantItems.length > 0 ? 1 : 0) + 
+                      (o.tickets.length > 0 ? 1 : 0) > 1
+                    );
                     const totalSpent = orders.reduce((sum, order) => sum + parseFloat(order.FinalAmountPaid), 0);
                     const totalCashbackUsed = orders.reduce((sum, order) => sum + parseFloat(order.CashbackUsed || 0), 0);
                     const totalTickets = orders.reduce((sum, order) => sum + order.tickets.length, 0);
                     const totalItems = orders.reduce((sum, order) => sum + order.storeItems.reduce((itemSum, item) => itemSum + item.Quantity, 0), 0);
+                    const totalRestaurantItems = orders.reduce((sum, order) => 
+                      sum + (order.restaurantItems ? order.restaurantItems.reduce((itemSum, item) => itemSum + item.quantity, 0) : 0), 0
+                    );
                   %>
                   
                   <div class="mb-3">
                     <strong>Total Orders:</strong> <%= orders.length %>
                     <br>
                     <small class="text-muted">
-                      <% if (mixedOrders.length > 0) { %>
-                        🛍️🎫 <%= mixedOrders.length %> mixed • 
+                      <% if (summaryMixedOrders.length > 0) { %>
+                        🛍️🍽️🎫 <%= summaryMixedOrders.length %> mixed • 
                       <% } %>
-                      <% if (storeOrders.length - mixedOrders.length > 0) { %>
-                        🛍️ <%= storeOrders.length - mixedOrders.length %> store • 
+                      <% if (summaryStoreOrders.length - summaryMixedOrders.length > 0) { %>
+                        🛍️ <%= summaryStoreOrders.length - summaryMixedOrders.length %> store • 
                       <% } %>
-                      <% if (ticketOrders.length - mixedOrders.length > 0) { %>
-                        🎫 <%= ticketOrders.length - mixedOrders.length %> tickets
+                      <% if (summaryRestaurantOrders.length - summaryMixedOrders.length > 0) { %>
+                        🍽️ <%= summaryRestaurantOrders.length - summaryMixedOrders.length %> restaurant • 
+                      <% } %>
+                      <% if (summaryTicketOrders.length - summaryMixedOrders.length > 0) { %>
+                        🎫 <%= summaryTicketOrders.length - summaryMixedOrders.length %> tickets
                       <% } %>
                     </small>
                   </div>
                   
                   <% if (totalItems > 0) { %>
                     <div class="mb-3">
-                      <strong>🛍️ Total Items:</strong> <%= totalItems %>
+                      <strong>🛍️ Total Store Items:</strong> <%= totalItems %>
+                    </div>
+                  <% } %>
+                  
+                  <% if (totalRestaurantItems > 0) { %>
+                    <div class="mb-3">
+                      <strong>🍽️ Total Food Items:</strong> <%= totalRestaurantItems %>
                     </div>
                   <% } %>
                   
@@ -357,6 +430,7 @@
                   
                   <div class="d-grid gap-2">
                     <a href="/store-items" class="btn btn-primary">🛍️ Continue Shopping</a>
+                    <a href="/restaurant" class="btn btn-success">🍽️ Order Food</a>
                     <a href="/events" class="btn btn-outline-primary">🎫 Browse Events</a>
                   </div>
                 </div>
