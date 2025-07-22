@@ -4,6 +4,7 @@
   "description": "FYP_Project",
   "main": "footballmanagementapp.js",
   "scripts": {
+    "start": "node app2.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
