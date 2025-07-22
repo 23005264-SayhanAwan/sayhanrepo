@@ -12,22 +12,23 @@
     font-family: 'Segoe UI', sans-serif;
   }
   .card {
-    background-color: #1a1f2e;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     border: none;
     border-radius: 1rem;
     margin-bottom: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    color: #1f2937;
   }
   .card-title {
     font-size: 1.25rem;
     font-weight: bold;
-    color: #ffffff;
+    color: #1f2937;
   }
   .card-text {
-    color: #ccc;
+    color: #374151;
   }
   .text-muted {
-    color: #aaa !important;
+    color: #6b7280 !important;
   }
   .btn {
     border-radius: 0.5rem;
@@ -35,6 +36,57 @@
   .modal-content {
     background-color: #1a1f2e;
     color: white;
+  }
+  
+  /* Modal headers - light background for readability */
+  .modal-header {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    color: #1f2937;
+    border-radius: 1rem 1rem 0 0;
+    border-bottom: 1px solid #d1d5db;
+  }
+  
+  .modal-title {
+    color: #1f2937;
+    font-weight: 600;
+  }
+  
+  .btn-close {
+    filter: none;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #6b7280;
+    opacity: 0.7;
+  }
+  
+  .btn-close:hover {
+    opacity: 1;
+    color: #374151;
+  }
+  
+  /* Form controls in modals */
+  .form-control, .form-select {
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    color: #f9fafb;
+    border-radius: 0.5rem;
+  }
+  
+  .form-control:focus, .form-select:focus {
+    background-color: #374151;
+    border-color: #6366f1;
+    color: #f9fafb;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+  }
+  
+  .form-control::placeholder {
+    color: #9ca3af;
+  }
+  
+  .form-label {
+    color: #f9fafb;
+    font-weight: 500;
   }
   
   /* Page title styling */
@@ -45,6 +97,11 @@
     color: #f49b00;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     font-size: 2.5rem;
+  }
+
+  .form-label {
+    color: #000000;
+    font-weight: 500;
   }
   
   /* Container styling */
@@ -74,6 +131,80 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(244, 155, 0, 0.3);
     color: #000;
+  }
+  
+  /* Card footer with better button styling */
+  .card-footer {
+    background: rgba(249, 250, 251, 0.8);
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  /* Alert styling */
+  .alert-info {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+    border-radius: 0.75rem;
+  }
+  
+  /* Badge improvements for better contrast */
+  .badge.bg-warning {
+    background-color: #f59e0b !important;
+    color: #000 !important;
+  }
+  
+  .badge.bg-danger {
+    background-color: #ef4444 !important;
+    color: #fff !important;
+  }
+  
+  .badge.bg-secondary {
+    background-color: #6b7280 !important;
+    color: #fff !important;
+  }
+  
+  .badge.bg-dark {
+    background-color: #374151 !important;
+    color: #fff !important;
+  }
+  
+  /* Button improvements */
+  .btn-warning {
+    background-color: #f59e0b;
+    border-color: #f59e0b;
+    color: #000;
+  }
+  
+  .btn-warning:hover {
+    background-color: #d97706;
+    border-color: #d97706;
+    color: #000;
+  }
+  
+  .btn-success {
+    background-color: #10b981;
+    border-color: #10b981;
+  }
+  
+  .btn-info {
+    background-color: #06b6d4;
+    border-color: #06b6d4;
+  }
+  
+  .btn-danger {
+    background-color: #ef4444;
+    border-color: #ef4444;
+  }
+  
+  .btn-primary {
+    background-color: #6366f1;
+    border-color: #6366f1;
+  }
+  
+  .btn-secondary {
+    background-color: #6b7280;
+    border-color: #6b7280;
+    color: #fff;
   }
   
   /* Dropdown fix for consistency */
@@ -161,11 +292,11 @@
       <div class="modal fade" id="editModal-<%= announcement.AnnouncementID %>" tabindex="-1" aria-labelledby="editModalLabel-<%= announcement.AnnouncementID %>" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
-            <div class="modal-header" style="border-bottom: 1px solid #2d3748;">
+            <div class="modal-header">
               <h5 class="modal-title" id="editModalLabel-<%= announcement.AnnouncementID %>">
                 <i class="fas fa-edit me-2"></i>Edit Announcement
               </h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/Admin/announcements/edit/<%= announcement.AnnouncementID %>" method="POST">
               <div class="modal-body">
@@ -193,7 +324,7 @@
                   </div>
                 </div>
               </div>
-              <div class="modal-footer" style="border-top: 1px solid #2d3748;">
+              <div class="modal-footer" style="border-top: 1px solid #374151;">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="submit" class="btn btn-primary">
                   <i class="fas fa-save me-2"></i>Save Changes
@@ -209,11 +340,11 @@
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header" style="border-bottom: 1px solid #2d3748;">
+          <div class="modal-header">
             <h5 class="modal-title" id="createModalLabel">
               <i class="fas fa-plus me-2"></i>Create New Announcement
             </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <form action="/Admin/announcements/create" method="POST">
             <div class="modal-body">
@@ -240,7 +371,7 @@
                 </div>
               </div>
             </div>
-            <div class="modal-footer" style="border-top: 1px solid #2d3748;">
+            <div class="modal-footer" style="border-top: 1px solid #374151;">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
               <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save me-2"></i>Create Announcement
@@ -252,6 +383,6 @@
     </div>
   </div>
 
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
