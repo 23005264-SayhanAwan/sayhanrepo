@@ -144,6 +144,13 @@
       padding: 2px 4px !important;
     }
 
+    /* Expired/Inactive announcement styling */
+    .fc-event.announcement-expired {
+      background-color: #dc3545 !important; /* Red for expired */
+      color: #fff !important;
+      border-color: #a02834 !important;
+    }
+
     .fc-event.Announcement {
       background-color: #ffcc80;
       color: #000;
@@ -170,6 +177,11 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
     }
 
+    .modal-header.expired-header {
+      background: linear-gradient(45deg, #dc3545, #a02834) !important;
+      color: #fff !important;
+    }
+
     .modal-title {
       font-weight: 700 !important;
       display: flex !important;
@@ -190,9 +202,47 @@
       border-left: 3px solid #f49b00 !important;
     }
 
+    .modal-body p.expired-border {
+      border-left: 3px solid #dc3545 !important;
+    }
+
     .modal-body strong {
       color: #f49b00 !important;
       margin-right: 10px !important;
+    }
+
+    .modal-body strong.expired-text {
+      color: #dc3545 !important;
+    }
+
+    .modal-footer {
+      background: transparent !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .btn-danger {
+      background-color: #dc3545 !important;
+      border-color: #dc3545 !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333 !important;
+      border-color: #bd2130 !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d !important;
+      border-color: #6c757d !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268 !important;
+      border-color: #545b62 !important;
+      transform: translateY(-2px) !important;
     }
 
     .btn-close-white {
@@ -202,6 +252,12 @@
     /* Dropdown fix for navbar */
     .dropdown-menu {
       z-index: 9999 !important;
+    }
+
+    /* Loading spinner */
+    .spinner-border-sm {
+      width: 1rem !important;
+      height: 1rem !important;
     }
 
     /* Responsive Design */
@@ -265,19 +321,27 @@
   <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header" id="announcementModalHeader">
           <h5 class="modal-title" id="eventModalLabel">
             <i class="fas fa-bullhorn me-2"></i>Announcement Details
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p><strong><i class="fas fa-tag"></i> Title:</strong> <span id="modalTitle"></span></p>
-          <p><strong><i class="fas fa-file-text"></i> Content:</strong> <span id="modalContent"></span></p>
-          <p><strong><i class="fas fa-calendar-plus"></i> Created:</strong> <span id="modalStart"></span></p>
-          <p><strong><i class="fas fa-exclamation-triangle"></i> Priority:</strong> <span id="modalPriority"></span></p>
-          <p><strong><i class="fas fa-info-circle"></i> Status:</strong> <span id="modalStatus"></span></p>
-          <p><strong><i class="fas fa-clock"></i> Expires:</strong> <span id="modalExpiry"></span></p>
+          <p id="modalTitleP"><strong><i class="fas fa-tag"></i> Title:</strong> <span id="modalTitle"></span></p>
+          <p id="modalContentP"><strong><i class="fas fa-file-text"></i> Content:</strong> <span id="modalContent"></span></p>
+          <p id="modalStartP"><strong><i class="fas fa-calendar-plus"></i> Created:</strong> <span id="modalStart"></span></p>
+          <p id="modalPriorityP"><strong><i class="fas fa-exclamation-triangle"></i> Priority:</strong> <span id="modalPriority"></span></p>
+          <p id="modalStatusP"><strong><i class="fas fa-info-circle"></i> Status:</strong> <span id="modalStatus"></span></p>
+          <p id="modalExpiryP"><strong><i class="fas fa-clock"></i> Expires:</strong> <span id="modalExpiry"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Close
+          </button>
+          <button type="button" class="btn btn-danger" id="removeAnnouncementBtn">
+            <i class="fas fa-trash-alt me-2"></i>Remove from Calendar
+          </button>
         </div>
       </div>
     </div>
@@ -318,16 +382,30 @@
     console.log('Announcement Events:', announcementEvents.length);
     console.log('Booking Events:', bookingEvents.length);
 
+    // Function to check if announcement is expired or inactive
+    function isExpiredOrInactive(event) {
+      const now = new Date();
+      const expiry = event.expiry ? new Date(event.expiry) : null;
+      const isExpired = expiry && expiry < now;
+      const isInactive = event.status && event.status.toLowerCase() === 'inactive';
+      
+      return isExpired || isInactive;
+    }
+
     // Process events for FullCalendar
     const processedEvents = [
       // Process announcements
-      ...announcementEvents.map(event => ({
-        ...event,
-        className: 'announcement-event',
-        backgroundColor: '#ffc107',
-        borderColor: '#ff8f00',
-        textColor: '#000'
-      })),
+      ...announcementEvents.map(event => {
+        const expired = isExpiredOrInactive(event);
+        return {
+          ...event,
+          className: expired ? 'announcement-expired' : 'announcement-event',
+          backgroundColor: expired ? '#dc3545' : '#ffc107',
+          borderColor: expired ? '#a02834' : '#ff8f00',
+          textColor: expired ? '#fff' : '#000',
+          expired: expired
+        };
+      }),
       // Process bookings
       ...bookingEvents.map(event => ({
         ...event,
@@ -358,11 +436,18 @@
         const event = info.event;
         const details = event.extendedProps;
 
-        // Apply custom styling based on event type
+        // Apply custom styling based on event type and status
         if (event.extendedProps.type === 'Announcement') {
-          info.el.style.backgroundColor = '#ffc107';
-          info.el.style.color = '#000';
-          info.el.style.fontWeight = 'bold';
+          if (event.extendedProps.expired) {
+            info.el.style.backgroundColor = '#dc3545';
+            info.el.style.color = '#fff';
+            info.el.style.fontWeight = 'bold';
+            info.el.style.borderColor = '#a02834';
+          } else {
+            info.el.style.backgroundColor = '#ffc107';
+            info.el.style.color = '#000';
+            info.el.style.fontWeight = 'bold';
+          }
         } else if (event.extendedProps.type === 'Booking') {
           info.el.style.backgroundColor = '#0d6efd';
           info.el.style.color = '#fff';
@@ -373,6 +458,8 @@
         const details = event.extendedProps;
 
         if (details.type === 'Announcement') {
+          const isExpired = details.expired;
+          
           // Show announcement details in existing modal
           document.getElementById('modalTitle').innerText = details.originalTitle || event.title || 'N/A';
           document.getElementById('modalContent').innerText = details.content || 'No content';
@@ -380,6 +467,28 @@
           document.getElementById('modalPriority').innerText = details.priority || 'Normal';
           document.getElementById('modalStatus').innerText = details.status || 'Active';
           document.getElementById('modalExpiry').innerText = details.expiry || 'N/A';
+
+          // Update modal styling for expired announcements
+          const modalHeader = document.getElementById('announcementModalHeader');
+          const modalPs = document.querySelectorAll('#eventModal .modal-body p');
+          const modalStrongs = document.querySelectorAll('#eventModal .modal-body strong');
+          
+          if (isExpired) {
+            modalHeader.classList.add('expired-header');
+            modalPs.forEach(p => p.classList.add('expired-border'));
+            modalStrongs.forEach(strong => strong.classList.add('expired-text'));
+            document.getElementById('eventModalLabel').innerHTML = 
+              '<i class="fas fa-exclamation-triangle me-2"></i>Expired/Inactive Announcement';
+          } else {
+            modalHeader.classList.remove('expired-header');
+            modalPs.forEach(p => p.classList.remove('expired-border'));
+            modalStrongs.forEach(strong => strong.classList.remove('expired-text'));
+            document.getElementById('eventModalLabel').innerHTML = 
+              '<i class="fas fa-bullhorn me-2"></i>Announcement Details';
+          }
+
+          // Store announcement ID for removal
+          document.getElementById('removeAnnouncementBtn').setAttribute('data-announcement-id', event.id.replace('a-', ''));
 
           const modal = new bootstrap.Modal(document.getElementById('eventModal'));
           modal.show();
@@ -428,6 +537,48 @@
     });
 
     calendar.render();
+
+    // Handle announcement removal
+    document.getElementById('removeAnnouncementBtn').addEventListener('click', function() {
+      const announcementId = this.getAttribute('data-announcement-id');
+      
+      // Show loading state
+      const originalText = this.innerHTML;
+      this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Removing...';
+      this.disabled = true;
+
+      // Send removal request to server
+      fetch('/Member/calendar/remove-announcement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ announcementId: announcementId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Close modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+          modal.hide();
+          
+          // Refresh the calendar
+          location.reload();
+        } else {
+          alert('Failed to remove announcement: ' + (data.message || 'Unknown error'));
+          // Reset button
+          this.innerHTML = originalText;
+          this.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error removing announcement. Please try again.');
+        // Reset button
+        this.innerHTML = originalText;
+        this.disabled = false;
+      });
+    });
     
     // Log summary for debugging
     console.log('Calendar initialized with:');

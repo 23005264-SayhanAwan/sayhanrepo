@@ -4365,7 +4365,7 @@ app.get('/Member/calendar', isMemberLoggedIn, async (req, res) => {
   console.log("MemberID:", memberID);
 
   try {
-    // Get announcements that were added to calendar
+    // Get announcements that were added to calendar (including expired/inactive ones)
     const [announcementRows] = await connection.promise().query(`
       SELECT
         a.AnnouncementID AS id,
@@ -4374,32 +4374,50 @@ app.get('/Member/calendar', isMemberLoggedIn, async (req, res) => {
         a.CreatedDate AS start,
         a.Priority,
         a.Status,
-        a.ExpiryDate
+        a.ExpiryDate,
+        CASE 
+          WHEN a.Status = 'Inactive' OR (a.ExpiryDate IS NOT NULL AND a.ExpiryDate < CURDATE()) 
+          THEN 1 
+          ELSE 0 
+        END AS is_expired_or_inactive
       FROM member_calendar ma
       JOIN announcements a ON ma.fk_AnnouncementID = a.AnnouncementID
       WHERE ma.fk_MemberID = ?
-      ORDER BY a.CreatedDate DESC
+      ORDER BY 
+        is_expired_or_inactive ASC, -- Show active ones first
+        a.CreatedDate DESC
     `, [memberID]);
 
     console.log('Announcement rows:', announcementRows.length);
 
-    const announcementEvents = announcementRows.map(row => ({
-      id: `a-${row.id}`,
-      title: `Announcement`,
-      start: row.start,
-      end: row.ExpiryDate || null,
-      content: row.Content,
-      priority: row.Priority,
-      status: row.Status,
-      expiry: row.ExpiryDate,
-      originalTitle: row.title, // Store original title for modal display
-      type: 'Announcement',
-      allDay: true,
-      color: '#ffc107',
-      textColor: '#000'
-    }));
+    const announcementEvents = announcementRows.map(row => {
+      const now = new Date();
+      const expiry = row.ExpiryDate ? new Date(row.ExpiryDate) : null;
+      const isExpired = expiry && expiry < now;
+      const isInactive = row.Status && row.Status.toLowerCase() === 'inactive';
+      const isExpiredOrInactive = isExpired || isInactive;
 
-    // Get only CONFIRMED bookings (changed from != 'Cancelled' to = 'Confirmed')
+      return {
+        id: `a-${row.id}`,
+        title: `Announcement${isExpiredOrInactive ? ' (Expired)' : ''}`,
+        start: row.start,  // Only use CreatedDate
+        end: row.start,    // Set end to same as start
+        content: row.Content,
+        priority: row.Priority,
+        status: row.Status,
+        expiry: row.ExpiryDate,
+        originalTitle: row.title, // Store original title for modal display
+        type: 'Announcement',
+        allDay: true,
+        expired: isExpiredOrInactive,
+        color: isExpiredOrInactive ? '#dc3545' : '#ffc107',
+        textColor: isExpiredOrInactive ? '#fff' : '#000'
+      };
+    });
+
+    // Rest of the code remains the same...
+    
+    // Get only CONFIRMED bookings
     const [bookingRows] = await connection.promise().query(`
       SELECT BookingID AS id, BookingDate, StartTime, EndTime, Status
       FROM booking
@@ -4421,14 +4439,20 @@ app.get('/Member/calendar', isMemberLoggedIn, async (req, res) => {
       textColor: '#fff'
     }));
 
+    // Separate expired/inactive announcements for logging
+    const activeAnnouncements = announcementEvents.filter(event => !event.expired);
+    const expiredAnnouncements = announcementEvents.filter(event => event.expired);
+
     console.log('=== CALENDAR DATA SUMMARY ===');
-    console.log('Announcements in calendar:', announcementEvents.length);
+    console.log('Active announcements in calendar:', activeAnnouncements.length);
+    console.log('Expired/Inactive announcements in calendar:', expiredAnnouncements.length);
+    console.log('Total announcements in calendar:', announcementEvents.length);
     console.log('Confirmed bookings:', bookingEvents.length);
     console.log('Total events:', announcementEvents.length + bookingEvents.length);
     console.log('===============================');
 
     res.render('calendar', {
-      announcementEvents, // Separate announcements
+      announcementEvents, // Separate announcements (includes expired)
       bookingEvents,      // Separate bookings
       allEvents: [...announcementEvents, ...bookingEvents], // Combined for backward compatibility
       member: req.session.member
@@ -4512,6 +4536,81 @@ app.post('/Member/calendar/add', isMemberLoggedIn, async (req, res) => {
     console.error("AnnouncementID:", announcementID);
     console.error("===================");
     return res.status(500).send(`Server error while adding to calendar: ${err.message}`);
+  }
+});
+
+// Route to remove announcement from member's calendar
+app.post('/Member/calendar/remove-announcement', isMemberLoggedIn, async (req, res) => {
+  const memberID = req.session.member.MemberID;
+  const { announcementId } = req.body;
+  
+  console.log("=== REMOVE ANNOUNCEMENT FROM CALENDAR ===");
+  console.log("MemberID:", memberID);
+  console.log("AnnouncementID:", announcementId);
+
+  try {
+    // Validate input
+    if (!announcementId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Announcement ID is required'
+      });
+    }
+
+    // Check if the announcement exists in the member's calendar
+    const [checkRows] = await connection.promise().query(`
+      SELECT ma.*, a.Title, a.Status, a.ExpiryDate
+      FROM member_calendar ma
+      JOIN announcements a ON ma.fk_AnnouncementID = a.AnnouncementID
+      WHERE ma.fk_MemberID = ? AND ma.fk_AnnouncementID = ?
+    `, [memberID, announcementId]);
+
+    if (checkRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Announcement not found in your calendar'
+      });
+    }
+
+    const announcement = checkRows[0];
+    console.log('Found announcement:', announcement.Title);
+    console.log('Status:', announcement.Status);
+    console.log('Expiry:', announcement.ExpiryDate);
+
+    // Remove the announcement from member's calendar
+    const [deleteResult] = await connection.promise().query(`
+      DELETE FROM member_calendar 
+      WHERE fk_MemberID = ? AND fk_AnnouncementID = ?
+    `, [memberID, announcementId]);
+
+    if (deleteResult.affectedRows > 0) {
+      console.log('Successfully removed announcement from calendar');
+      
+      res.json({
+        success: true,
+        message: 'Announcement removed from calendar successfully',
+        removedTitle: announcement.Title
+      });
+    } else {
+      console.log('No rows affected during deletion');
+      res.status(500).json({
+        success: false,
+        message: 'Failed to remove announcement from calendar'
+      });
+    }
+
+  } catch (err) {
+    console.error('=== REMOVE ANNOUNCEMENT ERROR ===');
+    console.error('Error message:', err.message);
+    console.error('Error code:', err.code);
+    console.error('SQL:', err.sql);
+    console.error('=====================================');
+    
+    res.status(500).json({
+      success: false,
+      message: 'Database error occurred while removing announcement',
+      error: err.message
+    });
   }
 });
 
