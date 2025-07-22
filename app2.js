@@ -108,7 +108,8 @@ app.get('/', (req, res) => {
 //@MahendraTheCurryMan
 
 //kamali
-// Retrieve restaurant items
+//kamali
+// Retrieve restaurant items (KEEP - just updated for cart integration)
 app.get('/restaurant', (req, res) => {
   const member = req.session.member;
 
@@ -128,8 +129,71 @@ app.get('/restaurant', (req, res) => {
   });
 });
 
-// Admin - Retrieve food items
-// Admin - Retrieve food items
+// NEW: Add restaurant item to cart (SIMPLE VERSION - matches your store items)
+app.post('/restaurant/add-to-cart/:id', (req, res) => {
+  const itemId = req.params.id;
+  const quantity = parseInt(req.body.quantity) || 1;
+
+  if (!req.session.member) {
+    return res.redirect('/login');
+  }
+
+  const sql = 'SELECT * FROM restaurantitem WHERE ItemID = ?';
+  connection.query(sql, [itemId], (error, results) => {
+    if (error) {
+      console.error('Error finding restaurant item:', error);
+      return res.status(500).send('Error adding to cart');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('Restaurant item not found');
+    }
+
+    const item = results[0];
+
+    if (!req.session.cart) {
+      req.session.cart = [];
+    }
+
+    // Check if this restaurant item is already in cart
+    const existing = req.session.cart.find(i => 
+      i.id === item.ItemID && i.type === 'restaurant'
+    );
+    
+    if (existing) {
+      existing.quantity += quantity;
+    } else {
+      req.session.cart.push({
+        id: item.ItemID,
+        type: 'restaurant', // Mark as restaurant item
+        name: item.Name,
+        price: parseFloat(item.Price),
+        image: item.Image,
+        description: item.Description,
+        quantity: quantity
+      });
+    }
+
+    console.log('Restaurant item added to cart:', item.Name, 'x' + quantity);
+    
+    // Simple redirect to cart (like your store items)
+    res.redirect('/cart');
+  });
+});
+
+// NEW: Remove restaurant item from cart (SIMPLE VERSION)
+app.post('/restaurant/remove-from-cart/:id', (req, res) => {
+  if (!req.session.cart) return res.redirect('/cart');
+  
+  const itemId = parseInt(req.params.id);
+  req.session.cart = req.session.cart.filter(item => 
+    !(item.type === 'restaurant' && item.id === itemId)
+  );
+  
+  res.redirect('/cart');
+});
+
+// Admin - Retrieve food items (KEEP UNCHANGED)
 app.get('/admin/items', (req, res) => {
   const sql = 'SELECT ItemID, Name, Description, Price, Image FROM restaurantitem';
 
@@ -146,14 +210,14 @@ app.get('/admin/items', (req, res) => {
   });
 });
 
-// Admin - Show form to add a new item
+// Admin - Show form to add a new item (KEEP UNCHANGED)
 app.get('/admin/items/add', (req, res) => {
   res.render('adminItemAdd', {
     admin: req.session.admin
   });
 });
 
-// Admin - Handle item submission
+// Admin - Handle item submission (KEEP UNCHANGED)
 app.post('/admin/items/add', upload.single('Image'), (req, res) => {
   const { Name, Description, Price } = req.body;
   const imagePath = req.file ? '/images/' + req.file.filename : null;
@@ -168,7 +232,7 @@ app.post('/admin/items/add', upload.single('Image'), (req, res) => {
   });
 });
 
-// Admin - Show edit form for an item
+// Admin - Show edit form for an item (KEEP UNCHANGED)
 app.get('/admin/items/edit/:id', (req, res) => {
   const id = req.params.id;
 
@@ -184,7 +248,7 @@ app.get('/admin/items/edit/:id', (req, res) => {
   });
 });
 
-// Admin - Handle item update
+// Admin - Handle item update (KEEP UNCHANGED)
 app.post('/admin/items/edit/:id', upload.single('Image'), (req, res) => {
   const id = req.params.id;
   const { Name, Description, Price } = req.body;
@@ -210,7 +274,7 @@ app.post('/admin/items/edit/:id', upload.single('Image'), (req, res) => {
   });
 });
 
-// Admin - Handle item deletion
+// Admin - Handle item deletion (KEEP UNCHANGED)
 app.post('/admin/items/delete/:id', (req, res) => {
   const id = req.params.id;
 
@@ -224,197 +288,15 @@ app.post('/admin/items/delete/:id', (req, res) => {
   });
 });
 
-// Handle restaurant checkout
-app.post('/restaurant/checkout', (req, res) => {
-  const memberID = req.session.member?.MemberID;
-  if (!memberID) return res.status(401).send('Not logged in');
 
-  const { items, cashbackUsed, finalAmount } = req.body;
-
-  if (!items || !Array.isArray(items)) {
-    return res.status(400).send('Invalid or incomplete item data.');
-  }
-
-  const billDate = new Date();
-  const insertSQL = `
-    INSERT INTO restaurantbill 
-    (fk_MemberID, fk_ItemID, BillDate, TotalAmount, CashbackUsed, FinalAmountPaid)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-
-  const promises = items.map(item => {
-    return new Promise((resolve, reject) => {
-      connection.query(insertSQL, [
-        memberID,
-        item.ItemID,
-        billDate,
-        item.Price * item.quantity,
-        cashbackUsed,
-        finalAmount
-      ], (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      });
-    });
-  });
-
-  Promise.all(promises)
-    .then(() => res.status(200).send('Bill saved successfully.'))
-    .catch(err => {
-      console.error('Error inserting bill:', err);
-      res.status(500).send('Failed to save bill.');
-    });
-});
-
-// Restaurant summary route with DB discount and cashback
-app.post('/restaurant/summary', (req, res) => {
-  const itemIDs = req.body.itemIDs;
-  const quantities = req.body.quantities;
-  const memberID = req.session.member?.MemberID;
-
-  if (!itemIDs || !quantities || !Array.isArray(itemIDs) || !Array.isArray(quantities)) {
-    return res.status(400).send('Invalid or incomplete item data.');
-  }
-
-  if (!memberID) {
-    return res.status(401).send('Member not logged in.');
-  }
-
-  const validQuantities = quantities.map(q => parseInt(q)).filter(q => q > 0);
-  if (validQuantities.length === 0) {
-    return res.status(400).send('No valid quantities selected.');
-  }
-
-  const selectedItemIDs = itemIDs.filter((_, index) => parseInt(quantities[index]) > 0);
-  const selectedQuantities = validQuantities;
-
-  const placeholders = selectedItemIDs.map(() => '?').join(',');
-  const sql = `SELECT ItemID, Name, Description, Price FROM restaurantitem WHERE ItemID IN (${placeholders})`;
-
-  connection.query(sql, selectedItemIDs, (err, foodResults) => {
-    if (err) return res.status(500).send('Error fetching item data.');
-
-    const itemsWithTotals = foodResults.map((item, i) => {
-      const quantity = selectedQuantities[i];
-      const itemTotal = item.Price * quantity;
-      return { ...item, quantity, itemTotal };
-    });
-
-    const total = itemsWithTotals.reduce((sum, item) => sum + item.itemTotal, 0);
-
-    const tierSQL = `
-      SELECT m.CashbackBalance, t.Discount, t.Cashback
-      FROM members m
-      JOIN membershiptier t ON m.fk_TierID = t.TierID
-      WHERE m.MemberID = ?
-    `;
-
-    connection.query(tierSQL, [memberID], (err, tierResults) => {
-      if (err || tierResults.length === 0) {
-        return res.status(500).send('Error fetching tier info.');
-      }
-
-      const cashbackBalance = tierResults[0].CashbackBalance || 0;
-      const discountPercentage = tierResults[0].Discount || 0;
-
-      const discountAmount = total * (discountPercentage / 100);
-      const afterDiscount = total - discountAmount;
-      const cashbackRate = tierResults[0].Cashback || 0;
-      const potentialCashback = afterDiscount * (cashbackRate);
-      const cashbackUsed = Math.min(potentialCashback, cashbackBalance);
-      const finalAmount = afterDiscount - cashbackUsed;
-      req.session.cashbackUsed = cashbackUsed;
-      req.session.finalAmount = finalAmount;  
-      res.render('restaurantSummary', {
-        member: req.session.member,
-        items: itemsWithTotals,
-        total,
-        discountPercentage,
-        discountAmount,
-        cashbackUsed,
-        finalAmount
-      });
-    });
-  });
-});
-
-// Save restaurant bill after checkout
-// Save restaurant bill after checkout
-app.post('/restaurant/confirm-payment', (req, res) => {
-  const { total, cashbackUsed, finalAmount } = req.body;
-  const memberID = req.session.member?.MemberID;
-
-  if (!memberID) return res.status(401).send('Not logged in');
-
-  const sql = `
-    INSERT INTO restaurantbill 
-    (fk_MemberID, BillDate, TotalAmount, CashbackUsed, FinalAmountPaid) 
-    VALUES (?, CURDATE(), ?, ?, ?)
-  `;
-
-  const values = [memberID, total, cashbackUsed, finalAmount];
-
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('Error saving bill:', err);
-      return res.status(500).send('Checkout failed: Failed to save bill');
-    }
-
-    console.log('✅ Bill saved successfully!');
-    res.redirect('/success'); // Change from '/checkoutsuccess' to '/success'
-  });
-});
-
-// Create Stripe checkout session
-app.post('/create-checkout-session', async (req, res) => {
-  const { items } = req.body;
-  const memberID = req.session.member?.MemberID;
-  const cashbackUsed = req.session.cashbackUsed || 0;
-
-  try {
-    const line_items = items.map(item => ({
-      price_data: {
-        currency: 'sgd',
-        product_data: { name: item.Name },
-        unit_amount: Math.round(item.Price * 100),
-      },
-      quantity: item.quantity,
-    }));
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items,
-      mode: 'payment',
-      success_url: 'http://localhost:3000/success', 
-      cancel_url: 'http://localhost:3000/restaurant',
-    });
-
-    if (cashbackUsed > 0 && memberID) {
-      const sql = 'UPDATE members SET CashbackBalance = CashbackBalance - ? WHERE MemberID = ?';
-      connection.query(sql, [cashbackUsed, memberID], (err, result) => {
-        if (err) {
-          console.error('Error deducting cashback:', err);
-        } else {
-          console.log('Cashback deducted:', cashbackUsed);
-        }
-      });
-    }
-
-    res.json({ url: session.url });
-
-  } catch (err) {
-    console.error('Stripe error:', err);
-    res.status(500).json({ error: 'Stripe failed' });
-  }
-});
-
-// Checkout success page
+// Checkout success page (KEEP - but make sure it doesn't conflict with your existing one)
 app.get('/success', (req, res) => {
   res.render('checkoutsuccess', {
     member: req.session.member
   });
 });
 //kamali
+
 
 
 
@@ -1622,23 +1504,6 @@ app.get('/product/:id', (req, res) => {
 });
 
 
-// NEW: Restaurant Route
-// Display restaurant menu
-app.get('/restaurant', (req, res) => {
-  const sql = 'SELECT ItemID, Name, Description, Price, Image FROM restaurantitem';
-  
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error retrieving food items:', err);
-      return res.status(500).send('Error retrieving food items.');
-    }
-
-    res.render('restaurant', {  // Make sure this matches your template name
-      foodItems: results,
-      member: req.session.member
-    });
-  });
-});
 
 //kamali
 // Member Routes
@@ -2484,7 +2349,7 @@ app.post('/store/update-cart-all', (req, res) => {
   res.redirect('/cart');
 });
 
-// Enhanced cart route with cashback selection and ticket support - DISCOUNT ON TOTAL
+// Enhanced cart route with cashback selection and ticket support - UPDATED with restaurant support
 app.get('/cart', (req, res) => {
   if (!req.session.member) return res.redirect('/login');
 
@@ -2502,6 +2367,7 @@ app.get('/cart', (req, res) => {
       discountAmount: 0,
       subtotalAfterDiscount: 0,
       storeItemsTotal: 0,
+      restaurantItemsTotal: 0,
       ticketsTotal: 0
     });
   }
@@ -2550,19 +2416,24 @@ app.get('/cart', (req, res) => {
 
       const { Cashback: cashbackRate, Discount: discountRate, CashbackBalance, TierName } = tierResults[0] || {};
       
-      // Calculate totals for both store items and tickets
+      // Calculate totals for store items, restaurant items, and tickets
       const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
       
-      // Separate totals for display purposes
+      // Separate totals for display purposes - UPDATED to exclude restaurant items from store total
       const storeItemsTotal = cart
-        .filter(item => item.type !== 'ticket')
+        .filter(item => item.type !== 'ticket' && item.type !== 'restaurant')
+        .reduce((sum, item) => sum + item.price * item.quantity, 0);
+      
+      // NEW: Restaurant items total
+      const restaurantItemsTotal = cart
+        .filter(item => item.type === 'restaurant')
         .reduce((sum, item) => sum + item.price * item.quantity, 0);
       
       const ticketsTotal = cart
         .filter(item => item.type === 'ticket')
         .reduce((sum, item) => sum + item.price * item.quantity, 0);
       
-      // CHANGED: Apply discount to TOTAL amount (store items + tickets)
+      // Apply discount to TOTAL amount (store items + restaurant items + tickets)
       const discountAmount = totalAmount * (discountRate || 0);
       const subtotalAfterDiscount = totalAmount - discountAmount;
 
@@ -2570,6 +2441,7 @@ app.get('/cart', (req, res) => {
       const pricing = {
         totalAmount,
         storeItemsTotal,
+        restaurantItemsTotal,
         ticketsTotal,
         discountAmount,
         subtotalAfterDiscount,
@@ -2600,13 +2472,14 @@ app.get('/cart', (req, res) => {
         cashbackRate: cashbackRate || 0,
         CashbackBalance: CashbackBalance || 0,
         storeItemsTotal,
+        restaurantItemsTotal,
         ticketsTotal
       });
     });
   });
 });
 
-// Enhanced checkout route with selected cashback handling and ticket support - DISCOUNT ON TOTAL
+// Enhanced checkout route with selected cashback handling and ticket support - UPDATED for restaurant items
 app.post('/store/checkout', async (req, res) => {
   if (!req.session.member) return res.redirect('/login');
   const cart = req.session.cart || [];
@@ -2637,7 +2510,7 @@ app.post('/store/checkout', async (req, res) => {
     const { Cashback: cashbackRate, Discount: discountRate } = results[0];
     const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     
-    // CHANGED: Apply discount to TOTAL amount (store items + tickets)
+    // Apply discount to TOTAL amount (store items + restaurant items + tickets)
     const discountAmount = Math.round(totalAmount * discountRate * 100) / 100;
     const subtotalAfterDiscount = Math.round((totalAmount - discountAmount) * 100) / 100;
 
@@ -2769,10 +2642,10 @@ app.post('/store/checkout', async (req, res) => {
   });
 });
 
-// UPDATED: Clean checkout confirm route - Now includes foreign key linking AND stock reduction
+// UPDATED: Checkout confirm route - Now includes restaurant item support
 app.post('/store/checkout/confirm', async (req, res) => {
   console.log('🚀 CHECKOUT CONFIRM ROUTE CALLED!');
-  console.log('=== CONFIRM UNIFIED CHECKOUT ===');
+  console.log('=== CONFIRM UNIFIED CHECKOUT WITH RESTAURANT SUPPORT ===');
 
   if (!req.session.member || !req.session.pendingOrder) {
     return res.status(400).json({ error: 'No pending order' });
@@ -2803,13 +2676,18 @@ app.post('/store/checkout/confirm', async (req, res) => {
   }
 
   const memberID = req.session.member.MemberID;
-  const storeItems = cart.filter(item => item.type !== 'ticket');
+  const storeItems = cart.filter(item => item.type === 'item' || (!item.type && item.storeitempic));
+  const restaurantItems = cart.filter(item => item.type === 'restaurant');
   const tickets = cart.filter(item => item.type === 'ticket');
 
-  // Create a unique timestamp for this order (to link store items and tickets)
+  console.log('Items breakdown:');
+  console.log('- Store items:', storeItems.length);
+  console.log('- Restaurant items:', restaurantItems.length);
+  console.log('- Tickets:', tickets.length);
+
   const orderTimestamp = new Date();
   
-  // STEP 1: Always create a main purchase record (even if only tickets)
+  // STEP 1: Always create a main purchase record
   const purchaseSql = `
     INSERT INTO purchase
     (fk_MemberID, PurchaseDate, TotalAmount, CashbackUsed, FinalAmountPaid)
@@ -2823,109 +2701,174 @@ app.post('/store/checkout/confirm', async (req, res) => {
     }
 
     const purchaseID = result.insertId;
-    console.log('Main purchase saved with ID:', purchaseID, 'at timestamp:', orderTimestamp);
+    console.log('Main purchase saved with ID:', purchaseID);
 
     let operationsCompleted = 0;
-    const totalOperations = (storeItems.length > 0 ? 1 : 0) + (tickets.length > 0 ? 1 : 0);
+    const totalOperations = (storeItems.length > 0 ? 1 : 0) + 
+                           (restaurantItems.length > 0 ? 1 : 0) + 
+                           (tickets.length > 0 ? 1 : 0);
 
-    // If no items to process, complete immediately
     if (totalOperations === 0) {
       return processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
     }
 
-    // STEP 2: Process store items (link to main purchase) - UPDATED with stock reduction
+    // STEP 2: Process store items
     if (storeItems.length > 0) {
-      let itemsProcessed = 0;
-      
-      storeItems.forEach(item => {
-        const itemSql = `
-          INSERT INTO purchaseitem
-          (fk_PurchaseTransactionID, fk_ItemID, Quantity, DiscountApplied, CashbackEarned)
-          VALUES (?, ?, ?, ?, ?)
-        `;
-
-        connection.query(itemSql, [
-          purchaseID,
-          item.id,
-          item.quantity,
-          discountAmount,
-          cashbackEarned
-        ], (itemErr) => {
-          if (itemErr) {
-            console.error('Error saving store item:', itemErr);
-          } else {
-            console.log(`Store item saved: ${item.name} x${item.quantity}`);
-            
-            // ADDED: Reduce stock after successful purchase
-            const updateStockSql = `
-              UPDATE storeitem 
-              SET itemquantity = itemquantity - ? 
-              WHERE ItemID = ?
-            `;
-            
-            connection.query(updateStockSql, [item.quantity, item.id], (stockErr) => {
-              if (stockErr) {
-                console.error('Error updating stock:', stockErr);
-              } else {
-                console.log(`✅ Stock reduced for item ${item.id}: -${item.quantity}`);
-              }
-            });
-          }
-
-          itemsProcessed++;
-          if (itemsProcessed === storeItems.length) {
-            operationsCompleted++;
-            if (operationsCompleted === totalOperations) {
-              processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
-            }
-          }
-        });
+      processStoreItems(storeItems, purchaseID, discountAmount, cashbackEarned, () => {
+        operationsCompleted++;
+        if (operationsCompleted === totalOperations) {
+          processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
+        }
       });
     }
 
-    // STEP 3: Process tickets - UPDATED to include foreign key
+    // STEP 3: Process restaurant items (NEW)
+    if (restaurantItems.length > 0) {
+      processRestaurantItems(restaurantItems, purchaseID, memberID, discountAmount, cashbackEarned, orderTimestamp, () => {
+        operationsCompleted++;
+        if (operationsCompleted === totalOperations) {
+          processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
+        }
+      });
+    }
+
+    // STEP 4: Process tickets
     if (tickets.length > 0) {
-      let ticketsProcessed = 0;
-      const totalTicketCount = tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
-      
-      console.log(`Processing ${totalTicketCount} tickets...`);
-      
-      tickets.forEach(ticket => {
-        // Insert each ticket purchase - UPDATED to include fk_PurchaseTransactionID
-        for (let i = 0; i < ticket.quantity; i++) {
-          const ticketPurchaseSql = `
-            INSERT INTO ticketpurchase 
-            (fk_MemberID, Fk_EventID, PurchaseDate, FinalAmountPaid, fk_PurchaseTransactionID)
-            VALUES (?, ?, ?, ?, ?)
-          `;
-          
-          connection.query(ticketPurchaseSql, [
-            memberID,
-            ticket.id,
-            orderTimestamp,
-            ticket.price,
-            purchaseID  // ADDED: Link ticket to main purchase
-          ], (ticketErr, ticketResult) => {
-            if (ticketErr) {
-              console.error('Error saving ticket purchase:', ticketErr);
-            } else {
-              console.log(`Ticket saved for event ${ticket.id} with auto-generated ID ${ticketResult.insertId}, linked to purchase ${purchaseID}`);
-            }
-            
-            ticketsProcessed++;
-            if (ticketsProcessed === totalTicketCount) {
-              console.log(`All ${totalTicketCount} tickets processed successfully`);
-              operationsCompleted++;
-              if (operationsCompleted === totalOperations) {
-                processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
-              }
-            }
-          });
+      processTickets(tickets, purchaseID, memberID, orderTimestamp, () => {
+        operationsCompleted++;
+        if (operationsCompleted === totalOperations) {
+          processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
         }
       });
     }
   });
 });
+
+// Helper function to process store items
+function processStoreItems(storeItems, purchaseID, discountAmount, cashbackEarned, callback) {
+  let itemsProcessed = 0;
+  
+  storeItems.forEach(item => {
+    const itemSql = `
+      INSERT INTO purchaseitem
+      (fk_PurchaseTransactionID, fk_ItemID, Quantity, DiscountApplied, CashbackEarned)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    connection.query(itemSql, [
+      purchaseID,
+      item.id,
+      item.quantity,
+      discountAmount,
+      cashbackEarned
+    ], (itemErr) => {
+      if (itemErr) {
+        console.error('Error saving store item:', itemErr);
+      } else {
+        console.log(`Store item saved: ${item.name} x${item.quantity}`);
+        
+        // Reduce stock
+        const updateStockSql = `
+          UPDATE storeitem 
+          SET itemquantity = itemquantity - ? 
+          WHERE ItemID = ?
+        `;
+        
+        connection.query(updateStockSql, [item.quantity, item.id], (stockErr) => {
+          if (stockErr) {
+            console.error('Error updating store stock:', stockErr);
+          } else {
+            console.log(`✅ Store stock reduced for item ${item.id}: -${item.quantity}`);
+          }
+        });
+      }
+
+      itemsProcessed++;
+      if (itemsProcessed === storeItems.length) {
+        callback();
+      }
+    });
+  });
+}
+
+// NEW: Helper function to process restaurant items
+function processRestaurantItems(restaurantItems, purchaseID, memberID, discountAmount, cashbackEarned, orderTimestamp, callback) {
+  let itemsProcessed = 0;
+  const totalRestaurantItems = restaurantItems.reduce((sum, item) => sum + item.quantity, 0);
+  
+  console.log(`Processing ${totalRestaurantItems} restaurant items...`);
+  
+  restaurantItems.forEach(item => {
+    // Insert each restaurant item quantity into restaurantbill table
+    for (let i = 0; i < item.quantity; i++) {
+      const restaurantBillSql = `
+        INSERT INTO restaurantbill 
+        (fk_MemberID, fk_ItemID, BillDate, TotalAmount, CashbackUsed, FinalAmountPaid, fk_PurchaseTransactionID)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      connection.query(restaurantBillSql, [
+        memberID,
+        item.id,
+        orderTimestamp,
+        item.price,
+        0, // Individual cashback used (handled at order level)
+        item.price,
+        purchaseID // Link to main purchase
+      ], (restaurantErr, restaurantResult) => {
+        if (restaurantErr) {
+          console.error('Error saving restaurant item:', restaurantErr);
+        } else {
+          console.log(`Restaurant item saved: ${item.name} with bill ID ${restaurantResult.insertId}, linked to purchase ${purchaseID}`);
+        }
+        
+        itemsProcessed++;
+        if (itemsProcessed === totalRestaurantItems) {
+          console.log(`All ${totalRestaurantItems} restaurant items processed successfully`);
+          callback();
+        }
+      });
+    }
+  });
+}
+
+// Helper function to process tickets
+function processTickets(tickets, purchaseID, memberID, orderTimestamp, callback) {
+  let ticketsProcessed = 0;
+  const totalTicketCount = tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+  
+  console.log(`Processing ${totalTicketCount} tickets...`);
+  
+  tickets.forEach(ticket => {
+    for (let i = 0; i < ticket.quantity; i++) {
+      const ticketPurchaseSql = `
+        INSERT INTO ticketpurchase 
+        (fk_MemberID, Fk_EventID, PurchaseDate, FinalAmountPaid, fk_PurchaseTransactionID)
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      
+      connection.query(ticketPurchaseSql, [
+        memberID,
+        ticket.id,
+        orderTimestamp,
+        ticket.price,
+        purchaseID
+      ], (ticketErr, ticketResult) => {
+        if (ticketErr) {
+          console.error('Error saving ticket purchase:', ticketErr);
+        } else {
+          console.log(`Ticket saved for event ${ticket.id} with ID ${ticketResult.insertId}, linked to purchase ${purchaseID}`);
+        }
+        
+        ticketsProcessed++;
+        if (ticketsProcessed === totalTicketCount) {
+          console.log(`All ${totalTicketCount} tickets processed successfully`);
+          callback();
+        }
+      });
+    }
+  });
+}
 
 // Helper function to process cashback and complete order
 function processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res) {
@@ -3054,7 +2997,7 @@ function recordCashbackEarning(memberID, cashbackEarned, purchaseID, callback) {
     if (earningErr) {
       console.error('Error recording cashback earning:', earningErr);
     } else {
-      console.log(`✅ Cashback earning recorded: +$${cashbackEarned.toFixed(2)}`);
+      console.log(`✅ Cashback earning recorded: +${cashbackEarned.toFixed(2)}`);
     }
     callback();
   });

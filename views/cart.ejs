@@ -115,6 +115,9 @@
       border-radius: 8px 8px 0 0;
       margin-bottom: 0;
     }
+    .restaurant-section-header {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    }
     .ticket-section-header {
       background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
@@ -138,6 +141,7 @@
         <p>Looks like you haven't added anything to your cart yet.</p>
         <div class="d-flex gap-2">
           <a href="/store-items" class="btn btn-primary">🛍️ Shop Store Items</a>
+          <a href="/restaurant" class="btn btn-success">🍽️ Order Food</a>
           <a href="/events" class="btn btn-outline-primary">🎫 Browse Events</a>
         </div>
       </div>
@@ -146,7 +150,7 @@
       <form id="update-form" action="/store/update-cart-all" method="POST">
         
         <!-- Store Items Section -->
-        <% const storeItems = cart.filter(item => item.type !== 'ticket'); %>
+        <% const storeItems = cart.filter(item => item.type !== 'ticket' && item.type !== 'restaurant'); %>
         <% if (storeItems.length > 0) { %>
           <div class="cart-section">
             <div class="section-header">
@@ -192,6 +196,69 @@
                           type="button"
                           class="btn btn-sm btn-danger"
                           onclick="removeFromCart('item', <%= item.id %>)">
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Restaurant Items Section -->
+        <% const restaurantItems = cart.filter(item => item.type === 'restaurant'); %>
+        <% if (restaurantItems.length > 0) { %>
+          <div class="cart-section">
+            <div class="section-header restaurant-section-header">
+              <h4 class="mb-0">🍽️ Restaurant Items</h4>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% restaurantItems.forEach((item, index) => { %>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <% if (item.image) { %>
+                            <img src="<%= item.image %>" alt="<%= item.name %>" 
+                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 10px;">
+                          <% } %>
+                          <div>
+                            <strong><%= item.name %></strong>
+                            <% if (item.description) { %>
+                              <br><small class="text-muted"><%= item.description %></small>
+                            <% } %>
+                          </div>
+                        </div>
+                      </td>
+                      <td>$<%= item.price.toFixed(2) %></td>
+                      <td>
+                        <input
+                          type="number"
+                          name="quantities[<%= cart.indexOf(item) %>]"
+                          value="<%= item.quantity %>"
+                          min="1"
+                          max="99"
+                          class="form-control"
+                          style="width:80px;">
+                      </td>
+                      <td>$<%= (item.price * item.quantity).toFixed(2) %></td>
+                      <td>
+                        <button 
+                          type="button"
+                          class="btn btn-sm btn-danger"
+                          onclick="removeFromCart('restaurant', <%= item.id %>)">
                           Remove
                         </button>
                       </td>
@@ -288,6 +355,13 @@
           </div>
         <% } %>
         
+        <% if (restaurantItemsTotal > 0) { %>
+          <div class="summary-row">
+            <span class="summary-label">🍽️ Restaurant Items:</span>
+            <span class="summary-value">$<%= restaurantItemsTotal.toFixed(2) %></span>
+          </div>
+        <% } %>
+        
         <% if (ticketsTotal > 0) { %>
           <div class="summary-row">
             <span class="summary-label">🎫 Event Tickets:</span>
@@ -322,10 +396,10 @@
           <span class="summary-value" id="final-total">$<%= subtotalAfterDiscount.toFixed(2) %></span>
         </div>
         
-        <% if (ticketsTotal > 0) { %>
+        <% if (ticketsTotal > 0 || restaurantItemsTotal > 0) { %>
           <div class="mt-3">
             <small class="text-info">
-              💡 <strong>Note:</strong> Membership discounts apply only to your entire order. Cashback can be used for the entire order as well.
+              💡 <strong>Note:</strong> Membership discounts and cashback apply to your entire order including store items, restaurant items, and tickets.
             </small>
           </div>
         <% } %>
@@ -426,6 +500,7 @@
       <!-- Continue Shopping -->
       <div class="mt-3 d-flex gap-2">
         <a href="/store-items" class="btn btn-outline-primary">🛍️ Continue Shopping</a>
+        <a href="/restaurant" class="btn btn-outline-success">🍽️ Order More Food</a>
         <a href="/events" class="btn btn-outline-success">🎫 Browse Events</a>
       </div>
     <% } %>
@@ -622,10 +697,19 @@
       }
     });
     
-    // Updated remove from cart function to handle both types
+    // Updated remove from cart function to handle restaurant items
     function removeFromCart(type, itemId) {
       if (confirm('Are you sure you want to remove this item from your cart?')) {
-        fetch(`/store/remove-from-cart/${type}/${itemId}`, {
+        let url;
+        if (type === 'restaurant') {
+          url = `/restaurant/remove-from-cart/${itemId}`;
+        } else if (type === 'ticket') {
+          url = `/store/remove-from-cart/ticket/${itemId}`;
+        } else {
+          url = `/store/remove-from-cart/item/${itemId}`;
+        }
+        
+        fetch(url, {
           method: 'POST'
         })
         .then(response => {
