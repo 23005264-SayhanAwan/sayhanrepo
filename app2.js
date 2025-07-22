@@ -452,7 +452,6 @@ function validateRegistration(req) {
 }
 
 
-
 app.post('/signup', (req, res) => {
   const { name, email, password, phone } = req.body;
   const validationError = validateRegistration(req);
@@ -471,153 +470,6 @@ app.post('/signup', (req, res) => {
     }
 
     const bronzeTierId = tierResult[0].TierID;
-//kamali
-// Route: Select Tier
-// kamali
-// For selecting tier
-// Fixed and cleaned: Select Tier Route
-app.post('/member/managemembership/select', (req, res) => {
-  const { tier } = req.body;
-
-  if (!tier || !['Gold', 'Silver', 'Bronze'].includes(tier)) {
-    return res.status(400).send('Invalid tier');
-  }
-
-  req.session.selectedTier = tier;
-  res.status(200).send('Tier selected');
-});
-
-//kamali
-
-//kamali
-// Checkout Route
-app.post('/member/managemembership/select', (req, res) => {
-  const { tier } = req.body;
-  
-  // Store selected tier in session temporarily
-  req.session.selectedTier = tier;
-  
-  res.json({ success: true });
-});
-
-// Create Stripe checkout session for membership with hardcoded prices
-app.post('/member/managemembership/create-checkout-session', async (req, res) => {
-  const member = req.session.member;
-  const selectedTier = req.session.selectedTier;
-
-  if (!member || !selectedTier) {
-    return res.status(400).json({ error: 'No member or tier selected' });
-  }
-
-  // Hardcoded tier prices - Bronze is free
-  const tierPrices = {
-    'Gold': 99.99,
-    'Silver': 49.99,
-    'Bronze': 0 // Free tier
-  };
-
-  const price = tierPrices[selectedTier];
-  if (price === undefined) {
-    return res.status(400).json({ error: 'Invalid tier selected' });
-  }
-
-  try {
-    // Get tier ID from database
-    const getTierSql = 'SELECT TierID FROM membershiptier WHERE TierName = ?';
-    connection.query(getTierSql, [selectedTier], async (err, results) => {
-      if (err || results.length === 0) {
-        return res.status(500).json({ error: 'Failed to find tier details' });
-      }
-
-      const tierID = results[0].TierID;
-
-      // If Bronze (free tier), process immediately without Stripe
-      if (selectedTier === 'Bronze' || price === 0) {
-        // Update member's tier directly for free tier
-        const updateSql = 'UPDATE members SET fk_TierID = ? WHERE MemberID = ?';
-        connection.query(updateSql, [tierID, member.MemberID], (updateErr) => {
-          if (updateErr) {
-            console.error('Error updating membership:', updateErr);
-            return res.status(500).json({ error: 'Failed to update membership' });
-          }
-
-          // Update session with new tier
-          req.session.member.fk_TierID = tierID;
-          
-          // Clear selected tier
-          delete req.session.selectedTier;
-          
-          console.log('✅ Membership downgraded to Bronze (free)!');
-          res.json({ 
-            redirect: '/member/membership-success',
-            isFree: true 
-          });
-        });
-        return;
-      }
-
-      // For paid tiers, create Stripe session
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [{
-          price_data: {
-            currency: 'sgd',
-            product_data: { 
-              name: `${selectedTier} Membership`,
-              description: `Upgrade to ${selectedTier} membership tier`
-            },
-            unit_amount: Math.round(price * 100), // Convert to cents
-          },
-          quantity: 1,
-        }],
-        mode: 'payment',
-        success_url: 'http://localhost:3000/member/membership-success',
-        cancel_url: 'http://localhost:3000/managemembership',
-      });
-
-      // Store tier info in session for after payment
-      req.session.pendingMembershipTier = {
-        tierID: tierID,
-        tierName: selectedTier,
-        price: price
-      };
-
-      res.json({ url: session.url });
-    });
-
-  } catch (stripeError) {
-    console.error('Stripe error:', stripeError);
-    res.status(500).json({ error: 'Payment processing failed' });
-  }
-});
-
-// Membership success page
-app.get('/member/membership-success', (req, res) => {
-  const member = req.session.member;
-  if (!member) return res.redirect('/login');
-
-  // Get current tier name to display
-  const getTierSql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
-  connection.query(getTierSql, [member.fk_TierID], (err, results) => {
-    if (err || results.length === 0) {
-      return res.render('membershipsuccess', {
-        member: member,
-        newTier: 'Unknown'
-      });
-    }
-
-    const newTier = results[0].TierName;
-    res.render('membershipsuccess', {
-      member: member,
-      newTier: newTier
-    });
-  });
-});
-
-
-//kamali
-
-
 
     //  Hash password
     bcrypt.hash(password, 10, (err, hashedPassword) => {
@@ -652,6 +504,7 @@ function isPasswordStrong(password) {
 }
 
 
+
 app.get('/signup', (req, res) => {
   res.render('signup', {
     error: req.flash('error'),
@@ -681,50 +534,6 @@ function validateRegistration(req) {
 
 
 
-app.post('/signup', (req, res) => {
-  const { name, email, password, phone } = req.body;
-  const validationError = validateRegistration(req);
-
-  if (validationError) {
-    req.flash('error', validationError);
-    return res.redirect('/signup');
-  }
-
-  const getTierSql = 'SELECT TierID FROM membershiptier WHERE TierName = "Bronze"';
-
-  connection.query(getTierSql, (tierErr, tierResult) => {
-    if (tierErr || tierResult.length === 0) {
-      req.flash('error', 'Bronze tier not found');
-      return res.redirect('/signup');
-    }
-
-    const bronzeTierId = tierResult[0].TierID;
-
-    //  Hash password
-    bcrypt.hash(password, 10, (err, hashedPassword) => {
-      if (err) {
-        req.flash('error', 'Error hashing password');
-        return res.redirect('/signup');
-      }
-
-      const insertMemberSql = `
-        INSERT INTO members (Member_FullName, Member_Email, Member_Password, Member_Phone, fk_TierID, JoinDate)
-        VALUES (?, ?, ?, ?, ?, curdate())
-      `;
-
-      connection.query(insertMemberSql, [name, email, hashedPassword, phone, bronzeTierId], (dbErr) => {
-        if (dbErr) {
-          console.error('Insert error:', dbErr);
-          req.flash('error', 'Failed to register user');
-          return res.redirect('/signup');
-        }
-
-        req.flash('success', 'Signup successful!');
-        res.redirect('/login'); //  You will see "Cannot GET /login" because it's not defined — that’s expected
-      });
-    });
-  });
-});
 
  //Sanjana 
 
@@ -1711,6 +1520,49 @@ app.get('/About', (req, res) => {
 
 
 
+
+//  Single product page 
+app.get('/product/:id', (req, res) => {
+  const productId = req.params.id;
+  const sql = 'SELECT * FROM storeitem WHERE ItemID = ?';
+
+  connection.query(sql, [productId], (error, results) => {
+    if (error) {
+      console.error('Error fetching product:', error);
+      return res.status(500).send('Error fetching product');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send("Product not found");
+    }
+
+    res.render('productDetail', {
+      product: results[0],
+      member: req.session.member || {}
+    });
+  });
+});
+
+
+// NEW: Restaurant Route
+// Display restaurant menu
+app.get('/restaurant', (req, res) => {
+  const sql = 'SELECT ItemID, Name, Description, Price, Image FROM restaurantitem';
+  
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error retrieving food items:', err);
+      return res.status(500).send('Error retrieving food items.');
+    }
+
+    res.render('restaurant', {  // Make sure this matches your template name
+      foodItems: results,
+      member: req.session.member
+    });
+  });
+});
+
+//kamali
 // Member Routes
 app.get('/membership', (req, res) => {
   const member = req.session.member;
@@ -1720,8 +1572,6 @@ app.get('/membership', (req, res) => {
   }
 
   // Get the membership tier name from membershiptier table by fk_TierID
-  const tierId = member.fk_TierID;  // assuming this field exists in your member session data
-
   const sql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
 
   connection.query(sql, [member.fk_TierID], (err, results) => {
@@ -1732,12 +1582,11 @@ app.get('/membership', (req, res) => {
 
     if (results.length === 0) {
       // fallback if tier not found
-      return res.render('membership', { currentTier: 'Unknown' });
+      return res.render('membership', { currentTier: 'Unknown', member });
     }
 
     const currentTier = results[0].TierName;
-
-    res.render('membership', { currentTier , member });
+    res.render('membership', { currentTier, member });
   });
 });
 
@@ -1754,9 +1603,12 @@ app.get('/managemembership', (req, res) => {
     }
 
     const currentTier = results.length > 0 ? results[0].TierName : 'Not Assigned';
-    res.render('managemembership', { currentTier });
+    // FIXED: Pass both currentTier AND member to managemembership
+    res.render('managemembership', { currentTier, member });
   });
 });
+
+// Legacy update route (if you still need it)
 app.post('/update-membership', (req, res) => {
   const member = req.session.member;
   if (!member) return res.redirect('/login');
@@ -1780,26 +1632,30 @@ app.post('/update-membership', (req, res) => {
         return res.status(500).send('Failed to update membership');
       }
 
-      // **FIX: Update session with new tier ID**
+      // Update session with new tier ID
       req.session.member.fk_TierID = tierId;
       
-      // **FIX: Redirect instead of rendering to refresh the page data**
+      // Redirect instead of rendering to refresh the page data
       res.redirect('/managemembership');
     });
   });
 });
 
-// Add this route for the AJAX tier selection
+// AJAX tier selection route
 app.post('/member/managemembership/select', (req, res) => {
   const { tier } = req.body;
   
+  if (!tier || !['Gold', 'Silver', 'Bronze'].includes(tier)) {
+    return res.status(400).json({ error: 'Invalid tier' });
+  }
+
   // Store selected tier in session temporarily
   req.session.selectedTier = tier;
   
   res.json({ success: true });
 });
 
-// Add this route for checkout
+// Direct checkout route (without Stripe)
 app.post('/member/managemembership/checkout', (req, res) => {
   const member = req.session.member;
   const selectedTier = req.session.selectedTier;
@@ -1836,7 +1692,7 @@ app.post('/member/managemembership/checkout', (req, res) => {
   });
 });
 
-// Create Stripe checkout session for membership with free Bronze handling
+// Create Stripe checkout session for membership
 app.post('/member/managemembership/create-checkout-session', async (req, res) => {
   const member = req.session.member;
   const selectedTier = req.session.selectedTier;
@@ -1847,8 +1703,8 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
 
   // Hardcoded tier prices - Bronze is free
   const tierPrices = {
-    'Gold': 9.99,
-    'Silver': 4.99,
+    'Gold': 15, // Updated to match your table
+    'Silver': 10, // Updated to match your table
     'Bronze': 0 // Free tier
   };
 
@@ -1883,7 +1739,7 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
           // Clear selected tier
           delete req.session.selectedTier;
           
-          console.log('✅ Membership downgraded to Bronze (free)!');
+          console.log('✅ Membership updated to Bronze (free)!');
           res.json({ 
             redirect: '/member/membership-success',
             isFree: true 
@@ -1928,8 +1784,6 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
 });
 
 // Membership success page
-// Membership success page
-// Membership success page - FIXED VERSION
 app.get('/member/membership-success', (req, res) => {
   const member = req.session.member;
   if (!member) return res.redirect('/login');
@@ -1957,15 +1811,15 @@ app.get('/member/membership-success', (req, res) => {
       delete req.session.pendingMembershipTier;
       delete req.session.selectedTier;
       
-      // Render success page with the NEW tier (not current)
+      // Render success page with the NEW tier
       res.render('membershipsuccess', {
         member: req.session.member,
-        newTier: pendingTier.tierName // Show the tier they just paid for
+        newTier: pendingTier.tierName
       });
     });
   } else {
-    // No pending upgrade - this shouldn't happen after Stripe payment
-    console.log('No pending tier found - possibly direct Bronze downgrade');
+    // No pending upgrade - possibly direct Bronze downgrade
+    console.log('No pending tier found - possibly direct Bronze change');
     
     // Get current tier from database
     const getTierSql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
@@ -1986,46 +1840,6 @@ app.get('/member/membership-success', (req, res) => {
   }
 });
 
-//  Single product page 
-app.get('/product/:id', (req, res) => {
-  const productId = req.params.id;
-  const sql = 'SELECT * FROM storeitem WHERE ItemID = ?';
-
-  connection.query(sql, [productId], (error, results) => {
-    if (error) {
-      console.error('Error fetching product:', error);
-      return res.status(500).send('Error fetching product');
-    }
-
-    if (results.length === 0) {
-      return res.status(404).send("Product not found");
-    }
-
-    res.render('productDetail', {
-      product: results[0],
-      member: req.session.member || {}
-    });
-  });
-});
-
-
-// NEW: Restaurant Route
-// Display restaurant menu
-app.get('/restaurant', (req, res) => {
-  const sql = 'SELECT ItemID, Name, Description, Price, Image FROM restaurantitem';
-  
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error retrieving food items:', err);
-      return res.status(500).send('Error retrieving food items.');
-    }
-
-    res.render('restaurant', {  // Make sure this matches your template name
-      foodItems: results,
-      member: req.session.member
-    });
-  });
-});
 
 
 // Route to show all events

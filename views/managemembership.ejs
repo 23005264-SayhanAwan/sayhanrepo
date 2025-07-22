@@ -48,40 +48,60 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      color: white;
     }
     .checkout-btn:hover {
       background-color: #d88700;
     }
+    .checkout-btn:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
+  <%- include('partials/Membernav.ejs') %>
 
   <div class="container">
     <h2 class="text-center">Manage Membership</h2>
     <p class="text-center"><strong>Current Tier:</strong> <%= currentTier %></p>
 
-    <% const tiers = ['Gold', 'Silver', 'Bronze']; %>
+    <% const tiers = [
+         { name: 'Gold', price: '$9.99/month' },
+         { name: 'Silver', price: '$4.99/month' },
+         { name: 'Bronze', price: 'Free' }
+       ]; %>
     <% tiers.forEach(tier => { %>
       <div class="membership-tier">
-        <span><%= tier %></span>
+        <div>
+          <span><%= tier.name %></span>
+          <small class="text-muted d-block"><%= tier.price %></small>
+        </div>
         <button 
           type="button" 
-          class="select-btn <% if (tier === currentTier) { %>selected<% } %>" 
-          data-tier="<%= tier %>" 
-          <% if (tier === currentTier) { %>disabled<% } %>>
-          <% if (tier === currentTier) { %>Selected<% } else { %>Select<% } %>
+          class="select-btn <% if (tier.name === currentTier) { %>selected<% } %>" 
+          data-tier="<%= tier.name %>" 
+          <% if (tier.name === currentTier) { %>disabled<% } %>>
+          <% if (tier.name === currentTier) { %>Selected<% } else { %>Select<% } %>
         </button>
       </div>
     <% }) %>
 
-    <form id="checkoutForm" action="/member/managemembership/checkout" method="POST">
-      <button type="submit" class="checkout-btn" disabled>Checkout</button>
-    </form>
+    <button id="checkout-button" class="checkout-btn" disabled>Pay & Upgrade Membership</button>
   </div>
 
   <script>
     const buttons = document.querySelectorAll('.select-btn');
-    const checkoutBtn = document.querySelector('.checkout-btn');
+    const checkoutBtn = document.getElementById('checkout-button');
+
+    // Update checkout button text based on selected tier
+    function updateCheckoutButton(tier) {
+      if (tier === 'Bronze') {
+        checkoutBtn.textContent = 'Downgrade to Bronze (Free)';
+      } else {
+        checkoutBtn.textContent = `Pay & Upgrade to ${tier}`;
+      }
+    }
 
     buttons.forEach(button => {
       button.addEventListener('click', function () {
@@ -93,24 +113,59 @@
           body: JSON.stringify({ tier })
         })
         .then(res => {
-          if (!res.ok) throw new Error();
+          if (!res.ok) throw new Error('Failed to select tier');
+          
           // Reset all buttons
           buttons.forEach(btn => {
             btn.classList.remove('selected');
             btn.textContent = 'Select';
             btn.disabled = false;
           });
+
           // Mark this one as selected
           this.classList.add('selected');
           this.textContent = 'Selected';
           this.disabled = true;
 
-          // Enable checkout
+          // Enable checkout and update button text
           checkoutBtn.disabled = false;
+          updateCheckoutButton(tier);
         })
         .catch(err => {
-          console.error('Failed to select tier');
+          console.error('Failed to select tier:', err);
+          alert('Failed to select tier. Please try again.');
         });
+      });
+    });
+
+    // Handle checkout (payment or free downgrade)
+    checkoutBtn.addEventListener('click', function() {
+      console.log("Checkout clicked");
+      
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = 'Processing...';
+
+      fetch('/member/managemembership/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.redirect) {
+          // Free tier - redirect directly
+          window.location.href = data.redirect;
+        } else if (data.url) {
+          // Paid tier - go to Stripe
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
+      })
+      .catch(error => {
+        console.error("Checkout failed:", error);
+        alert('Processing failed: ' + error.message);
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Pay & Upgrade Membership';
       });
     });
   </script>
