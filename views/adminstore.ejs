@@ -52,7 +52,37 @@
 .btn {
   margin-right: 0.5rem;
 }
-</style></style>
+
+/* Unlisted item styling */
+.card.inactive {
+  opacity: 0.6;
+  border: 2px dashed #ffc107;
+}
+
+.card.inactive .card-img-top {
+  filter: grayscale(30%);
+}
+
+.unlisted-overlay {
+  position: relative;
+}
+
+.unlisted-overlay::after {
+  content: 'UNLISTED FROM STORE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 5px;
+  z-index: 10;
+  pointer-events: none;
+}
+</style>
 </head>
 <body>
 
@@ -62,41 +92,113 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>Store Items</h2>
-      <!-- ⭐ Add new product button -->
-      <a href="/admin/addItem" class="btn btn-success">Add New Item</a>
+      <div>
+        <!-- Toggle between showing all items vs listed only -->
+        <% if (typeof showAll !== 'undefined' && showAll) { %>
+          <a href="/admin/store-items" class="btn btn-outline-primary me-2">Show Listed Only</a>
+        <% } else { %>
+          <a href="/admin/store-items?showAll=true" class="btn btn-outline-secondary me-2">Show All Items</a>
+        <% } %>
+        <!-- Add new product button -->
+        <a href="/admin/addItem" class="btn btn-success">Add New Item</a>
+      </div>
     </div>
+
+    <!-- Success/Info Messages -->
+    <% if (typeof message !== 'undefined' && message) { %>
+      <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <%= message %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% } %>
+
+    <!-- Items Count Info -->
+    <% if (items && items.length > 0) { %>
+      <% 
+        const activeItems = items.filter(item => item.is_active !== false && item.is_active !== null);
+        const inactiveItems = items.filter(item => item.is_active === false);
+      %>
+      <div class="mb-3">
+        <small class="text-muted">
+          Showing <%= items.length %> items
+          <% if (typeof showAll !== 'undefined' && showAll) { %>
+            (<%= activeItems.length %> listed, <%= inactiveItems.length %> unlisted)
+          <% } else { %>
+            (listed items only)
+          <% } %>
+        </small>
+      </div>
+    <% } %>
 
     <div class="row">
       <% if (items && items.length > 0) { %>
         <% items.forEach(item => { %>
+          <% const isUnlisted = (item.is_active == 0 || item.is_active === false); %>
           <div class="col-md-4 mb-4">
-            <div class="card">
-              <img src="/images/<%= item.storeitempic %>" class="card-img-top" alt="<%= item.Name %>" />
+            <div class="card <%= isUnlisted ? 'inactive' : '' %>">
+              <div class="<%= isUnlisted ? 'unlisted-overlay' : '' %>">
+                <img src="/images/<%= item.storeitempic %>" class="card-img-top" alt="<%= item.Name %>" />
+              </div>
               <div class="card-body">
-                <h5 class="card-title"><%= item.Name %></h5>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="card-title"><%= item.Name %></h5>
+                  <% if (isUnlisted) { %>
+                    <span class="badge bg-warning">Unlisted (DEBUG: <%= item.is_active %>)</span>
+                  <% } else { %>
+                    <span class="badge bg-success">Listed (DEBUG: <%= item.is_active %>)</span>
+                  <% } %>
+                </div>
+                
                 <p class="card-text"><strong>Category:</strong> <%= item.Category %></p>
                 <p class="card-text">
                   <strong>Price:</strong>
                   $<%= (item.Price !== undefined && item.Price !== null) ? Number(item.Price).toFixed(2) : 'N/A' %>
                 </p>
+                <p class="card-text">
+                  <strong>Stock:</strong> <%= item.itemquantity || 0 %>
+                </p>
 
-                <!-- ⭐ Edit button -->
-                <a href="/admin/editItem/<%= item.ItemID %>" class="btn btn-warning">Edit</a>
-
-                <!-- ⭐ Delete button -->
-                <a href="/deleteItem/<%= item.ItemID %>" class="btn btn-danger ms-2">Delete</a>
+                <div class="mt-auto">
+                  <% if (isUnlisted) { %>
+                    <!-- Buttons for unlisted items -->
+                    <a href="/listItem/<%= item.ItemID %>" class="btn btn-success btn-sm" 
+                       onclick="return confirm('List this item in the store again?')">
+                      List Item
+                    </a>
+                    <a href="/admin/editItem/<%= item.ItemID %>" class="btn btn-outline-warning btn-sm">
+                      Edit
+                    </a>
+                  <% } else { %>
+                    <!-- Buttons for listed items (is_active is TRUE or NULL) -->
+                    <a href="/admin/editItem/<%= item.ItemID %>" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="/unlistItem/<%= item.ItemID %>" class="btn btn-secondary btn-sm" 
+                       onclick="return confirm('Unlist this item from the store? (Purchase history will be preserved)')">
+                      Unlist
+                    </a>
+                  <% } %>
+                </div>
               </div>
             </div>
           </div>
         <% }) %>
       <% } else { %>
         <div class="col-12">
-          <p>No items available in the store.</p>
+          <div class="text-center py-5">
+            <h4 class="text-muted">No items found</h4>
+            <p class="text-muted">
+              <% if (typeof showAll !== 'undefined' && showAll) { %>
+                No items in the database.
+              <% } else { %>
+                No listed items in the store. <a href="/admin/store-items?showAll=true">Show all items</a> including unlisted ones.
+              <% } %>
+            </p>
+            <a href="/admin/addItem" class="btn btn-primary">Add Your First Item</a>
+          </div>
         </div>
       <% } %>
     </div>
   </div>
 
+
 </body>
 </html>
-

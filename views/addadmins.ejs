@@ -1,33 +1,697 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Add Admin</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-</head>
-<body class="bg-dark text-white">
-  <%- include('partials/Adminnav') %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-  <div class="container mt-5">
-    <h2>Add New Admin</h2>
-    <form action="/Admin/addadmins" method="POST">
-      <div class="mb-3">
-        <label for="fullName" class="form-label">Full Name</label>
-        <input type="text" class="form-control" id="fullName" name="fullName" required />
+    .main-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      padding: 2rem;
+    }
+
+    .page-title {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a); 
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .admin-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: none;
+      overflow: hidden;
+    }
+
+    .admin-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: white;
+      border: none;
+      padding: 1.5rem;
+      font-weight: 600;
+    }
+
+    .profile-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e9ecef;
+      transition: border-color 0.3s ease;
+    }
+
+    .profile-avatar:hover {
+      border-color: #667eea;
+    }
+
+    .admin-info {
+      padding: 1.5rem;
+    }
+
+    .admin-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .admin-email {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .admin-phone {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .role-badge {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a); 
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .current-user-badge {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: white;
+      padding: 0.3rem 0.6rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-left: 0.5rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-modern {
+      border-radius: 20px;
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-edit {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: white;
+    }
+
+    .btn-edit:hover {
+        background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .btn-password {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .btn-password:hover {
+      background: linear-gradient(135deg, #e081e9 0%, #e3455a 100%);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: linear-gradient(135deg, #ff5252 0%, #d54040 100%);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-add:hover {
+      background: linear-gradient(135deg, #0a0d1a, #181f2c, #242a36);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
+    }
+
+    .modal-content {
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      color: white;
+      border: none;
+      border-radius: 20px 20px 0 0;
+      padding: 1.5rem;
+    }
+
+    .modal-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-footer {
+      border: none;
+      padding: 1.5rem;
+      background-color: #f8f9fa;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .stats-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0c0f18, #1a1f2e, #2a2d3a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 0.5rem;
+    }
+
+    .alert {
+      border-radius: 15px;
+      border: none;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+      color: #155724;
+    }
+
+    .alert-danger {
+      background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+      color: #721c24;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6c757d;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        margin: 1rem;
+        padding: 1rem;
+        border-radius: 15px;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        text-align: center;
+      }
+
+      .action-buttons {
+        justify-content: center;
+      }
+
+      .btn-modern {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/Adminnav', { admin: admin }) %>
+
+  <div class="container">
+    <div class="main-container">
+      <!-- Header Section -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title mb-0">
+          <i class="fas fa-users-cog me-3"></i>Admin Management
+        </h1>
+        <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+          <i class="fas fa-plus me-2"></i>Add New Admin
+        </button>
       </div>
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" class="form-control" id="email" name="email" required />
+
+      <!-- Alert Messages -->
+      <% if (typeof message !== 'undefined' && message) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle me-2"></i>
+          <%= message %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <!-- Statistics -->
+      <div class="stats-container">
+        <div class="row">
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <div class="stat-number"><%= admins.length %></div>
+              <div class="stat-label">Total Admins</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <div class="stat-number"><%= admins.filter(a => a.Role === 'Super Admin').length %></div>
+              <div class="stat-label">Super Admins</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <div class="stat-number"><%= admins.filter(a => a.Role === 'Admin').length %></div>
+              <div class="stat-label">Regular Admins</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <div class="stat-number">1</div>
+              <div class="stat-label">Current Session</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="mb-3">
-        <label for="phone" class="form-label">Phone</label>
-        <input type="text" class="form-control" id="phone" name="phone" required />
-      </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required />
-      </div>
-      <button type="submit" class="btn btn-warning">Create Admin</button>
-    </form>
+
+      <!-- Admins Grid -->
+      <% if (admins && admins.length > 0) { %>
+        <div class="row">
+          <% admins.forEach(function(adminUser) { %>
+            <div class="col-lg-4 col-md-6 col-12 mb-4">
+              <div class="admin-card h-100">
+                <div class="card-header">
+                  <div class="d-flex align-items-center">
+                    <img 
+                      src="<%= adminUser.Admin_ProfilePicture ? '/images/' + adminUser.Admin_ProfilePicture : '/images/profilepc.jpeg' %>" 
+                      alt="Profile" 
+                      class="profile-avatar me-3"
+                    />
+                    <div>
+                      <div class="admin-name">
+                        <%= adminUser.Admin_FullName %>
+                        <% if (adminUser.AdminID === admin.AdminID) { %>
+                          <span class="current-user-badge">You</span>
+                        <% } %>
+                      </div>
+                      <div class="role-badge">
+                        <i class="fas fa-crown me-1"></i><%= adminUser.Role %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="admin-info">
+                  <div class="admin-email">
+                    <i class="fas fa-envelope me-2"></i><%= adminUser.Admin_Email %>
+                  </div>
+                  <div class="admin-phone">
+                    <i class="fas fa-phone me-2"></i><%= adminUser.Admin_Phone %>
+                  </div>
+                  
+                  <div class="action-buttons">
+                    <button class="btn btn-modern btn-edit" onclick="editAdmin(<%= adminUser.AdminID %>)">
+                      <i class="fas fa-edit"></i>Edit
+                    </button>
+                    <button class="btn btn-modern btn-password" onclick="changePassword(<%= adminUser.AdminID %>)">
+                      <i class="fas fa-key"></i>Password
+                    </button>
+                    <% if (adminUser.AdminID !== admin.AdminID) { %>
+                      <button class="btn btn-modern btn-delete" onclick="deleteAdmin(<%= adminUser.AdminID %>, '<%= adminUser.Admin_FullName %>')">
+                        <i class="fas fa-trash"></i>Delete
+                      </button>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <i class="fas fa-users-slash"></i>
+          <h4>No Administrators Found</h4>
+          <p>Get started by adding your first administrator.</p>
+          <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+            <i class="fas fa-plus me-2"></i>Add First Admin
+          </button>
+        </div>
+      <% } %>
+    </div>
   </div>
+
+  <!-- Add Admin Modal -->
+  <div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-user-plus me-2"></i>Add New Administrator
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form action="/Admin/addadmins" method="POST">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="fullName" class="form-label">
+                <i class="fas fa-user me-2"></i>Full Name
+              </label>
+              <input type="text" class="form-control" id="fullName" name="fullName" required 
+                     placeholder="Enter full name" />
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">
+                <i class="fas fa-envelope me-2"></i>Email Address
+              </label>
+              <input type="email" class="form-control" id="email" name="email" required 
+                     placeholder="Enter email address" />
+            </div>
+            <div class="mb-3">
+              <label for="phone" class="form-label">
+                <i class="fas fa-phone me-2"></i>Phone Number
+              </label>
+              <input type="text" class="form-control" id="phone" name="phone" required 
+                     placeholder="Enter phone number" />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                <i class="fas fa-lock me-2"></i>Password
+              </label>
+              <input type="password" class="form-control" id="password" name="password" 
+                     required minlength="6" placeholder="Enter secure password" />
+              <div class="form-text">Password must be at least 6 characters long.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="submit" class="btn btn-add">
+              <i class="fas fa-plus me-2"></i>Create Admin
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Admin Modal -->
+  <div class="modal fade" id="editAdminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-user-edit me-2"></i>Edit Administrator
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="editAdminForm" method="POST">
+          <div class="modal-body">
+            <input type="hidden" id="editAdminId" name="adminId" />
+            <div class="mb-3">
+              <label for="editFullName" class="form-label">
+                <i class="fas fa-user me-2"></i>Full Name
+              </label>
+              <input type="text" class="form-control" id="editFullName" name="fullName" required />
+            </div>
+            <div class="mb-3">
+              <label for="editEmail" class="form-label">
+                <i class="fas fa-envelope me-2"></i>Email Address
+              </label>
+              <input type="email" class="form-control" id="editEmail" name="email" required />
+            </div>
+            <div class="mb-3">
+              <label for="editPhone" class="form-label">
+                <i class="fas fa-phone me-2"></i>Phone Number
+              </label>
+              <input type="text" class="form-control" id="editPhone" name="phone" required />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="submit" class="btn btn-add">
+              <i class="fas fa-save me-2"></i>Update Admin
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-key me-2"></i>Change Password
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="changePasswordForm" method="POST">
+          <div class="modal-body">
+            <input type="hidden" id="passwordAdminId" name="adminId" />
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">
+                <i class="fas fa-lock me-2"></i>New Password
+              </label>
+              <input type="password" class="form-control" id="newPassword" name="newPassword" 
+                     required minlength="6" placeholder="Enter new password" />
+            </div>
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">
+                <i class="fas fa-lock me-2"></i>Confirm New Password
+              </label>
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                     required minlength="6" placeholder="Confirm new password" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="submit" class="btn btn-add">
+              <i class="fas fa-save me-2"></i>Change Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Admin Modal -->
+  <div class="modal fade" id="deleteAdminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-danger">
+          <h5 class="modal-title text-white">
+            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <i class="fas fa-user-times text-danger mb-3" style="font-size: 3rem;"></i>
+          <h5>Delete Administrator</h5>
+          <p>Are you sure you want to delete <strong id="deleteAdminName"></strong>?</p>
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            This action cannot be undone and will permanently remove all access.
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Cancel
+          </button>
+          <form id="deleteAdminForm" method="POST" style="display: inline;">
+            <input type="hidden" id="deleteAdminId" name="adminId" />
+            <button type="submit" class="btn btn-danger">
+              <i class="fas fa-trash me-2"></i>Delete Admin
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Extract admin data for JavaScript
+    const adminData = {
+      <% admins.forEach(function(adminUser, index) { %>
+        <%= adminUser.AdminID %>: {
+          name: '<%= adminUser.Admin_FullName %>',
+          email: '<%= adminUser.Admin_Email %>',
+          phone: '<%= adminUser.Admin_Phone %>',
+          role: '<%= adminUser.Role %>'
+        }<%= index < admins.length - 1 ? ',' : '' %>
+      <% }); %>
+    };
+
+    function editAdmin(adminId) {
+      const admin = adminData[adminId];
+      if (!admin) return;
+
+      document.getElementById('editAdminId').value = adminId;
+      document.getElementById('editFullName').value = admin.name;
+      document.getElementById('editEmail').value = admin.email;
+      document.getElementById('editPhone').value = admin.phone;
+
+      document.getElementById('editAdminForm').action = `/Admin/editadmin/${adminId}`;
+      new bootstrap.Modal(document.getElementById('editAdminModal')).show();
+    }
+
+    function changePassword(adminId) {
+      document.getElementById('passwordAdminId').value = adminId;
+      document.getElementById('changePasswordForm').action = `/Admin/changepassword/${adminId}`;
+      
+      // Clear previous values
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+      
+      new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+    }
+
+    function deleteAdmin(adminId, adminName) {
+      document.getElementById('deleteAdminId').value = adminId;
+      document.getElementById('deleteAdminName').textContent = adminName;
+      document.getElementById('deleteAdminForm').action = `/Admin/deleteadmin/${adminId}`;
+      new bootstrap.Modal(document.getElementById('deleteAdminModal')).show();
+    }
+
+    // Password confirmation validation
+    document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+      const password = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match! Please enter matching passwords.');
+        document.getElementById('confirmPassword').focus();
+      }
+    });
+
+    // Auto-dismiss alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const alerts = document.querySelectorAll('.alert:not(.alert-danger)');
+      alerts.forEach(alert => {
+        setTimeout(() => {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }, 5000);
+      });
+    });
+
+    // Form validation feedback
+    document.querySelectorAll('.form-control').forEach(input => {
+      input.addEventListener('invalid', function() {
+        this.classList.add('is-invalid');
+      });
+      
+      input.addEventListener('input', function() {
+        if (this.validity.valid) {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

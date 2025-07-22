@@ -1344,17 +1344,95 @@ app.post('/admin/members', (req, res) => {
 });
 
 // Delete a member
+// Delete a member with proper cascade deletion
 app.post('/admin/member/delete/:id', (req, res) => {
   const memberId = req.params.id;
 
-  const deleteQuery = 'DELETE FROM members WHERE MemberID = ?';
-
-  connection.query(deleteQuery, [memberId], (err) => {
+  // Start a transaction to ensure all deletions succeed or fail together
+  connection.beginTransaction((err) => {
     if (err) {
-      console.error('Delete error:', err);
-      return res.status(500).send('Failed to delete member');
+      console.error('Transaction start error:', err);
+      return res.status(500).send('Failed to start deletion process');
     }
-    res.redirect('/admin/members');
+
+    // Step 1: Delete from cashback table
+    const deleteCashbackQuery = 'DELETE FROM cashback WHERE fk_MemberID = ?';
+    connection.query(deleteCashbackQuery, [memberId], (err) => {
+      if (err) {
+        console.error('Error deleting cashback records:', err);
+        return connection.rollback(() => {
+          res.status(500).send('Failed to delete member cashback records');
+        });
+      }
+
+      // Step 2: Delete from restaurantbill table
+      const deleteRestaurantBillQuery = 'DELETE FROM restaurantbill WHERE fk_MemberID = ?';
+      connection.query(deleteRestaurantBillQuery, [memberId], (err) => {
+        if (err) {
+          console.error('Error deleting restaurant bill records:', err);
+          return connection.rollback(() => {
+            res.status(500).send('Failed to delete member restaurant bills');
+          });
+        }
+
+        // Step 3: Delete from purchase table
+        const deletePurchaseQuery = 'DELETE FROM purchase WHERE fk_MemberID = ?';
+        connection.query(deletePurchaseQuery, [memberId], (err) => {
+          if (err) {
+            console.error('Error deleting purchase records:', err);
+            return connection.rollback(() => {
+              res.status(500).send('Failed to delete member purchases');
+            });
+          }
+
+          // Step 4: Delete from ticketpurchase table
+          const deleteTicketPurchaseQuery = 'DELETE FROM ticketpurchase WHERE fk_MemberID = ?';
+          connection.query(deleteTicketPurchaseQuery, [memberId], (err) => {
+            if (err) {
+              console.error('Error deleting ticket purchase records:', err);
+              return connection.rollback(() => {
+                res.status(500).send('Failed to delete member ticket purchases');
+              });
+            }
+
+            // Step 5: Delete from booking table
+            const deleteBookingQuery = 'DELETE FROM booking WHERE fk_MemberID = ?';
+            connection.query(deleteBookingQuery, [memberId], (err) => {
+              if (err) {
+                console.error('Error deleting booking records:', err);
+                return connection.rollback(() => {
+                  res.status(500).send('Failed to delete member bookings');
+                });
+              }
+
+              // Step 6: Finally delete the member
+              const deleteMemberQuery = 'DELETE FROM members WHERE MemberID = ?';
+              connection.query(deleteMemberQuery, [memberId], (err) => {
+                if (err) {
+                  console.error('Error deleting member:', err);
+                  return connection.rollback(() => {
+                    res.status(500).send('Failed to delete member');
+                  });
+                }
+
+                // Commit the transaction
+                connection.commit((err) => {
+                  if (err) {
+                    console.error('Transaction commit error:', err);
+                    return connection.rollback(() => {
+                      res.status(500).send('Failed to complete deletion');
+                    });
+                  }
+
+                  console.log(`✅ Member ${memberId} and all related records deleted successfully`);
+                  res.redirect('/admin/members');
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   });
 });
 
@@ -2028,29 +2106,28 @@ app.get('/admin/store-items', (req, res) => {
 
 
 app.get('/store-items', (req, res) => {
-  const category = req.query.category; // Get category from URL (?category=Balls)
-  
-  let sql = 'SELECT * FROM storeitem';
-  let params = [];
-  
-  // Add WHERE clause if category is specified
-  if (category) {
-    sql += ' WHERE Category = ?';
-    params.push(category);
-  }
-  
-  connection.query(sql, params, (error, results) => {
-    if (error) {
-      console.error('Error fetching store items:', error);
-      return res.status(500).send('Error fetching store items');
+    const category = req.query.category;
+    
+    let sql = 'SELECT * FROM storeitem WHERE is_active = TRUE';
+    let params = [];
+    
+    if (category) {
+        sql += ' AND Category = ?';
+        params.push(category);
     }
+    
+    connection.query(sql, params, (error, results) => {
+        if (error) {
+            console.error('Error fetching store items:', error);
+            return res.status(500).send('Error fetching store items');
+        }
 
-    res.render('memberstore', {
-      items: results,
-      member: req.session.member || {},
-      selectedCategory: category || 'All' // Pass selected category to template
+        res.render('memberstore', {
+            items: results,
+            member: req.session.member || {},
+            selectedCategory: category || 'All'
+        });
     });
-  });
 });
 
 //  Single product page 
@@ -2078,18 +2155,28 @@ app.get('/product/:id', (req, res) => {
 // Routes for Admin Store
 // GET all products
 app.get('/admin/store-items', (req, res) => {
-  if (!req.session.admin) return res.redirect('/login');
-  const sql = 'SELECT * FROM storeitem'; // Fetch products from the database
-  connection.query(sql, (error, results) => {
-    if (error) {
-      console.error("Error fetching store items:", error);
-      return res.status(500).send('Error fetching store items');
+    if (!req.session.admin) return res.redirect('/login');
+    
+    const showAll = req.query.showAll === 'true';
+    let sql = 'SELECT * FROM storeitem';
+    
+    if (!showAll) {
+        sql += ' WHERE is_active = TRUE';
     }
-    res.render('adminstore', {
-      items: results, // Use results from the database
-      admin: req.session.admin
+    
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error("Error fetching store items:", error);
+            return res.status(500).send('Error fetching store items');
+        }
+        
+        res.render('adminstore', {
+            items: results,
+            admin: req.session.admin,
+            showAll: showAll,
+            message: req.query.message
+        });
     });
-  });
 });
 
 //route to add products
@@ -2137,8 +2224,29 @@ app.get('/admin/editItem/:id', (req, res) => {
 app.post('/admin/editItem/:id', upload.single('Image'), (req, res) => {
   const itemId = req.params.id;
   const { Name, Category, Price, itemquantity } = req.body;
+  
+  // Enhanced debugging
+  console.log('=== EDIT ITEM DEBUG ===');
+  console.log('Request body:', req.body);
+  console.log('Item ID:', itemId);
+  console.log('Category received:', Category);
+  console.log('Category type:', typeof Category);
+  console.log('Category length:', Category ? Category.length : 'undefined');
+  
+  // Validate required fields
+  if (!Name || !Category || !Price || itemquantity === undefined) {
+    console.error('Missing required fields:', {
+      Name: !!Name,
+      Category: !!Category,
+      Price: !!Price,
+      itemquantity: itemquantity !== undefined
+    });
+    return res.status(400).send('Missing required fields');
+  }
+  
   const Image = req.file ? req.file.filename : null;
   let sql, params;
+  
   if (Image) {
     sql = 'UPDATE storeitem SET Name = ?, Category = ?, Price = ?, itemquantity = ?, storeitempic = ? WHERE ItemID = ?';
     params = [Name, Category, Price, itemquantity, Image, itemId];
@@ -2146,26 +2254,48 @@ app.post('/admin/editItem/:id', upload.single('Image'), (req, res) => {
     sql = 'UPDATE storeitem SET Name = ?, Category = ?, Price = ?, itemquantity = ? WHERE ItemID = ?';
     params = [Name, Category, Price, itemquantity, itemId];
   }
+  
+  console.log('SQL:', sql);
+  console.log('Params:', params);
+  
   connection.query(sql, params, (error, results) => {
     if (error) {
-      console.error('Error updating store item:', error);
-      return res.status(500).send('Error updating store item');
+      console.error('Database error:', error);
+      return res.status(500).send('Error updating store item: ' + error.message);
     }
-    res.redirect('/admin/store-items');
+    
+    console.log('Update results:', results);
+    console.log('Affected rows:', results.affectedRows);
+    console.log('Changed rows:', results.changedRows);
+    
+    // Verify the update by querying the item
+    const verifySql = 'SELECT * FROM storeitem WHERE ItemID = ?';
+    connection.query(verifySql, [itemId], (verifyError, verifyResults) => {
+      if (verifyError) {
+        console.error('Verification error:', verifyError);
+      } else {
+        console.log('Updated item:', verifyResults[0]);
+      }
+      res.redirect('/admin/store-items');
+    });
   });
 });
 
-//route to delete products
-app.get('/deleteItem/:id', (req, res) => {
+app.get('/unlistItem/:id', (req, res) => {
+    if (!req.session.admin) return res.redirect('/login');
+    
     const itemId = req.params.id;
-    const sql = 'DELETE FROM storeitem WHERE ItemID = ?';
+    
+    // Mark item as unlisted instead of deleting
+    const sql = 'UPDATE storeitem SET is_active = FALSE WHERE ItemID = ?';
+    
     connection.query(sql, [itemId], (error, results) => {
         if (error) {
-            console.error("Error deleting item:", error);
-            res.status(500).send('Error deleting item');
-        } else {
-            res.redirect('/admin/store-items');
+            console.error("Error unlisting item:", error);
+            return res.status(500).send('Error unlisting item');
         }
+        
+        res.redirect('/admin/store-items?message=Item unlisted from store (purchase history preserved)');
     });
 });
 
@@ -3002,7 +3132,7 @@ app.get('/store/past-orders', (req, res) => {
 
       console.log('Main orders found:', orderResults.length);
 
-      // UPDATED: Get standalone ticket purchases using foreign key check
+      // Get standalone ticket purchases using foreign key check
       const standaloneTicketsSql = `
         SELECT 
           tp.TicketPurchaseID,
@@ -3062,12 +3192,18 @@ app.get('/store/past-orders', (req, res) => {
           const totalSubOperations = 2; // Store items + tickets
 
           if (order.OrderType === 'main') {
-            // Get store items for main orders
+            // UPDATED: Get store items with soft delete support - shows ALL items (active and inactive)
             const storeItemsSql = `
-              SELECT pi.fk_ItemID, pi.Quantity, pi.DiscountApplied, pi.CashbackEarned, 
-                     COALESCE(i.Name, 'Unknown Item') as Name, 
-                     COALESCE(i.Price, 0) as Price, 
-                     i.storeitempic
+              SELECT 
+                pi.fk_ItemID, 
+                pi.Quantity, 
+                pi.DiscountApplied, 
+                pi.CashbackEarned, 
+                COALESCE(i.Name, 'Removed Item') as Name, 
+                COALESCE(i.Price, 0) as Price, 
+                COALESCE(i.Category, 'N/A') as Category,
+                i.storeitempic,
+                COALESCE(i.is_active, FALSE) as is_active
               FROM purchaseitem pi
               LEFT JOIN storeitem i ON pi.fk_ItemID = i.ItemID
               WHERE pi.fk_PurchaseTransactionID = ?
@@ -3092,7 +3228,7 @@ app.get('/store/past-orders', (req, res) => {
               }
             });
 
-            // UPDATED: Get tickets using foreign key - NO MORE TIMESTAMP MATCHING!
+            // Get tickets using foreign key - NO MORE TIMESTAMP MATCHING!
             const ticketsSql = `
               SELECT 
                 tp.TicketPurchaseID, 
@@ -3132,7 +3268,7 @@ app.get('/store/past-orders', (req, res) => {
             // For standalone ticket orders, no store items
             orderDetails.storeItems = [];
             
-            // UPDATED: Get tickets for standalone orders using NULL foreign key
+            // Get tickets for standalone orders using NULL foreign key
             const standaloneTicketDetailsSql = `
               SELECT 
                 tp.TicketPurchaseID, 
@@ -3205,43 +3341,211 @@ app.get('/store/past-orders', (req, res) => {
   });
 });
 
-
-
-
-
-
-
+app.get('/listItem/:id', (req, res) => {
+    if (!req.session.admin) return res.redirect('/login');
+    
+    const itemId = req.params.id;
+    const sql = 'UPDATE storeitem SET is_active = TRUE WHERE ItemID = ?';
+    
+    connection.query(sql, [itemId], (error, results) => {
+        if (error) {
+            console.error("Error listing item:", error);
+            return res.status(500).send('Error listing item');
+        }
+        
+        res.redirect('/admin/store-items?message=Item successfully listed in store');
+    });
+});
 
 
 app.get('/Admin/addadmins', (req, res) => {
   if (!req.session.admin) return res.redirect('/login');
-  res.render('addadmins', { admin: req.session.admin });
+  
+  // Fetch all admins from database
+  connection.query('SELECT * FROM clubadmin ORDER BY Admin_FullName', (err, admins) => {
+    if (err) {
+      console.error('Error fetching admins:', err);
+      return res.status(500).send('Failed to load admins');
+    }
+    
+    res.render('addadmins', {  // Render addadmins.ejs (not manageadmins)
+      admin: req.session.admin, 
+      admins: admins,
+      message: req.query.message || null
+    });
+  });
 });
 
+// POST - Add new admin
 app.post('/Admin/addadmins', async (req, res) => {
-  const { fullName, email, phone, password } = req.body;
+  const { fullName, email, phone, password, role } = req.body;
   if (!req.session.admin) return res.redirect('/login');
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if email already exists
+    connection.query('SELECT * FROM clubadmin WHERE Admin_Email = ?', [email], async (err, existingAdmins) => {
+      if (err) {
+        console.error('Error checking existing admin:', err);
+        return res.redirect('/Admin/addadmins?message=Error checking existing admin');
+      }
 
+      if (existingAdmins.length > 0) {
+        return res.redirect('/Admin/addadmins?message=Admin with this email already exists');
+      }
+
+      // Hash password and create admin
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      connection.query(
+        `INSERT INTO clubadmin (Admin_FullName, Admin_Email, Admin_Phone, Admin_Password, Role) VALUES (?, ?, ?, ?, ?)`,
+        [fullName, email, phone, hashedPassword, role || 'Admin'],
+        (err, result) => {
+          if (err) {
+            console.error('Error creating admin:', err);
+            return res.redirect('/Admin/addadmins?message=Failed to add admin');
+          }
+          res.redirect('/Admin/addadmins?message=Admin added successfully');
+        }
+      );
+    });
+  } catch (err) {
+    console.error('Hashing error:', err);
+    res.redirect('/Admin/addadmins?message=Internal server error');
+  }
+});
+
+// POST - Edit admin details
+app.post('/Admin/editadmin/:id', (req, res) => {
+  const adminId = req.params.id;
+  const { fullName, email, phone, role } = req.body;
+  
+  if (!req.session.admin) return res.redirect('/login');
+
+  // Check if email already exists for other admins
+  connection.query(
+    'SELECT * FROM clubadmin WHERE Admin_Email = ? AND AdminID != ?', 
+    [email, adminId], 
+    (err, existingAdmins) => {
+      if (err) {
+        console.error('Error checking existing admin:', err);
+        return res.redirect('/Admin/addadmins?message=Error checking existing admin');
+      }
+
+      if (existingAdmins.length > 0) {
+        return res.redirect('/Admin/addadmins?message=Another admin with this email already exists');
+      }
+
+      // Update admin details
+      connection.query(
+        `UPDATE clubadmin SET Admin_FullName = ?, Admin_Email = ?, Admin_Phone = ?, Role = ? WHERE AdminID = ?`,
+        [fullName, email, phone, role, adminId],
+        (err, result) => {
+          if (err) {
+            console.error('Error updating admin:', err);
+            return res.redirect('/Admin/addadmins?message=Failed to update admin');
+          }
+          
+          if (result.affectedRows === 0) {
+            return res.redirect('/Admin/addadmins?message=Admin not found');
+          }
+          
+          // If current user updated their own info, update session
+          if (parseInt(adminId) === req.session.admin.AdminID) {
+            req.session.admin.Admin_FullName = fullName;
+            req.session.admin.Admin_Email = email;
+            req.session.admin.Admin_Phone = phone;
+            req.session.admin.Role = role;
+          }
+          
+          res.redirect('/Admin/addadmins?message=Admin updated successfully');
+        }
+      );
+    }
+  );
+});
+
+// POST - Change admin password
+app.post('/Admin/changepassword/:id', async (req, res) => {
+  const adminId = req.params.id;
+  const { newPassword } = req.body;
+  
+  if (!req.session.admin) return res.redirect('/login');
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
     connection.query(
-      `INSERT INTO clubadmin (Admin_FullName, Admin_Email, Admin_Phone, Admin_Password, Role) VALUES (?, ?, ?, ?, 'Admin')`,
-      [fullName, email, phone, hashedPassword],
+      'UPDATE clubadmin SET Admin_Password = ? WHERE AdminID = ?',
+      [hashedPassword, adminId],
       (err, result) => {
         if (err) {
-          console.error('Error creating admin:', err);
-          return res.status(500).send('Failed to add admin');
+          console.error('Error changing password:', err);
+          return res.redirect('/Admin/addadmins?message=Failed to change password');
         }
-        res.redirect('/Admin');
+        
+        if (result.affectedRows === 0) {
+          return res.redirect('/Admin/addadmins?message=Admin not found');
+        }
+        
+        const message = parseInt(adminId) === req.session.admin.AdminID 
+          ? 'Your password has been changed successfully' 
+          : 'Admin password changed successfully';
+        
+        res.redirect(`/Admin/addadmins?message=${encodeURIComponent(message)}`);
       }
     );
   } catch (err) {
-    console.error('Hashing error:', err);
-    res.status(500).send('Internal server error');
+    console.error('Password hashing error:', err);
+    res.redirect('/Admin/addadmins?message=Internal server error');
   }
 });
-// app.js (Relevant Routes for Admin Event Management)
+
+// POST - Delete admin
+app.post('/Admin/deleteadmin/:id', (req, res) => {
+  const adminId = req.params.id;
+  
+  if (!req.session.admin) return res.redirect('/login');
+  
+  // Prevent admin from deleting themselves
+  if (parseInt(adminId) === req.session.admin.AdminID) {
+    return res.redirect('/Admin/addadmins?message=Cannot delete your own account');
+  }
+
+  // Check if this is the last admin (optional safety check)
+  connection.query('SELECT COUNT(*) as count FROM clubadmin', (err, countResult) => {
+    if (err) {
+      console.error('Error counting admins:', err);
+      return res.redirect('/Admin/addadmins?message=Error checking admin count');
+    }
+
+    if (countResult[0].count <= 1) {
+      return res.redirect('/Admin/addadmins?message=Cannot delete the last admin account');
+    }
+
+    // Delete the admin
+    connection.query(
+      'DELETE FROM clubadmin WHERE AdminID = ?',
+      [adminId],
+      (err, result) => {
+        if (err) {
+          console.error('Error deleting admin:', err);
+          return res.redirect('/Admin/addadmins?message=Failed to delete admin');
+        }
+        
+        if (result.affectedRows === 0) {
+          return res.redirect('/Admin/addadmins?message=Admin not found');
+        }
+        
+        res.redirect('/Admin/addadmins?message=Admin deleted successfully');
+      }
+    );
+  });
+});
+
+
+
+
+
 
 // Display event management page - UPDATED for new time fields
 app.get('/Admin/eventmanagementadmin', (req, res) => {
