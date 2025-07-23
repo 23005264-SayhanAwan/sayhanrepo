@@ -2202,6 +2202,23 @@ app.post('/admin/editItem/:id', upload.single('Image'), (req, res) => {
   });
 });
 
+
+app.get('/listItem/:id', (req, res) => {
+    if (!req.session.admin) return res.redirect('/login');
+    
+    const itemId = req.params.id;
+    const sql = 'UPDATE storeitem SET is_active = TRUE WHERE ItemID = ?';
+    
+    connection.query(sql, [itemId], (error, results) => {
+        if (error) {
+            console.error("Error listing item:", error);
+            return res.status(500).send('Error listing item');
+        }
+        
+        res.redirect('/admin/store-items?message=Item successfully listed in store');
+    });
+});
+
 app.get('/unlistItem/:id', (req, res) => {
     if (!req.session.admin) return res.redirect('/login');
     
