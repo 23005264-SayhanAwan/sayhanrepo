@@ -87,7 +87,7 @@
       </div>
     <% }) %>
 
-    <button id="checkout-button" class="checkout-btn" disabled>Pay & Upgrade Membership</button>
+    <button id="checkout-button" class="checkout-btn" disabled>Pay & Change Membership</button>
   </div>
 
   <script>
@@ -99,7 +99,7 @@
       if (tier === 'Bronze') {
         checkoutBtn.textContent = 'Downgrade to Bronze (Free)';
       } else {
-        checkoutBtn.textContent = `Pay & Upgrade to ${tier}`;
+        checkoutBtn.textContent = `Pay ${tier}`;
       }
     }
 
@@ -165,7 +165,7 @@
         console.error("Checkout failed:", error);
         alert('Processing failed: ' + error.message);
         checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Pay & Upgrade Membership';
+        checkoutBtn.textContent = 'Pay & Change Membership';
       });
     });
   </script>
