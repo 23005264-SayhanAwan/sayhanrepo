@@ -115,6 +115,7 @@ app.get('/', (req, res) => {
 // Retrieve restaurant items (UPDATED - exclude removed items)
 app.get('/restaurant', (req, res) => {
   const member = req.session.member;
+  const message = req.query.message; // ✅ ADD THIS: Declare message variable
 
   if (!member) {
     return res.redirect('/login');
@@ -136,9 +137,16 @@ app.get('/restaurant', (req, res) => {
     }
 
     console.log(`Found ${results.length} available restaurant items`);
-    res.render('restaurant', { foodItems: results, member });
+    
+    res.render('restaurant', { 
+      foodItems: results, 
+      member,
+      message: message  // ✅ Now message is properly declared
+    }); // ✅ FIXED: Remove extra semicolon
   });
 });
+
+
 
 // NEW: Add restaurant item to cart (SIMPLE VERSION - matches your store items)
 app.post('/restaurant/add-to-cart/:id', (req, res) => {
@@ -188,7 +196,7 @@ app.post('/restaurant/add-to-cart/:id', (req, res) => {
     console.log('Restaurant item added to cart:', item.Name, 'x' + quantity);
     
     // Simple redirect to cart (like your store items)
-    res.redirect('/cart');
+    res.redirect('/restaurant?message=Food item added to cart successfully');
   });
 });
 
@@ -2028,6 +2036,7 @@ app.get('/admin/store-items', (req, res) => {
 
 app.get('/store-items', (req, res) => {
     const category = req.query.category;
+    const message = req.query.message; // ✅ ADD THIS: Get message from URL
     
     let sql = 'SELECT * FROM storeitem WHERE is_active = TRUE';
     let params = [];
@@ -2043,10 +2052,13 @@ app.get('/store-items', (req, res) => {
             return res.status(500).send('Error fetching store items');
         }
 
+        console.log('Message being passed to template:', message); // ✅ ADD THIS: Debug log
+
         res.render('memberstore', {
             items: results,
             member: req.session.member || {},
-            selectedCategory: category || 'All'
+            selectedCategory: category || 'All',
+            message: message  // ✅ ADD THIS: Pass message to template
         });
     });
 });
@@ -2239,9 +2251,11 @@ app.get('/unlistItem/:id', (req, res) => {
 
 
 // ROUTE FOR ADDING TO CART
-// Adding items to cart
+// Adding items to cart - FIXED: Now uses quantity from form
 app.post('/store/add-to-cart/:id', (req, res) => {
   const itemId = req.params.id;
+  const quantity = parseInt(req.body.quantity) || 1; // Get quantity from form
+  const memberId = req.session.member?.MemberID;
 
   const sql = 'SELECT * FROM storeitem WHERE ItemID = ?';
   connection.query(sql, [itemId], (error, results) => {
@@ -2260,23 +2274,23 @@ app.post('/store/add-to-cart/:id', (req, res) => {
       req.session.cart = [];
     }
 
-    // Only increment if the item is already in the cart
+    // FIXED: Now properly uses the quantity from the form
     const existing = req.session.cart.find(i => i.id === item.ItemID && i.type !== 'ticket');
     if (existing) {
-      existing.quantity += 1;
+      existing.quantity += quantity; // ✅ Use quantity from form
     } else {
       req.session.cart.push({
         id: item.ItemID,
-        type: 'item', // Mark as store item
+        type: 'item', 
         name: item.Name,
         price: item.Price,
         storeitempic: item.storeitempic,
-        quantity: 1
+        quantity: quantity // ✅ Use quantity from form instead of hardcoded 1
       });
     }
 
-    // Better UX: redirect to the cart so you see what you have
-    res.redirect('/cart');
+    // Redirect back to store with success message
+    res.redirect('/store-items?message=Item added to cart successfully');
   });
 });
 
@@ -2365,7 +2379,6 @@ app.post('/add-ticket-to-cart/:eventId', (req, res) => {
     });
   });
 });
-
 // Updated remove from cart to handle both types
 app.post('/store/remove-from-cart/:type/:id', (req, res) => {
   if (!req.session.cart) return res.redirect('/cart');

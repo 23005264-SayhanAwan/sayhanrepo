@@ -3,7 +3,7 @@
 <head>
   <title>Member Page</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- MOVED: Bootstrap JS to bottom for better loading -->
   <style>
     html, body {
       height: 100%;
@@ -165,7 +165,8 @@
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="/Member">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="/Booking">Booking</a></li>
-          <!-- Store with dropdown menu -->
+          
+          <!-- FIXED: Store dropdown with proper click handling -->
           <li class="nav-item dropdown">
             <a
               href="/store-items" 
@@ -173,6 +174,7 @@
               id="storeDropdown" 
               role="button" 
               data-bs-toggle="dropdown" 
+              data-bs-auto-close="outside"
               aria-expanded="false"
             >
               Store
@@ -185,12 +187,14 @@
               <li><a class="dropdown-item" href="/store-items?category=Bags">🎒 Bags</a></li>
             </ul>
           </li>
+          
           <li class="nav-item"><a class="nav-link" href="/restaurant">Restaurant</a></li>
           <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
           <li class="nav-item"><a class="nav-link" href="/Member/calendar">Calendar</a></li>
           <li class="nav-item"><a class="nav-link" href="/membership">Membership</a></li>
           <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
           <li class="nav-item"><a class="nav-link" href="/store/past-orders">Orders</a></li>
+          
           <!-- Profile picture dropdown -->
           <li class="nav-item dropdown">
             <a
