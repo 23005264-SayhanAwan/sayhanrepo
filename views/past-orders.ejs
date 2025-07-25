@@ -235,23 +235,24 @@
                       <h6 class="mb-3">🎫 Event Tickets:</h6>
                       
                       <%
-                        // Group tickets by event WITHIN THIS ORDER ONLY
-                        const groupedTickets = {};
-                        order.tickets.forEach(ticket => {
-                          const eventKey = ticket.Fk_EventID || ticket.EventID;
-                          if (!groupedTickets[eventKey]) {
-                            groupedTickets[eventKey] = {
-                              ...ticket,
-                              quantity: 0,
-                              totalPrice: 0
-                            };
-                          }
-                          groupedTickets[eventKey].quantity += 1;
-                          groupedTickets[eventKey].totalPrice += parseFloat(ticket.FinalAmountPaid);
-                        });
-                        
-                        const uniqueEvents = Object.values(groupedTickets);
-                      %>
+                    // Group tickets by event WITHIN THIS ORDER ONLY
+                    const groupedTickets = {};
+                    order.tickets.forEach(ticket => {
+                      const eventKey = ticket.Fk_EventID || ticket.EventID;
+                      if (!groupedTickets[eventKey]) {
+                        groupedTickets[eventKey] = {
+                          ...ticket,
+                          quantity: 0,
+                          totalPrice: 0
+                        };
+                      }
+                      groupedTickets[eventKey].quantity += 1;
+                      // ✅ CHANGE THIS LINE:
+                      groupedTickets[eventKey].totalPrice += parseFloat(ticket.TotalAmount || 0);
+                    });
+                    
+                    const uniqueEvents = Object.values(groupedTickets);
+                  %>
                       
                       <% uniqueEvents.forEach(ticketGroup => { %>
                         <div class="event-details">

@@ -215,16 +215,18 @@ app.post('/restaurant/remove-from-cart/:id', (req, res) => {
 /// Routes for Admin Restaurant (Store Style) - COMPLETE REPLACEMENT
 
 // GET all restaurant items - Updated to handle showAll and message parameters
+// ✅ CORRECT VERSION - Add the missing 'items' line
 app.get('/admin/items', (req, res) => {
     if (!req.session.admin) return res.redirect('/login');
     
     const showAll = req.query.showAll === 'true';
-    const showForceDelete = req.query.showForceDelete; // Get the item ID for force delete
-    let sql = 'SELECT * FROM restaurantitem';
+    const showForceDelete = req.query.showForceDelete;
     
+    let sql = 'SELECT * FROM restaurantitem';
     if (!showAll) {
         sql += ' WHERE is_active = TRUE OR is_active IS NULL';
     }
+    sql += ' ORDER BY Name ASC';
     
     connection.query(sql, (error, results) => {
         if (error) {
@@ -232,15 +234,17 @@ app.get('/admin/items', (req, res) => {
             return res.status(500).send('Error fetching restaurant items');
         }
         
+        // ✅ THE CRITICAL LINE THAT'S MISSING:
         res.render('adminItemList', {
-            items: results,
+            items: results || [],        
             admin: req.session.admin,
             showAll: showAll,
-            message: req.query.message,
-            showForceDelete: showForceDelete // Pass the force delete item ID
+            message: req.query.message || null,
+            showForceDelete: showForceDelete || null
         });
     });
 });
+
 
 // GET route: show the Add Restaurant Item form
 app.get('/admin/items/add', (req, res) => {
@@ -2335,6 +2339,7 @@ app.post('/admin/editItem/:id', upload.single('Image'), (req, res) => {
       return res.status(500).send('Error updating store item: ' + error.message);
     }
     
+
     console.log('Update results:', results);
     console.log('Affected rows:', results.affectedRows);
     console.log('Changed rows:', results.changedRows);
@@ -3035,14 +3040,14 @@ app.post('/store/checkout/confirm', async (req, res) => {
 
   const orderTimestamp = new Date();
   
-  // STEP 1: Always create a main purchase record
+  // ✅ UPDATED: Create main purchase record with DiscountAmount and CashbackEarned
   const purchaseSql = `
     INSERT INTO purchase
-    (fk_MemberID, PurchaseDate, TotalAmount, CashbackUsed, FinalAmountPaid)
-    VALUES (?, ?, ?, ?, ?)
+    (fk_MemberID, PurchaseDate, TotalAmount, DiscountAmount, CashbackUsed, FinalAmountPaid)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
-  connection.query(purchaseSql, [memberID, orderTimestamp, totalAmount, cashbackUsed, finalAmount], (err, result) => {
+  connection.query(purchaseSql, [memberID, orderTimestamp, totalAmount, discountAmount, cashbackUsed, finalAmount], (err, result) => {
     if (err) {
       console.error('Error saving main purchase:', err);
       return res.status(500).json({ error: 'Error saving purchase' });
@@ -3062,7 +3067,7 @@ app.post('/store/checkout/confirm', async (req, res) => {
 
     // STEP 2: Process store items
     if (storeItems.length > 0) {
-      processStoreItems(storeItems, purchaseID, discountAmount, cashbackEarned, () => {
+      processStoreItems(storeItems, purchaseID, () => {
         operationsCompleted++;
         if (operationsCompleted === totalOperations) {
           processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
@@ -3070,9 +3075,9 @@ app.post('/store/checkout/confirm', async (req, res) => {
       });
     }
 
-    // STEP 3: Process restaurant items (NEW)
+    // STEP 3: Process restaurant items
     if (restaurantItems.length > 0) {
-      processRestaurantItems(restaurantItems, purchaseID, memberID, discountAmount, cashbackEarned, orderTimestamp, () => {
+      processRestaurantItems(restaurantItems, purchaseID, memberID, orderTimestamp, () => {
         operationsCompleted++;
         if (operationsCompleted === totalOperations) {
           processCashbackAndComplete(selectedCashbackItems, purchaseID, memberID, cashbackEarned, req, res);
@@ -3093,27 +3098,28 @@ app.post('/store/checkout/confirm', async (req, res) => {
 });
 
 // Helper function to process store items
-function processStoreItems(storeItems, purchaseID, discountAmount, cashbackEarned, callback) {
+function processStoreItems(storeItems, purchaseID, callback) {
   let itemsProcessed = 0;
   
   storeItems.forEach(item => {
+    const itemTotalAmount = item.price * item.quantity;
+    
     const itemSql = `
       INSERT INTO purchaseitem
-      (fk_PurchaseTransactionID, fk_ItemID, Quantity, DiscountApplied, CashbackEarned)
-      VALUES (?, ?, ?, ?, ?)
+      (fk_PurchaseTransactionID, fk_ItemID, Quantity, TotalAmount)
+      VALUES (?, ?, ?, ?)
     `;
 
     connection.query(itemSql, [
       purchaseID,
       item.id,
       item.quantity,
-      discountAmount,
-      cashbackEarned
+      itemTotalAmount
     ], (itemErr) => {
       if (itemErr) {
         console.error('Error saving store item:', itemErr);
       } else {
-        console.log(`Store item saved: ${item.name} x${item.quantity}`);
+        console.log(`Store item saved: ${item.name} x${item.quantity} = $${itemTotalAmount}`);
         
         // Reduce stock
         const updateStockSql = `
@@ -3139,8 +3145,8 @@ function processStoreItems(storeItems, purchaseID, discountAmount, cashbackEarne
   });
 }
 
-// NEW: Helper function to process restaurant items
-function processRestaurantItems(restaurantItems, purchaseID, memberID, discountAmount, cashbackEarned, orderTimestamp, callback) {
+// ✅ UPDATED: Restaurant items processing - using only TotalAmount, removed FinalAmountPaid and CashbackUsed
+function processRestaurantItems(restaurantItems, purchaseID, memberID, orderTimestamp, callback) {
   let itemsProcessed = 0;
   const totalRestaurantItems = restaurantItems.reduce((sum, item) => sum + item.quantity, 0);
   
@@ -3151,23 +3157,21 @@ function processRestaurantItems(restaurantItems, purchaseID, memberID, discountA
     for (let i = 0; i < item.quantity; i++) {
       const restaurantBillSql = `
         INSERT INTO restaurantbill 
-        (fk_MemberID, fk_ItemID, BillDate, TotalAmount, CashbackUsed, FinalAmountPaid, fk_PurchaseTransactionID)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (fk_MemberID, fk_ItemID, BillDate, TotalAmount, fk_PurchaseTransactionID)
+        VALUES (?, ?, ?, ?, ?)
       `;
       
       connection.query(restaurantBillSql, [
         memberID,
         item.id,
         orderTimestamp,
-        item.price,
-        0, // Individual cashback used (handled at order level)
-        item.price,
-        purchaseID // Link to main purchase
+        item.price,  // ✅ Individual item price stored in TotalAmount
+        purchaseID
       ], (restaurantErr, restaurantResult) => {
         if (restaurantErr) {
           console.error('Error saving restaurant item:', restaurantErr);
         } else {
-          console.log(`Restaurant item saved: ${item.name} with bill ID ${restaurantResult.insertId}, linked to purchase ${purchaseID}`);
+          console.log(`Restaurant item saved: ${item.name} with bill ID ${restaurantResult.insertId}, price: $${item.price}`);
         }
         
         itemsProcessed++;
@@ -3191,7 +3195,7 @@ function processTickets(tickets, purchaseID, memberID, orderTimestamp, callback)
     for (let i = 0; i < ticket.quantity; i++) {
       const ticketPurchaseSql = `
         INSERT INTO ticketpurchase 
-        (fk_MemberID, Fk_EventID, PurchaseDate, FinalAmountPaid, fk_PurchaseTransactionID)
+        (fk_MemberID, Fk_EventID, PurchaseDate, TotalAmount, fk_PurchaseTransactionID)
         VALUES (?, ?, ?, ?, ?)
       `;
       
@@ -3199,13 +3203,13 @@ function processTickets(tickets, purchaseID, memberID, orderTimestamp, callback)
         memberID,
         ticket.id,
         orderTimestamp,
-        ticket.price,
+        ticket.price,  // ✅ Now using TotalAmount instead of FinalAmountPaid
         purchaseID
       ], (ticketErr, ticketResult) => {
         if (ticketErr) {
           console.error('Error saving ticket purchase:', ticketErr);
         } else {
-          console.log(`Ticket saved for event ${ticket.id} with ID ${ticketResult.insertId}, linked to purchase ${purchaseID}`);
+          console.log(`Ticket saved for event ${ticket.id} with ID ${ticketResult.insertId}, price: $${ticket.price}`);
         }
         
         ticketsProcessed++;
@@ -3402,12 +3406,13 @@ app.get('/store/past-orders', (req, res) => {
 
     console.log('Fetching unified past orders for MemberID:', memberId);
 
-    // Get all purchase records (main orders)
+    // ✅ UPDATED: Get all purchase records with DiscountAmount
     const mainOrdersSql = `
       SELECT 
         PurchaseTransactionID,
         PurchaseDate,
         TotalAmount,
+        DiscountAmount,
         CashbackUsed,
         FinalAmountPaid
       FROM purchase
@@ -3423,12 +3428,12 @@ app.get('/store/past-orders', (req, res) => {
 
       console.log('Main orders found:', orderResults.length);
 
-      // Get standalone ticket purchases using foreign key check
+      // ✅ UPDATED: Get standalone ticket purchases using TotalAmount
       const standaloneTicketsSql = `
         SELECT 
           tp.TicketPurchaseID,
           tp.PurchaseDate,
-          tp.FinalAmountPaid,
+          tp.TotalAmount,
           COUNT(*) as ticket_count,
           'ticket_only' as OrderType
         FROM ticketpurchase tp
@@ -3446,15 +3451,16 @@ app.get('/store/past-orders', (req, res) => {
 
         console.log('Standalone ticket groups found:', standaloneTickets.length);
 
-        // Combine main orders and standalone ticket orders
+        // ✅ UPDATED: Combine orders using TotalAmount
         const allOrderGroups = [
           ...orderResults.map(order => ({ ...order, OrderType: 'main' })),
           ...standaloneTickets.map(ticket => ({
             PurchaseTransactionID: null,
             PurchaseDate: ticket.PurchaseDate,
-            TotalAmount: ticket.FinalAmountPaid * ticket.ticket_count,
+            TotalAmount: ticket.TotalAmount * ticket.ticket_count,
+            DiscountAmount: 0,
             CashbackUsed: 0,
-            FinalAmountPaid: ticket.FinalAmountPaid * ticket.ticket_count,
+            FinalAmountPaid: ticket.TotalAmount * ticket.ticket_count,
             OrderType: 'ticket_only'
           }))
         ];
@@ -3476,7 +3482,7 @@ app.get('/store/past-orders', (req, res) => {
             ...order,
             orderId: order.PurchaseTransactionID || `TICKET-${new Date(order.PurchaseDate).getTime()}`,
             storeItems: [],
-            restaurantItems: [],  // IMPORTANT: Initialize restaurant items
+            restaurantItems: [],
             tickets: []
           };
 
@@ -3484,13 +3490,12 @@ app.get('/store/past-orders', (req, res) => {
           const totalSubOperations = 3; // Store items + Restaurant items + Tickets
 
           if (order.OrderType === 'main') {
-            // Get store items
+            // ✅ UPDATED: Get store items using TotalAmount
             const storeItemsSql = `
               SELECT 
                 pi.fk_ItemID, 
                 pi.Quantity, 
-                pi.DiscountApplied, 
-                pi.CashbackEarned, 
+                pi.TotalAmount,
                 COALESCE(i.Name, 'Removed Item') as Name, 
                 COALESCE(i.Price, 0) as Price, 
                 COALESCE(i.Category, 'N/A') as Category,
@@ -3514,7 +3519,7 @@ app.get('/store/past-orders', (req, res) => {
               checkComplete();
             });
 
-            // CRITICAL: Get restaurant items
+            // ✅ UPDATED: Get restaurant items using TotalAmount
             const restaurantItemsSql = `
               SELECT 
                 rb.fk_ItemID,
@@ -3539,7 +3544,6 @@ app.get('/store/past-orders', (req, res) => {
                 orderDetails.restaurantItems = restaurantResults || [];
                 console.log(`Found ${(restaurantResults || []).length} restaurant items for order ${order.PurchaseTransactionID}`);
                 
-                // DEBUG: Log what we found
                 if (restaurantResults && restaurantResults.length > 0) {
                   console.log('Restaurant items data:', restaurantResults);
                 }
@@ -3549,20 +3553,22 @@ app.get('/store/past-orders', (req, res) => {
               checkComplete();
             });
 
-            // Get tickets
+            // ✅ UPDATED: Get tickets using TotalAmount instead of FinalAmountPaid
             const ticketsSql = `
               SELECT 
                 tp.TicketPurchaseID, 
                 tp.Fk_EventID, 
                 tp.PurchaseDate, 
-                tp.FinalAmountPaid,
+                tp.TotalAmount,
                 COALESCE(e.EventID, tp.Fk_EventID) as EventID,
                 COALESCE(e.Title, 'Unknown Event') as Title,
                 e.EventDate,
                 COALESCE(e.Location, 'Location TBD') as Location,
-                COALESCE(e.EventType, 'Event') as EventType
+                COALESCE(e.EventType, 'Event') as EventType,
+                COALESCE(t.TicketPrice, tp.TotalAmount, 0) as TicketPrice
               FROM ticketpurchase tp
               LEFT JOIN event e ON tp.Fk_EventID = e.EventID
+              LEFT JOIN ticket t ON e.EventID = t.Fk_EventID
               WHERE tp.fk_PurchaseTransactionID = ?
             `;
 
@@ -3584,13 +3590,13 @@ app.get('/store/past-orders', (req, res) => {
             orderDetails.storeItems = [];
             orderDetails.restaurantItems = [];
             
-            // Get tickets for standalone orders using NULL foreign key
+            // ✅ UPDATED: Get tickets for standalone orders using TotalAmount
             const standaloneTicketDetailsSql = `
               SELECT 
                 tp.TicketPurchaseID, 
                 tp.Fk_EventID, 
                 tp.PurchaseDate, 
-                tp.FinalAmountPaid,
+                tp.TotalAmount,
                 COALESCE(e.EventID, tp.Fk_EventID) as EventID,
                 COALESCE(e.Title, 'Unknown Event') as Title,
                 e.EventDate,
@@ -3632,22 +3638,31 @@ app.get('/store/past-orders', (req, res) => {
         });
 
         function renderUnifiedOrdersPage() {
-          // Sort orders by date (newest first)
-          detailedOrders.sort((a, b) => new Date(b.PurchaseDate) - new Date(a.PurchaseDate));
-          
-          console.log('Rendering unified orders page with', detailedOrders.length, 'orders');
-          
-          // DEBUG: Log order details
-          detailedOrders.forEach((order, index) => {
-            console.log(`Order ${index + 1}:`, {
-              orderId: order.orderId,
-              storeItems: order.storeItems.length,
-              restaurantItems: order.restaurantItems.length,
-              tickets: order.tickets.length
-            });
+          // ✅ UPDATED: Sort by order number (newest first) instead of date
+          detailedOrders.sort((a, b) => {
+            // Extract numeric order ID for proper sorting
+            const getOrderNumber = (order) => {
+              if (order.PurchaseTransactionID) {
+                return order.PurchaseTransactionID; // Main orders use PurchaseTransactionID
+              } else {
+                return order.standaloneTicketId || 0; // Standalone tickets use TicketPurchaseID
+              }
+            };
+            
+            const orderNumA = getOrderNumber(a);
+            const orderNumB = getOrderNumber(b);
+            
+            return orderNumB - orderNumA; // Descending order (newest first)
           });
           
-          // Add order type classification for display
+          console.log('Rendering unified orders page with', detailedOrders.length, 'orders (sorted by order number)');
+          
+          // DEBUG: Log order numbers for verification
+          detailedOrders.forEach((order, index) => {
+            console.log(`Order ${index + 1}: ID=${order.orderId}, PurchaseID=${order.PurchaseTransactionID}, TicketID=${order.standaloneTicketId}`);
+          });
+          
+          // Add order type classification
           detailedOrders.forEach(order => {
             const hasStoreItems = order.storeItems && order.storeItems.length > 0;
             const hasRestaurantItems = order.restaurantItems && order.restaurantItems.length > 0;
@@ -3678,10 +3693,11 @@ app.get('/store/past-orders', (req, res) => {
             orders: detailedOrders
           });
         }
-      });
+      }); 
     });
-  });
-});
+  }); 
+}); 
+
 
 app.get('/Admin/addadmins', (req, res) => {
   if (!req.session.admin) return res.redirect('/login');
@@ -4049,8 +4065,9 @@ app.get('/Admin/ticketpage', (req, res) => {
     ORDER BY e.deleted ASC, e.EventDate DESC
   `;
 
+  // ✅ UPDATED: Use TotalAmount instead of FinalAmountPaid
   const ticketStatsQuery = `
-    SELECT Fk_EventID, COUNT(*) AS ticketsSold, SUM(FinalAmountPaid) AS totalEarned
+    SELECT Fk_EventID, COUNT(*) AS ticketsSold, SUM(TotalAmount) AS totalEarned
     FROM ticketpurchase
     GROUP BY Fk_EventID
   `;
@@ -4272,7 +4289,7 @@ app.get('/Admin/event/:id/purchasers', (req, res) => {
   if (!admin) return res.redirect('/login');
 
   const query = `
-    SELECT m.MemberID, m.Member_FullName, m.Member_Email, t.PurchaseDate, t.FinalAmountPaid
+    SELECT m.MemberID, m.Member_FullName, m.Member_Email, t.PurchaseDate, t.TotalAmount
     FROM ticketpurchase t
     JOIN members m ON t.fk_MemberID = m.MemberID
     WHERE t.Fk_EventID = ?
