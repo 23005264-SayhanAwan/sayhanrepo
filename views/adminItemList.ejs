@@ -1,46 +1,427 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Manage Food Items</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Restaurant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet" />
+  <!-- Add Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    body { background-color: #0c0f18; color: white; }
-    .table img { height: 60px; width: 60px; object-fit: cover; border-radius: 8px; }
-  </style>
+/* Card consistency fixes for admin restaurant */
+.card {
+  height: 100%; /* Make all cards same height */
+  display: flex;
+  flex-direction: column;
+  min-height: 500px; /* Minimum card height for admin cards */
+}
+
+.card-img-top {
+  height: 250px; /* Fixed height for all images */
+  width: 100%;
+  object-fit: cover; /* Crop to fit without stretching */
+  object-position: center; /* Center the image */
+}
+
+.card-body {
+  flex: 1; /* Fill remaining space */
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.card-body .btn {
+  margin-top: auto; /* Push buttons to bottom */
+}
+
+/* Ensure buttons stay at bottom and are aligned */
+.card-body > *:last-child {
+  margin-top: auto;
+}
+
+/* Optional: Add some spacing between cards */
+.col-md-4 {
+  margin-bottom: 2rem;
+}
+
+/* Ensure consistent card width */
+.card {
+  max-width: 100%;
+}
+
+/* Admin-specific button styling */
+.btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Unlisted item styling */
+.card.inactive {
+  opacity: 0.6;
+  border: 2px dashed #ffc107;
+}
+
+.card.inactive .card-img-top {
+  filter: grayscale(30%);
+}
+
+.unlisted-overlay {
+  position: relative;
+}
+
+.unlisted-overlay::after {
+  content: 'UNLISTED FROM RESTAURANT';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 5px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Delete button styling */
+.btn-delete {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+  color: white;
+}
+
+/* Button group styling for better layout */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-start;
+}
+
+.button-group .btn {
+  margin: 0;
+  flex: 1;
+  min-width: fit-content;
+}
+</style>
 </head>
 <body>
-  <%- include('partials/Adminnav') %>
+
+  <%- include('partials/Adminnav', { admin: admin }) %>
 
   <div class="container mt-5">
-    <h1 class="text-warning">Manage Food Items</h1>
-    <a href="/admin/items/add" class="btn btn-success mb-3">+ Add Food Item</a>
-    <table class="table table-dark table-bordered">
-      <thead>
-        <tr>
-          <th>Image</th>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Price</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% foodItems.forEach(item => { %>
-          <tr>
-            <td><img src="<%= item.Image %>" alt="Food Image" /></td>
-            <td><%= item.Name %></td>
-            <td><%= item.Description %></td>
-            <td>$<%= parseFloat(item.Price || 0).toFixed(2) %></td>
-            <td>
-              <a href="/admin/items/edit/<%= item.ItemID %>" class="btn btn-warning btn-sm">Edit</a>
-              <form action="/admin/items/delete/<%= item.ItemID %>" method="POST" style="display:inline;">
-                <button class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">Delete</button>
-              </form>
-            </td>
-          </tr>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Restaurant Items</h2>
+      <div>
+        <!-- Toggle between showing all items vs listed only -->
+        <% if (typeof showAll !== 'undefined' && showAll) { %>
+          <a href="/admin/items" class="btn btn-outline-primary me-2">Show Listed Only</a>
+        <% } else { %>
+          <a href="/admin/items?showAll=true" class="btn btn-outline-secondary me-2">Show All Items</a>
+        <% } %>
+        <!-- Add new restaurant item button -->
+        <a href="/admin/items/add" class="btn btn-success">Add New Item</a>
+      </div>
+    </div>
+
+    <!-- Success/Info Messages -->
+    <% if (typeof message !== 'undefined' && message) { %>
+      <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <%= message %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        
+        <!-- Show Force Delete button if needed -->
+        <% if (typeof showForceDelete !== 'undefined' && showForceDelete) { %>
+          <hr>
+          <div class="mt-2">
+            <%
+              // Find the item name for the force delete button
+              let forceDeleteItem = null;
+              if (items && showForceDelete) {
+                forceDeleteItem = items.find(item => item.ItemID == showForceDelete);
+              }
+              const itemName = forceDeleteItem ? forceDeleteItem.Name : 'Unknown Item';
+            %>
+            <button type="button" 
+                    class="btn btn-danger btn-sm" 
+                    onclick="showForceDeleteModal('<%= showForceDelete %>', '<%= itemName %>')">
+              <i class="fas fa-skull-crossbones"></i> Force Delete (Destroy All Records)
+            </button>
+            <small class="text-muted d-block mt-1">
+              ⚠️ This will permanently delete "<%= itemName %>" AND all order history
+            </small>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- Items Count Info -->
+    <% if (items && items.length > 0) { %>
+      <% 
+        const activeItems = items.filter(item => item.is_active !== false && item.is_active !== null);
+        const inactiveItems = items.filter(item => item.is_active === false);
+      %>
+      <div class="mb-3">
+        <small class="text">
+          Showing <%= items.length %> items
+          <% if (typeof showAll !== 'undefined' && showAll) { %>
+            (<%= activeItems.length %> listed, <%= inactiveItems.length %> unlisted)
+          <% } else { %>
+            (listed items only)
+          <% } %>
+        </small>
+      </div>
+    <% } %>
+
+    <div class="row">
+      <% if (items && items.length > 0) { %>
+        <% items.forEach(item => { %>
+          <% const isUnlisted = (item.is_active == 0 || item.is_active === false); %>
+          <div class="col-md-4 mb-4">
+            <div class="card <%= isUnlisted ? 'inactive' : '' %>">
+              <div class="<%= isUnlisted ? 'unlisted-overlay' : '' %>">
+                <img src="<%= item.Image %>" class="card-img-top" alt="<%= item.Name %>" />
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="card-title"><%= item.Name %></h5>
+                  <% if (isUnlisted) { %>
+                    <span class="badge bg-warning">Unlisted</span>
+                  <% } else { %>
+                    <span class="badge bg-success">Listed</span>
+                  <% } %>
+                </div>
+                
+                <p class="card-text"><strong>Description:</strong> <%= item.Description || 'No description' %></p>
+                <p class="card-text">
+                  <strong>Price:</strong>
+                  $<%= (item.Price !== undefined && item.Price !== null) ? Number(item.Price).toFixed(2) : 'N/A' %>
+                </p>
+
+                <div class="mt-auto">
+                  <% if (isUnlisted) { %>
+                    <!-- Buttons for unlisted items -->
+                    <div class="button-group">
+                      <a href="/listRestaurantItem/<%= item.ItemID %>" class="btn btn-success btn-sm" 
+                         onclick="return confirm('List this item in the restaurant again?')"
+                         title="List Item">
+                        <i class="fas fa-eye"></i> List
+                      </a>
+                      <a href="/admin/items/edit/<%= item.ItemID %>" class="btn btn-outline-warning btn-sm"
+                         title="Edit Item">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                      <!-- DELETE BUTTON FOR UNLISTED ITEMS -->
+                      <button type="button" 
+                              class="btn btn-delete btn-sm" 
+                              title="Permanently Delete Item"
+                              onclick="deleteItem('<%= item.ItemID %>', '<%= item.Name %>')">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  <% } else { %>
+                    <!-- Buttons for listed items (is_active is TRUE or NULL) -->
+                    <div class="button-group">
+                      <a href="/admin/items/edit/<%= item.ItemID %>" class="btn btn-warning btn-sm"
+                         title="Edit Item">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                      <a href="/unlistRestaurantItem/<%= item.ItemID %>" class="btn btn-secondary btn-sm" 
+                         onclick="return confirm('Unlist this item from the restaurant? (Order history will be preserved)')"
+                         title="Unlist Item">
+                        <i class="fas fa-eye-slash"></i> Unlist
+                      </a>
+                      <!-- DELETE BUTTON FOR LISTED ITEMS -->
+                      <button type="button" 
+                              class="btn btn-delete btn-sm" 
+                              title="Permanently Delete Item"
+                              onclick="deleteItem('<%= item.ItemID %>', '<%= item.Name %>')">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
         <% }) %>
-      </tbody>
-    </table>
+      <% } else { %>
+        <div class="col-12">
+          <div class="text-center py-5">
+            <h4 class="text-muted">No items found</h4>
+            <p class="text-muted">
+              <% if (typeof showAll !== 'undefined' && showAll) { %>
+                No items in the database.
+              <% } else { %>
+                No listed items in the restaurant. <a href="/admin/items?showAll=true">Show all items</a> including unlisted ones.
+              <% } %>
+            </p>
+            <a href="/admin/items/add" class="btn btn-primary">Add Your First Item</a>
+          </div>
+        </div>
+      <% } %>
+    </div>
   </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="deleteModalLabel">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Confirm Deletion
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <i class="fas fa-warning me-2"></i>
+            <strong>Warning:</strong> This action cannot be undone!
+          </div>
+          <p>Are you sure you want to <strong>permanently delete</strong> this restaurant item?</p>
+          <p><strong>Item:</strong> <span id="deleteItemName" class="text-primary"></span></p>
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-1"></i>
+            <small>
+              If this item has order history, deletion will be prevented and you'll be offered a "Force Delete" option.
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <form id="deleteForm" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-danger">
+              <i class="fas fa-trash"></i> Try Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Force Delete Confirmation Modal -->
+  <div class="modal fade" id="forceDeleteModal" tabindex="-1" aria-labelledby="forceDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-danger">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="forceDeleteModalLabel">
+            <i class="fas fa-skull-crossbones me-2"></i>
+            ⚠️ FORCE DELETE - FINAL WARNING ⚠️
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-danger">
+            <h6><i class="fas fa-exclamation-triangle me-2"></i><strong>CRITICAL WARNING</strong></h6>
+            <p class="mb-0">This will permanently delete the restaurant item AND destroy all order history records!</p>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <h6>What will be deleted:</h6>
+              <ul class="text-danger">
+                <li>The restaurant item completely</li>
+                <li>ALL order records (restaurantbill)</li>
+                <li>Customer order history</li>
+                <li>Sales analytics data</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6>Consider alternatives:</h6>
+              <ul class="text-success">
+                <li><strong>Unlist:</strong> Hide from customers, keep records</li>
+                <li><strong>Mark discontinued:</strong> Update name/description</li>
+                <li><strong>Set price to 0:</strong> Prevent new orders</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <p><strong>Item to be destroyed:</strong> <span id="forceDeleteItemName" class="text-danger fw-bold"></span></p>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="confirmForceDelete" required>
+              <label class="form-check-label text-danger fw-bold" for="confirmForceDelete">
+                I understand this will permanently destroy all data and cannot be undone
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Cancel - Keep Item
+          </button>
+          <form id="forceDeleteForm" method="POST" style="display: inline;">
+            <input type="hidden" name="forceDelete" value="true">
+            <button type="submit" class="btn btn-danger" id="forceDeleteBtn" disabled>
+              <i class="fas fa-skull-crossbones"></i> FORCE DELETE EVERYTHING
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    function deleteItem(itemId, itemName) {
+      // Set the item name in the modal
+      document.getElementById('deleteItemName').textContent = itemName;
+      
+      // Set the form action to the delete route
+      document.getElementById('deleteForm').action = `/admin/items/delete/${itemId}`;
+      
+      // Show the confirmation modal
+      const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+      deleteModal.show();
+    }
+
+    function showForceDeleteModal(itemId, itemName) {
+      // Set the item name in the force delete modal
+      document.getElementById('forceDeleteItemName').textContent = itemName || 'Selected Item';
+      
+      // Set the form action to the delete route with force delete
+      document.getElementById('forceDeleteForm').action = `/admin/items/delete/${itemId}`;
+      
+      // Reset the checkbox
+      document.getElementById('confirmForceDelete').checked = false;
+      document.getElementById('forceDeleteBtn').disabled = true;
+      
+      // Show the force delete modal
+      const forceDeleteModal = new bootstrap.Modal(document.getElementById('forceDeleteModal'));
+      forceDeleteModal.show();
+    }
+
+    // Enable/disable force delete button based on checkbox
+    document.getElementById('confirmForceDelete').addEventListener('change', function() {
+      document.getElementById('forceDeleteBtn').disabled = !this.checked;
+    });
+
+    // Auto-hide alerts after 8 seconds (longer for force delete warning)
+    setTimeout(() => {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        if (alert.classList.contains('show') && !alert.querySelector('.btn-danger')) {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }
+      });
+    }, 8000);
+  </script>
+
 </body>
 </html>

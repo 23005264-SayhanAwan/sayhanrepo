@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Store</title>
-  <!-- REMOVED: Duplicate Bootstrap CSS (already in Membernav) -->
-  <!-- REMOVED: Broken style.css reference -->
   <style>
     /* Match restaurant.ejs dark theme */
     body { 
@@ -144,9 +142,23 @@
       margin-top: 3rem;
       color: #6c757d;
     }
+
+    /* Toast styling - REMOVED */
   </style>
 </head>
 <body>
+
+
+
+  <!-- SUCCESS MESSAGE POPUP (Same as restaurant.ejs) -->
+  <% if (typeof message !== 'undefined' && message) { %>
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" 
+         style="background-color: #28a745 !important; border: none !important; color: white !important; border-radius: 8px !important; z-index: 9999 !important; position: relative !important; font-size: 1.1rem !important;">
+      <i class="fas fa-shopping-cart me-2"></i> 
+      <strong><%= message %></strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
 
   <%- include('partials/Membernav', { member: member }) %>
 
@@ -238,22 +250,6 @@
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   
-  <!-- Bootstrap JavaScript for Toast functionality -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <!-- Toast Auto-show Script -->
-  <script>
-    // Show toast when page loads if message exists
-    document.addEventListener('DOMContentLoaded', function() {
-      const toastElement = document.querySelector('.toast');
-      if (toastElement) {
-        const toast = new bootstrap.Toast(toastElement, {
-          delay: 4000, // Show for 4 seconds
-          animation: true
-        });
-        toast.show();
-      }
-    });
-  </script>
+ 
 </body>
 </html>

@@ -212,146 +212,295 @@ app.post('/restaurant/remove-from-cart/:id', (req, res) => {
   res.redirect('/cart');
 });
 
-// Admin - Retrieve food items (KEEP UNCHANGED)
+/// Routes for Admin Restaurant (Store Style) - COMPLETE REPLACEMENT
+
+// GET all restaurant items - Updated to handle showAll and message parameters
 app.get('/admin/items', (req, res) => {
-  const sql = 'SELECT ItemID, Name, Description, Price, Image FROM restaurantitem';
-
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error retrieving food items:', err);
-      return res.status(500).send('Error retrieving food items.');
+    if (!req.session.admin) return res.redirect('/login');
+    
+    const showAll = req.query.showAll === 'true';
+    const showForceDelete = req.query.showForceDelete; // Get the item ID for force delete
+    let sql = 'SELECT * FROM restaurantitem';
+    
+    if (!showAll) {
+        sql += ' WHERE is_active = TRUE OR is_active IS NULL';
     }
-
-    res.render('adminItemList', {
-      foodItems: results,
-      admin: req.session.admin
+    
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error("Error fetching restaurant items:", error);
+            return res.status(500).send('Error fetching restaurant items');
+        }
+        
+        res.render('adminItemList', {
+            items: results,
+            admin: req.session.admin,
+            showAll: showAll,
+            message: req.query.message,
+            showForceDelete: showForceDelete // Pass the force delete item ID
+        });
     });
-  });
 });
 
-// Admin - Show form to add a new item (KEEP UNCHANGED)
+// GET route: show the Add Restaurant Item form
 app.get('/admin/items/add', (req, res) => {
+  if (!req.session.admin) return res.redirect('/login');
   res.render('adminItemAdd', {
     admin: req.session.admin
   });
 });
 
-// Admin - Handle item submission (KEEP UNCHANGED)
+// POST route: handle form submission with image upload using multer
 app.post('/admin/items/add', upload.single('Image'), (req, res) => {
+  if (!req.session.admin) return res.redirect('/login');
   const { Name, Description, Price } = req.body;
   const imagePath = req.file ? '/images/' + req.file.filename : null;
-
-  const sql = 'INSERT INTO restaurantitem (Name, Description, Price, Image) VALUES (?, ?, ?, ?)';
-  connection.query(sql, [Name, Description, Price, imagePath], (err, result) => {
-    if (err) {
-      console.error('Error inserting item:', err);
-      return res.status(500).send('Error inserting item.');
+  
+  const sql = 'INSERT INTO restaurantitem (Name, Description, Price, Image, is_active) VALUES (?, ?, ?, ?, TRUE)';
+  connection.query(sql, [Name, Description, Price, imagePath], (error, results) => {
+    if (error) {
+      console.error("Error adding restaurant item:", error);
+      return res.status(500).send('Error adding restaurant item');
     }
-    res.redirect('/admin/items');
+    
+    const successMessage = encodeURIComponent('Restaurant item added successfully');
+    res.redirect(`/admin/items?message=${successMessage}`);
   });
 });
 
-// Admin - Show edit form for an item (KEEP UNCHANGED)
+// Update restaurant item page
 app.get('/admin/items/edit/:id', (req, res) => {
-  const id = req.params.id;
-
-  connection.query('SELECT * FROM restaurantitem WHERE ItemID = ?', [id], (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(404).send('Item not found.');
+  const itemId = req.params.id;
+  const sql = 'SELECT * FROM restaurantitem WHERE ItemID = ?';
+  connection.query(sql, [itemId], (error, results) => {
+    if (error) {
+      console.error('Database query error:', error.message);
+      return res.status(500).send('Error retrieving item by ID');
     }
+    if (results.length > 0) {
+      res.render('adminItemEdit', { item: results[0], admin: req.session.admin });
+    } else {
+      res.status(404).send('Restaurant item not found');
+    }
+  });
+});
 
-    res.render('adminItemEdit', {
-      item: results[0],
-      admin: req.session.admin
+// Update restaurant item 
+app.post('/admin/items/edit/:id', upload.single('Image'), (req, res) => {
+  const itemId = req.params.id;
+  const { Name, Description, Price } = req.body;
+  
+  // Enhanced debugging
+  console.log('=== EDIT RESTAURANT ITEM DEBUG ===');
+  console.log('Request body:', req.body);
+  console.log('Item ID:', itemId);
+  console.log('Name received:', Name);
+  console.log('Description received:', Description);
+  console.log('Price received:', Price);
+  
+  // Validate required fields
+  if (!Name || !Price) {
+    console.error('Missing required fields:', {
+      Name: !!Name,
+      Price: !!Price
+    });
+    return res.status(400).send('Missing required fields');
+  }
+  
+  const imagePath = req.file ? '/images/' + req.file.filename : null;
+  let sql, params;
+  
+  if (imagePath) {
+    sql = 'UPDATE restaurantitem SET Name = ?, Description = ?, Price = ?, Image = ? WHERE ItemID = ?';
+    params = [Name, Description, Price, imagePath, itemId];
+  } else {
+    sql = 'UPDATE restaurantitem SET Name = ?, Description = ?, Price = ? WHERE ItemID = ?';
+    params = [Name, Description, Price, itemId];
+  }
+  
+  console.log('SQL:', sql);
+  console.log('Params:', params);
+  
+  connection.query(sql, params, (error, results) => {
+    if (error) {
+      console.error('Database error:', error);
+      return res.status(500).send('Error updating restaurant item: ' + error.message);
+    }
+    
+    console.log('Update results:', results);
+    console.log('Affected rows:', results.affectedRows);
+    console.log('Changed rows:', results.changedRows);
+    
+    // Verify the update by querying the item
+    const verifySql = 'SELECT * FROM restaurantitem WHERE ItemID = ?';
+    connection.query(verifySql, [itemId], (verifyError, verifyResults) => {
+      if (verifyError) {
+        console.error('Verification error:', verifyError);
+      } else {
+        console.log('Updated item:', verifyResults[0]);
+      }
+      
+      const successMessage = encodeURIComponent('Restaurant item updated successfully');
+      res.redirect(`/admin/items?message=${successMessage}`);
     });
   });
 });
 
-// Admin - Handle item update (KEEP UNCHANGED)
-app.post('/admin/items/edit/:id', upload.single('Image'), (req, res) => {
-  const id = req.params.id;
-  const { Name, Description, Price } = req.body;
-  const imagePath = req.file ? '/images/' + req.file.filename : null;
-
-  let sql = 'UPDATE restaurantitem SET Name = ?, Description = ?, Price = ?';
-  let params = [Name, Description, Price];
-
-  if (imagePath) {
-    sql += ', Image = ?';
-    params.push(imagePath);
-  }
-
-  sql += ' WHERE ItemID = ?';
-  params.push(id);
-
-  connection.query(sql, params, (err) => {
-    if (err) {
-      console.error('Error updating item:', err);
-      return res.status(500).send('Update failed.');
-    }
-    res.redirect('/admin/items');
-  });
-});
-
-// REPLACE your existing admin delete route with this updated version
-// This handles foreign key constraints properly
-
-app.post('/admin/items/delete/:id', (req, res) => {
-  const id = req.params.id;
-
-  // First check if this item has been ordered (has restaurant bills)
-  const checkOrdersSql = 'SELECT COUNT(*) as orderCount FROM restaurantbill WHERE fk_ItemID = ?';
+// List restaurant item (make active/visible)
+app.get('/listRestaurantItem/:id', (req, res) => {
+  if (!req.session.admin) return res.redirect('/login');
   
-  connection.query(checkOrdersSql, [id], (checkErr, checkResults) => {
-    if (checkErr) {
-      console.error('Error checking for existing orders:', checkErr);
-      return res.status(500).send('Error checking for existing orders');
+  const itemId = req.params.id;
+  const sql = 'UPDATE restaurantitem SET is_active = TRUE WHERE ItemID = ?';
+  
+  connection.query(sql, [itemId], (error, results) => {
+    if (error) {
+      console.error("Error listing restaurant item:", error);
+      return res.status(500).send('Error listing restaurant item');
     }
-
-    const orderCount = checkResults[0].orderCount;
-
-    if (orderCount > 0) {
-      // Item has been ordered - use soft delete (mark as inactive)
-      console.log(`Item ${id} has ${orderCount} orders, using soft delete`);
-      
-      const softDeleteSql = `
-        UPDATE restaurantitem 
-        SET 
-          Name = CONCAT('[REMOVED] ', Name),
-          Description = CONCAT('This item is no longer available. ', COALESCE(Description, '')),
-          Price = 0
-        WHERE ItemID = ?
-      `;
-      
-      connection.query(softDeleteSql, [id], (updateErr) => {
-        if (updateErr) {
-          console.error('Error soft deleting item:', updateErr);
-          return res.status(500).send('Failed to remove item');
-        }
-        
-        console.log(` Item ${id} soft deleted (has ${orderCount} existing orders)`);
-        res.redirect('/admin/items?message=Item removed (order history preserved)');
-      });
-      
-    } else {
-      // Item has never been ordered - safe to hard delete
-      console.log(`Item ${id} has no orders, safe to delete`);
-      
-      const hardDeleteSql = 'DELETE FROM restaurantitem WHERE ItemID = ?';
-      
-      connection.query(hardDeleteSql, [id], (deleteErr) => {
-        if (deleteErr) {
-          console.error('Error deleting item:', deleteErr);
-          return res.status(500).send('Failed to delete item');
-        }
-        
-        console.log(`✅ Item ${id} permanently deleted`);
-        res.redirect('/admin/items?message=Item permanently deleted');
-      });
-    }
+    
+    const successMessage = encodeURIComponent('Restaurant item successfully listed');
+    res.redirect(`/admin/items?message=${successMessage}`);
   });
 });
 
+// Unlist restaurant item (make inactive/hidden but keep in database)
+app.get('/unlistRestaurantItem/:id', (req, res) => {
+  if (!req.session.admin) return res.redirect('/login');
+  
+  const itemId = req.params.id;
+  
+  // Mark item as unlisted instead of deleting
+  const sql = 'UPDATE restaurantitem SET is_active = FALSE WHERE ItemID = ?';
+  
+  connection.query(sql, [itemId], (error, results) => {
+    if (error) {
+      console.error("Error unlisting restaurant item:", error);
+      return res.status(500).send('Error unlisting restaurant item');
+    }
+    
+    const successMessage = encodeURIComponent('Restaurant item unlisted (order history preserved)');
+    res.redirect(`/admin/items?message=${successMessage}`);
+  });
+});
+
+// DELETE restaurant item completely from database (ENHANCED VERSION)
+app.post('/admin/items/delete/:id', (req, res) => {
+  if (!req.session.admin) return res.redirect('/login');
+  
+  const itemId = req.params.id;
+  const forceDelete = req.body.forceDelete === 'true'; // Check if force delete was requested
+  
+  console.log(`Admin attempting to delete restaurant item ${itemId}, forceDelete: ${forceDelete}`);
+  
+  if (forceDelete) {
+    // FORCE DELETE: Remove item regardless of order history
+    console.log(`🔥 FORCE DELETE requested for restaurant item ${itemId}`);
+    
+    // Start transaction to ensure data consistency
+    connection.beginTransaction((err) => {
+      if (err) {
+        console.error('Transaction start error:', err);
+        const errorMessage = encodeURIComponent('Failed to start deletion process');
+        return res.redirect(`/admin/items?message=${errorMessage}`);
+      }
+
+      // Step 1: Delete all restaurant bill records for this item
+      const deleteBillsSql = 'DELETE FROM restaurantbill WHERE fk_ItemID = ?';
+      
+      connection.query(deleteBillsSql, [itemId], (billErr, billResult) => {
+        if (billErr) {
+          return connection.rollback(() => {
+            console.error('Error deleting restaurant bill records:', billErr);
+            const errorMessage = encodeURIComponent('Failed to delete order records');
+            res.redirect(`/admin/items?message=${errorMessage}`);
+          });
+        }
+
+        console.log(`🗑️ Deleted ${billResult.affectedRows} restaurant bill records for item ${itemId}`);
+
+        // Step 2: Delete the item itself
+        const deleteItemSql = 'DELETE FROM restaurantitem WHERE ItemID = ?';
+        
+        connection.query(deleteItemSql, [itemId], (itemErr, itemResult) => {
+          if (itemErr) {
+            return connection.rollback(() => {
+              console.error('Error deleting restaurant item:', itemErr);
+              const errorMessage = encodeURIComponent('Failed to delete restaurant item');
+              res.redirect(`/admin/items?message=${errorMessage}`);
+            });
+          }
+
+          if (itemResult.affectedRows === 0) {
+            return connection.rollback(() => {
+              const notFoundMessage = encodeURIComponent('Restaurant item not found');
+              res.redirect(`/admin/items?message=${notFoundMessage}`);
+            });
+          }
+
+          // Commit the transaction
+          connection.commit((commitErr) => {
+            if (commitErr) {
+              return connection.rollback(() => {
+                console.error('Transaction commit error:', commitErr);
+                const errorMessage = encodeURIComponent('Failed to complete deletion');
+                res.redirect(`/admin/items?message=${errorMessage}`);
+              });
+            }
+
+            console.log(`🔥 FORCE DELETE completed for restaurant item ${itemId} and all order records`);
+            const successMessage = encodeURIComponent('Restaurant item and ALL order history permanently deleted');
+            res.redirect(`/admin/items?message=${successMessage}`);
+          });
+        });
+      });
+    });
+
+  } else {
+    // NORMAL DELETE: Check order history first
+    const checkOrdersSql = 'SELECT COUNT(*) as orderCount FROM restaurantbill WHERE fk_ItemID = ?';
+    
+    connection.query(checkOrdersSql, [itemId], (checkErr, checkResults) => {
+      if (checkErr) {
+        console.error('Error checking for existing orders:', checkErr);
+        const errorMessage = encodeURIComponent('Error checking order history');
+        return res.redirect(`/admin/items?message=${errorMessage}`);
+      }
+
+      const orderCount = checkResults[0].orderCount;
+
+      if (orderCount > 0) {
+        // Item has been ordered - redirect with warning and force delete option
+        console.log(`⚠️ Restaurant item ${itemId} has ${orderCount} orders, offering force delete`);
+        const warningMessage = encodeURIComponent(`Cannot delete: ${orderCount} order record(s) exist. Use 'Unlist' to hide, or 'Force Delete' to permanently remove everything.`);
+        res.redirect(`/admin/items?message=${warningMessage}&showForceDelete=${itemId}`);
+        
+      } else {
+        // Item has never been ordered - safe to delete normally
+        console.log(`✅ Restaurant item ${itemId} has no orders, safe to delete`);
+        
+        const deleteSql = 'DELETE FROM restaurantitem WHERE ItemID = ?';
+        
+        connection.query(deleteSql, [itemId], (deleteErr, deleteResult) => {
+          if (deleteErr) {
+            console.error('Error deleting restaurant item:', deleteErr);
+            const errorMessage = encodeURIComponent('Failed to delete restaurant item');
+            return res.redirect(`/admin/items?message=${errorMessage}`);
+          }
+          
+          if (deleteResult.affectedRows === 0) {
+            const notFoundMessage = encodeURIComponent('Restaurant item not found');
+            return res.redirect(`/admin/items?message=${notFoundMessage}`);
+          }
+          
+          console.log(`🗑️ Restaurant item ${itemId} deleted (no order history)`);
+          const successMessage = encodeURIComponent('Restaurant item permanently deleted successfully');
+          res.redirect(`/admin/items?message=${successMessage}`);
+        });
+      }
+    });
+  }
+});
 
 // Checkout success page (KEEP - but make sure it doesn't conflict with your existing one)
 app.get('/success', (req, res) => {
@@ -2015,28 +2164,42 @@ app.post('/Admin/events/create', upload.single('eventpic'), (req, res) => {
 
 
 
+
+
 // Routes for Admin Store
 
-// GET all products
+// GET all products - Updated to handle showAll and message parameters
 app.get('/admin/store-items', (req, res) => {
-  if (!req.session.admin) return res.redirect('/login');
-  const sql = 'SELECT * FROM storeitem'; // Fetch products from the database
-  connection.query(sql, (error, results) => {
-    if (error) {
-      console.error("Error fetching store items:", error);
-      return res.status(500).send('Error fetching store items');
+    if (!req.session.admin) return res.redirect('/login');
+    
+    const showAll = req.query.showAll === 'true';
+    const showForceDelete = req.query.showForceDelete; // Get the item ID for force delete
+    let sql = 'SELECT * FROM storeitem';
+    
+    if (!showAll) {
+        sql += ' WHERE is_active = TRUE';
     }
-    res.render('adminstore', {
-      items: results, // Use results from the database
-      admin: req.session.admin
+    
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error("Error fetching store items:", error);
+            return res.status(500).send('Error fetching store items');
+        }
+        
+        res.render('adminstore', {
+            items: results,
+            admin: req.session.admin,
+            showAll: showAll,
+            message: req.query.message,
+            showForceDelete: showForceDelete // Pass the force delete item ID
+        });
     });
-  });
 });
 
-
+//memberstore get routes
 app.get('/store-items', (req, res) => {
     const category = req.query.category;
-    const message = req.query.message; // ✅ ADD THIS: Get message from URL
+    const message = req.query.message; // Get message from URL
     
     let sql = 'SELECT * FROM storeitem WHERE is_active = TRUE';
     let params = [];
@@ -2052,18 +2215,18 @@ app.get('/store-items', (req, res) => {
             return res.status(500).send('Error fetching store items');
         }
 
-        console.log('Message being passed to template:', message); // ✅ ADD THIS: Debug log
+        console.log('Message being passed to template:', message); // Debug log
 
         res.render('memberstore', {
             items: results,
             member: req.session.member || {},
             selectedCategory: category || 'All',
-            message: message  // ✅ ADD THIS: Pass message to template
+            message: message  // Pass message to template
         });
     });
 });
 
-//  Single product page 
+// Single product page 
 app.get('/product/:id', (req, res) => {
   const productId = req.params.id;
   const sql = 'SELECT * FROM storeitem WHERE ItemID = ?';
@@ -2083,33 +2246,6 @@ app.get('/product/:id', (req, res) => {
       member: req.session.member || {}
     });
   });
-});
-
-// Routes for Admin Store
-// GET all products
-app.get('/admin/store-items', (req, res) => {
-    if (!req.session.admin) return res.redirect('/login');
-    
-    const showAll = req.query.showAll === 'true';
-    let sql = 'SELECT * FROM storeitem';
-    
-    if (!showAll) {
-        sql += ' WHERE is_active = TRUE';
-    }
-    
-    connection.query(sql, (error, results) => {
-        if (error) {
-            console.error("Error fetching store items:", error);
-            return res.status(500).send('Error fetching store items');
-        }
-        
-        res.render('adminstore', {
-            items: results,
-            admin: req.session.admin,
-            showAll: showAll,
-            message: req.query.message
-        });
-    });
 });
 
 //route to add products
@@ -2132,7 +2268,9 @@ app.post('/admin/addItem', upload.single('Image'), (req, res) => {
       console.error("Error adding store item:", error);
       return res.status(500).send('Error adding store item');
     }
-    res.redirect('/admin/store-items');
+    
+    const successMessage = encodeURIComponent('Store item added successfully');
+    res.redirect(`/admin/store-items?message=${successMessage}`);
   });
 });
 
@@ -2209,12 +2347,14 @@ app.post('/admin/editItem/:id', upload.single('Image'), (req, res) => {
       } else {
         console.log('Updated item:', verifyResults[0]);
       }
-      res.redirect('/admin/store-items');
+      
+      const successMessage = encodeURIComponent('Store item updated successfully');
+      res.redirect(`/admin/store-items?message=${successMessage}`);
     });
   });
 });
 
-
+// List item (make active/visible)
 app.get('/listItem/:id', (req, res) => {
     if (!req.session.admin) return res.redirect('/login');
     
@@ -2227,10 +2367,12 @@ app.get('/listItem/:id', (req, res) => {
             return res.status(500).send('Error listing item');
         }
         
-        res.redirect('/admin/store-items?message=Item successfully listed in store');
+        const successMessage = encodeURIComponent('Item successfully listed in store');
+        res.redirect(`/admin/store-items?message=${successMessage}`);
     });
 });
 
+// Unlist item (make inactive/hidden but keep in database)
 app.get('/unlistItem/:id', (req, res) => {
     if (!req.session.admin) return res.redirect('/login');
     
@@ -2245,10 +2387,128 @@ app.get('/unlistItem/:id', (req, res) => {
             return res.status(500).send('Error unlisting item');
         }
         
-        res.redirect('/admin/store-items?message=Item unlisted from store (purchase history preserved)');
+        const successMessage = encodeURIComponent('Item unlisted from store (purchase history preserved)');
+        res.redirect(`/admin/store-items?message=${successMessage}`);
     });
 });
 
+// DELETE store item completely from database (ENHANCED VERSION)
+app.post('/admin/deleteItem/:id', (req, res) => {
+  if (!req.session.admin) return res.redirect('/login');
+  
+  const itemId = req.params.id;
+  const forceDelete = req.body.forceDelete === 'true'; // Check if force delete was requested
+  
+  console.log(`Admin attempting to delete store item ${itemId}, forceDelete: ${forceDelete}`);
+  
+  if (forceDelete) {
+    // FORCE DELETE: Remove item regardless of purchase history
+    console.log(`🔥 FORCE DELETE requested for item ${itemId}`);
+    
+    // Start transaction to ensure data consistency
+    connection.beginTransaction((err) => {
+      if (err) {
+        console.error('Transaction start error:', err);
+        const errorMessage = encodeURIComponent('Failed to start deletion process');
+        return res.redirect(`/admin/store-items?message=${errorMessage}`);
+      }
+
+      // Step 1: Delete all purchase records for this item
+      const deletePurchasesSql = 'DELETE FROM purchaseitem WHERE fk_ItemID = ?';
+      
+      connection.query(deletePurchasesSql, [itemId], (purchaseErr, purchaseResult) => {
+        if (purchaseErr) {
+          return connection.rollback(() => {
+            console.error('Error deleting purchase records:', purchaseErr);
+            const errorMessage = encodeURIComponent('Failed to delete purchase records');
+            res.redirect(`/admin/store-items?message=${errorMessage}`);
+          });
+        }
+
+        console.log(`🗑️ Deleted ${purchaseResult.affectedRows} purchase records for item ${itemId}`);
+
+        // Step 2: Delete the item itself
+        const deleteItemSql = 'DELETE FROM storeitem WHERE ItemID = ?';
+        
+        connection.query(deleteItemSql, [itemId], (itemErr, itemResult) => {
+          if (itemErr) {
+            return connection.rollback(() => {
+              console.error('Error deleting store item:', itemErr);
+              const errorMessage = encodeURIComponent('Failed to delete store item');
+              res.redirect(`/admin/store-items?message=${errorMessage}`);
+            });
+          }
+
+          if (itemResult.affectedRows === 0) {
+            return connection.rollback(() => {
+              const notFoundMessage = encodeURIComponent('Store item not found');
+              res.redirect(`/admin/store-items?message=${notFoundMessage}`);
+            });
+          }
+
+          // Commit the transaction
+          connection.commit((commitErr) => {
+            if (commitErr) {
+              return connection.rollback(() => {
+                console.error('Transaction commit error:', commitErr);
+                const errorMessage = encodeURIComponent('Failed to complete deletion');
+                res.redirect(`/admin/store-items?message=${errorMessage}`);
+              });
+            }
+
+            console.log(`🔥 FORCE DELETE completed for item ${itemId} and all purchase records`);
+            const successMessage = encodeURIComponent('Item and ALL purchase history permanently deleted');
+            res.redirect(`/admin/store-items?message=${successMessage}`);
+          });
+        });
+      });
+    });
+
+  } else {
+    // NORMAL DELETE: Check purchase history first
+    const checkPurchasesSql = 'SELECT COUNT(*) as purchaseCount FROM purchaseitem WHERE fk_ItemID = ?';
+    
+    connection.query(checkPurchasesSql, [itemId], (checkErr, checkResults) => {
+      if (checkErr) {
+        console.error('Error checking for existing purchases:', checkErr);
+        const errorMessage = encodeURIComponent('Error checking purchase history');
+        return res.redirect(`/admin/store-items?message=${errorMessage}`);
+      }
+
+      const purchaseCount = checkResults[0].purchaseCount;
+
+      if (purchaseCount > 0) {
+        // Item has been purchased - redirect with warning and force delete option
+        console.log(`⚠️ Item ${itemId} has ${purchaseCount} purchases, offering force delete`);
+        const warningMessage = encodeURIComponent(`Cannot delete: ${purchaseCount} purchase record(s) exist. Use 'Unlist' to hide, or 'Force Delete' to permanently remove everything.`);
+        res.redirect(`/admin/store-items?message=${warningMessage}&showForceDelete=${itemId}`);
+        
+      } else {
+        // Item has never been purchased - safe to delete normally
+        console.log(`✅ Item ${itemId} has no purchases, safe to delete`);
+        
+        const deleteSql = 'DELETE FROM storeitem WHERE ItemID = ?';
+        
+        connection.query(deleteSql, [itemId], (deleteErr, deleteResult) => {
+          if (deleteErr) {
+            console.error('Error deleting store item:', deleteErr);
+            const errorMessage = encodeURIComponent('Failed to delete store item');
+            return res.redirect(`/admin/store-items?message=${errorMessage}`);
+          }
+          
+          if (deleteResult.affectedRows === 0) {
+            const notFoundMessage = encodeURIComponent('Store item not found');
+            return res.redirect(`/admin/store-items?message=${notFoundMessage}`);
+          }
+          
+          console.log(`🗑️ Store item ${itemId} deleted (no purchase history)`);
+          const successMessage = encodeURIComponent('Store item permanently deleted successfully');
+          res.redirect(`/admin/store-items?message=${successMessage}`);
+        });
+      }
+    });
+  }
+});
 
 // ROUTE FOR ADDING TO CART
 // Adding items to cart - FIXED: Now uses quantity from form
@@ -2289,8 +2549,10 @@ app.post('/store/add-to-cart/:id', (req, res) => {
       });
     }
 
-    // Redirect back to store with success message
-    res.redirect('/store-items?message=Item added to cart successfully');
+    // ✅ FIXED: Redirect back to store with success message (same as restaurant)
+    const itemName = item.Name || 'Item';
+    const successMessage = `${itemName} (x${quantity}) added to cart successfully!`;
+    res.redirect(`/store-items?message=${encodeURIComponent(successMessage)}`);
   });
 });
 

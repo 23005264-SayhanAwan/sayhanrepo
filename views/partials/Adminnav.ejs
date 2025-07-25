@@ -16,6 +16,8 @@
 
     .navbar-custom {
       background-color: #f49b00;
+      z-index: 1050 !important; /* Ensure navbar is above other content */
+      position: relative; /* Establish stacking context */
     }
 
     .navbar-custom .nav-link {
@@ -45,15 +47,40 @@
       object-fit: cover;
       border: 2px solid white;
       cursor: pointer;
+      pointer-events: auto !important; /* Ensure clicks work */
+    }
+
+    /* Fix dropdown issues */
+    .navbar .dropdown {
+      position: static; /* Fix dropdown positioning in navbar */
     }
 
     .dropdown-menu {
       background-color: #1a1f2e;
       z-index: 9999 !important;
+      position: absolute !important; /* Ensure proper positioning */
+      pointer-events: auto !important; /* Ensure clicks work */
     }
 
     .dropdown-item {
       color: #ffffff;
+      pointer-events: auto !important; /* Ensure clicks work */
+    }
+
+    .dropdown-item:hover {
+      background-color: #2c3e50;
+      color: #ffffff;
+    }
+
+    /* Ensure dropdown toggle works */
+    .dropdown-toggle {
+      pointer-events: auto !important;
+    }
+
+    /* Fix for any potential overlay issues */
+    .nav-item.dropdown {
+      z-index: 9999 !important;
+      position: relative;
     }
 
     /* Responsive adjustments */
@@ -114,12 +141,14 @@
               role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
+              style="pointer-events: auto !important;"
             >
               <img 
                 id="profilePicImg"
                 src="<%= admin.Admin_ProfilePicture ? '/images/' + admin.Admin_ProfilePicture + '?' + Date.now() : '/images/profilepc.jpeg' %>" 
                 alt="Profile Picture" 
                 class="profile-pic"
+                style="pointer-events: none;" 
               />
             </a>
 
@@ -144,6 +173,30 @@
 </body>
 
 <script>
+  // Debug dropdown functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const dropdownToggle = document.getElementById('profileDropdown');
+    const profilePic = document.getElementById('profilePicImg');
+    
+    // Debug click events
+    dropdownToggle.addEventListener('click', function(e) {
+      console.log('Dropdown toggle clicked!');
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Manually toggle Bootstrap dropdown
+      const dropdown = new bootstrap.Dropdown(dropdownToggle);
+      dropdown.toggle();
+    });
+    
+    // Prevent image from blocking clicks
+    profilePic.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Trigger parent dropdown click
+      dropdownToggle.click();
+    });
+  });
+
   // After successful upload, update the profile picture to the new uploaded image
   document.getElementById('profilePicForm').addEventListener('submit', function(e) {
     setTimeout(function() {
