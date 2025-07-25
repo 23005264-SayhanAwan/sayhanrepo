@@ -45,75 +45,10 @@
 
   <div class="container">
     <div class="success-box">
-      <div class="success-icon">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      
-      <h1 class="text-success mb-3">Payment Successful!</h1>
-      
-      <% if (typeof orderDetails !== 'undefined' && orderDetails) { %>
-        <div class="order-summary">
-          <h5 class="text-warning mb-3">Order Summary</h5>
-          
-          <div class="row">
-            <div class="col-6"><strong>Order ID:</strong></div>
-            <div class="col-6">#<%= orderDetails.purchaseID %></div>
-          </div>
-          
-          <% if (orderDetails.totalAmount) { %>
-            <div class="row">
-              <div class="col-6"><strong>Subtotal:</strong></div>
-              <div class="col-6">$<%= orderDetails.totalAmount.toFixed(2) %></div>
-            </div>
-          <% } %>
-          
-          <% if (orderDetails.discountAmount && orderDetails.discountAmount > 0) { %>
-            <div class="row text-success">
-              <div class="col-6"><strong>Discount:</strong></div>
-              <div class="col-6">-$<%= orderDetails.discountAmount.toFixed(2) %></div>
-            </div>
-          <% } %>
-          
-          <% if (orderDetails.cashbackUsed && orderDetails.cashbackUsed > 0) { %>
-            <div class="row text-info">
-              <div class="col-6"><strong>Cashback Used:</strong></div>
-              <div class="col-6">-$<%= orderDetails.cashbackUsed.toFixed(2) %></div>
-            </div>
-          <% } %>
-          
-          <hr class="text-muted">
-          
-          <div class="row">
-            <div class="col-6"><strong>Total Paid:</strong></div>
-            <div class="col-6 text-success"><strong>$<%= orderDetails.finalAmount.toFixed(2) %></strong></div>
-          </div>
-          
-          <% if (orderDetails.cashbackEarned && orderDetails.cashbackEarned > 0) { %>
-            <div class="row text-warning mt-2">
-              <div class="col-6"><strong>Cashback Earned:</strong></div>
-              <div class="col-6">+$<%= orderDetails.cashbackEarned.toFixed(2) %></div>
-            </div>
-          <% } %>
-        </div>
-      <% } %>
-      
-      <p class="mb-2">Thank you for your purchase!</p>
-      
-      <% if (typeof orderDetails !== 'undefined' && orderDetails && orderDetails.cashbackEarned > 0) { %>
-        <p class="text-warning">Your cashback of $<%= orderDetails.cashbackEarned.toFixed(2) %> has been credited to your account.</p>
-      <% } %>
-      
-      <div class="mt-4">
-        <a href="/store-items" class="btn btn-warning">
-          <i class="fas fa-shopping-bag"></i> Continue Shopping
-        </a>
-        <a href="/restaurant" class="btn btn-warning">
-          <i class="fas fa-utensils"></i> Restaurant Menu
-        </a>
-        <a href="/store/past-orders" class="btn btn-warning">
-          <i class="fas fa-history"></i> View Orders
-        </a>
-      </div>
+      <h1 class="text-success">Payment Successful!</h1>
+      <p>Thank you for dining with us.</p>
+      <p>Your cashback has been credited to your account.</p>
+      <a href="/restaurant" class="btn btn-warning mt-3">Back to Menu</a>
     </div>
   </div>
 
