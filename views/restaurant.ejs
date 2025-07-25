@@ -16,6 +16,17 @@
   <%- include('partials/Membernav', { member: member || {} }) %>
 
   <div class="container mt-4">
+    
+    <!-- SUCCESS MESSAGE POPUP -->
+    <% if (typeof message !== 'undefined' && message) { %>
+      <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" 
+           style="background-color: #28a745 !important; border: none !important; color: white !important; border-radius: 8px !important; z-index: 9999 !important; position: relative !important; font-size: 1.1rem !important;">
+        <i class="fas fa-utensils me-2"></i> 
+        <strong><%= message %></strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% } %>
+    
     <h1 class="text-center text-warning mb-4">Our Restaurant</h1>
 
     <!-- Simple approach - individual forms for each item (like your store items) -->
@@ -62,5 +73,8 @@
 
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  
+  
 </body>
 </html>
