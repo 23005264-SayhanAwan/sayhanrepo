@@ -33,7 +33,7 @@
               <td><%= p.Member_FullName %></td>
               <td><%= p.Member_Email %></td>
               <td><%= new Date(p.PurchaseDate).toLocaleDateString() %></td>
-              <td>$<%= p.FinalAmountPaid.toFixed(2) %></td>
+              <td>$<%= (p.TotalAmount || 0).toFixed(2) %></td>
             </tr>
           <% }) %>
         </tbody>

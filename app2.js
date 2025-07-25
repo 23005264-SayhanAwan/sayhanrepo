@@ -4283,23 +4283,51 @@ app.post('/Admin/delete-ticket/:eventId', (req, res) => {
   });
 });
 
+// ✅ UPDATED: Event purchasers route with TotalAmount
 app.get('/Admin/event/:id/purchasers', (req, res) => {
   const eventId = req.params.id;
   const admin = req.session.admin;
   if (!admin) return res.redirect('/login');
 
+  // ✅ UPDATED: Join with ticket table to get the actual ticket price
   const query = `
-    SELECT m.MemberID, m.Member_FullName, m.Member_Email, t.PurchaseDate, t.TotalAmount
-    FROM ticketpurchase t
-    JOIN members m ON t.fk_MemberID = m.MemberID
-    WHERE t.Fk_EventID = ?
-    ORDER BY t.PurchaseDate DESC
+    SELECT 
+      m.MemberID, 
+      m.Member_FullName, 
+      m.Member_Email, 
+      tp.PurchaseDate, 
+      tp.TotalAmount,
+      COALESCE(t.TicketPrice, tp.TotalAmount, 0) as ActualPrice,
+      t.TicketPrice as TicketTablePrice
+    FROM ticketpurchase tp
+    JOIN members m ON tp.fk_MemberID = m.MemberID
+    JOIN event e ON tp.Fk_EventID = e.EventID
+    LEFT JOIN ticket t ON e.EventID = t.Fk_EventID
+    WHERE tp.Fk_EventID = ?
+    ORDER BY tp.PurchaseDate DESC
   `;
 
   connection.query(query, [eventId], (err, results) => {
     if (err) {
       console.error('Error retrieving purchasers:', err);
       return res.status(500).send('Error loading purchasers');
+    }
+
+    // ✅ DEBUG: Log the results to see what we're getting
+    console.log('=== TICKET PURCHASERS DEBUG ===');
+    console.log('Event ID:', eventId);
+    console.log('Number of purchasers found:', results.length);
+    
+    if (results.length > 0) {
+      console.log('Sample purchaser data:', results[0]);
+      results.forEach((purchaser, index) => {
+        console.log(`Purchaser ${index + 1}:`, {
+          MemberID: purchaser.MemberID,
+          TotalAmount: purchaser.TotalAmount,
+          TicketTablePrice: purchaser.TicketTablePrice,
+          ActualPrice: purchaser.ActualPrice
+        });
+      });
     }
 
     res.render('viewmembers', {
