@@ -2183,6 +2183,27 @@ app.get('/event/:id', (req, res) => {
 });
 
 
+app.get('/Admin/events', (req, res) => {
+  const admin = req.session.admin;
+  if (!admin) return res.redirect('/login'); // Or handle unauthorized
+
+  res.render('admincreateevent', { admin });
+});
+
+function showFields(type) {
+  document.querySelectorAll('.dynamic-section').forEach(el => el.style.display = 'none');
+  if (type === 'Club Match') {
+    document.getElementById('matchFields').style.display = 'block';
+  } else if (type === 'Training Session') {
+    document.getElementById('trainingFields').style.display = 'block';
+  } else if (type === 'AGM') {
+    document.getElementById('agmFields').style.display = 'block';
+  } else if (type === 'Trial') {
+    document.getElementById('trialFields').style.display = 'block';
+  } else if (type === 'Regular Event') {
+  }
+}
+
 
 
 // UPDATED: Create event route with start and end times for all events
