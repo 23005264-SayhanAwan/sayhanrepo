@@ -115,18 +115,17 @@ app.get('/', (req, res) => {
 // Retrieve restaurant items (UPDATED - exclude removed items)
 app.get('/restaurant', (req, res) => {
   const member = req.session.member;
-  const message = req.query.message; //  ADD THIS: Declare message variable
+  const message = req.query.message;
 
   if (!member) {
     return res.redirect('/login');
   }
 
-  // UPDATED SQL: Filter out removed items and items with price 0
+  // FIXED SQL: Filter by is_active status instead of price/removed
   const sql = `
     SELECT ItemID, Name, Description, Price, Image 
     FROM restaurantitem 
-    WHERE Price > 0 
-      AND Name NOT LIKE '[REMOVED]%'
+    WHERE is_active = 1
     ORDER BY Name ASC
   `;
 
@@ -136,13 +135,47 @@ app.get('/restaurant', (req, res) => {
       return res.status(500).send('Error retrieving restaurant items.');
     }
 
-    console.log(`Found ${results.length} available restaurant items`);
+    console.log(`Found ${results.length} active restaurant items`);
     
     res.render('restaurant', { 
       foodItems: results, 
       member,
-      message: message  //  Now message is properly declared
-    }); //  FIXED: Remove extra semicolon
+      message: message
+    });
+  });
+});
+
+// Alternative: If you want to keep both filters (active AND price > 0)
+app.get('/restaurant-alternative', (req, res) => {
+  const member = req.session.member;
+  const message = req.query.message;
+
+  if (!member) {
+    return res.redirect('/login');
+  }
+
+  // Combined filters: active items with price > 0
+  const sql = `
+    SELECT ItemID, Name, Description, Price, Image 
+    FROM restaurantitem 
+    WHERE is_active = 1 
+      AND Price > 0
+    ORDER BY Name ASC
+  `;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error retrieving restaurant items:', err);
+      return res.status(500).send('Error retrieving restaurant items.');
+    }
+
+    console.log(`Found ${results.length} active restaurant items with price > 0`);
+    
+    res.render('restaurant', { 
+      foodItems: results, 
+      member,
+      message: message
+    });
   });
 });
 
