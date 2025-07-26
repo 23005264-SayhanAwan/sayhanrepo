@@ -29,6 +29,11 @@
       color: white !important;
       border: none;
     }
+    .current-tier {
+      background-color: #17a2b8 !important;
+      color: white !important;
+      border: none;
+    }
     .select-btn {
       border-radius: 6px;
       padding: 5px 15px;
@@ -36,8 +41,13 @@
       color: white;
       border: none;
     }
-    .select-btn:hover {
+    .select-btn:hover:not(:disabled) {
       background-color: #d88700;
+    }
+    .select-btn:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+      opacity: 0.6;
     }
     .checkout-btn {
       display: block;
@@ -50,12 +60,25 @@
       cursor: pointer;
       color: white;
     }
-    .checkout-btn:hover {
+    .checkout-btn:hover:not(:disabled) {
       background-color: #d88700;
     }
     .checkout-btn:disabled {
       background-color: #666;
       cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .current-tier-indicator {
+      font-size: 12px;
+      color: #17a2b8;
+      font-weight: bold;
+    }
+    .tier-description {
+      color: #b8c6db !important;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 4px;
+      font-weight: 400;
     }
   </style>
 </head>
@@ -64,49 +87,90 @@
 
   <div class="container">
     <h2 class="text-center">Manage Membership</h2>
-    <p class="text-center"><strong>Current Tier:</strong> <%= currentTier %></p>
+    <p class="text-center"><strong>Current Tier:</strong> <span id="current-tier-display"><%= currentTier %></span></p>
 
     <% const tiers = [
-         { name: 'Gold', price: '$9.99/month' },
-         { name: 'Silver', price: '$4.99/month' },
-         { name: 'Bronze', price: 'Free' }
+         { 
+           name: 'Gold', 
+           price: '$9.99', 
+           description: '$9.99 per month. Perks: 5% off AND 5% cashback on ALL purchases! Also gain EXCLUSIVE access to the premium lounge inside the club!' 
+         },
+         { 
+           name: 'Silver', 
+           price: '$4.99', 
+           description: '$4.99 per month. Perks: 3% off AND 3% cashback on ALL purchases!' 
+         },
+         { 
+           name: 'Bronze', 
+           price: 'Free', 
+           description: 'Free Base tier. UPGRADE to enjoy EXCLUSIVE PERKS!' 
+         }
        ]; %>
     <% tiers.forEach(tier => { %>
       <div class="membership-tier">
         <div>
           <span><%= tier.name %></span>
-          <small class="text-muted d-block"><%= tier.price %></small>
+          <small class="tier-description d-block"><%= tier.description %></small>
+          <% if (tier.name === currentTier) { %>
+            <small class="current-tier-indicator">Your Current Tier</small>
+          <% } %>
         </div>
         <button 
           type="button" 
-          class="select-btn <% if (tier.name === currentTier) { %>selected<% } %>" 
+          class="select-btn <% if (tier.name === currentTier) { %>current-tier<% } %>" 
           data-tier="<%= tier.name %>" 
-          <% if (tier.name === currentTier) { %>disabled<% } %>>
-          <% if (tier.name === currentTier) { %>Selected<% } else { %>Select<% } %>
+          data-is-current="<%= tier.name === currentTier ? 'true' : 'false' %>">
+          <% if (tier.name === currentTier) { %>Current<% } else { %>Select<% } %>
         </button>
       </div>
     <% }) %>
 
-    <button id="checkout-button" class="checkout-btn" disabled>Pay & Change Membership</button>
+    <button id="checkout-button" class="checkout-btn" disabled>Select a Different Tier</button>
   </div>
 
   <script>
     const buttons = document.querySelectorAll('.select-btn');
     const checkoutBtn = document.getElementById('checkout-button');
+    const currentTier = '<%= currentTier %>';
+    let selectedTier = null;
 
-    // Update checkout button text based on selected tier
+    console.log('Current tier:', currentTier);
+
+    // Update checkout button text and state based on selected tier
     function updateCheckoutButton(tier) {
-      if (tier === 'Bronze') {
+      if (!tier || tier === currentTier) {
+        // No tier selected or current tier selected
+        checkoutBtn.textContent = tier === currentTier ? 'Already Your Current Tier' : 'Select a Different Tier';
+        checkoutBtn.disabled = true;
+        checkoutBtn.classList.add('disabled');
+      } else if (tier === 'Bronze') {
         checkoutBtn.textContent = 'Downgrade to Bronze (Free)';
+        checkoutBtn.disabled = false;
+        checkoutBtn.classList.remove('disabled');
       } else {
-        checkoutBtn.textContent = `Pay ${tier}`;
+        checkoutBtn.textContent = `Upgrade to ${tier}`;
+        checkoutBtn.disabled = false;
+        checkoutBtn.classList.remove('disabled');
       }
     }
+
+    // Initialize the checkout button state
+    updateCheckoutButton(currentTier);
 
     buttons.forEach(button => {
       button.addEventListener('click', function () {
         const tier = this.dataset.tier;
+        const isCurrent = this.dataset.isCurrent === 'true';
 
+        console.log('Clicked tier:', tier, 'Is current:', isCurrent);
+
+        // If clicking current tier, don't allow selection
+        if (isCurrent) {
+          console.log('Cannot select current tier');
+          return;
+        }
+
+        // Store selection on server
         fetch('/member/managemembership/select', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -115,20 +179,36 @@
         .then(res => {
           if (!res.ok) throw new Error('Failed to select tier');
           
-          // Reset all buttons
+          // Update UI state
+          selectedTier = tier;
+          
+          // Reset all buttons to default state
           buttons.forEach(btn => {
+            const btnTier = btn.dataset.tier;
+            const btnIsCurrent = btn.dataset.isCurrent === 'true';
+            
+            // Remove selected class from all
             btn.classList.remove('selected');
-            btn.textContent = 'Select';
-            btn.disabled = false;
+            
+            if (btnIsCurrent) {
+              // Keep current tier button as "Current"
+              btn.textContent = 'Current';
+              btn.classList.add('current-tier');
+              btn.disabled = true;
+            } else if (btnTier === tier) {
+              // Mark selected tier
+              btn.classList.add('selected');
+              btn.textContent = 'Selected';
+              btn.disabled = false;
+            } else {
+              // Other tiers show "Select"
+              btn.textContent = 'Select';
+              btn.disabled = false;
+              btn.classList.remove('current-tier');
+            }
           });
 
-          // Mark this one as selected
-          this.classList.add('selected');
-          this.textContent = 'Selected';
-          this.disabled = true;
-
-          // Enable checkout and update button text
-          checkoutBtn.disabled = false;
+          // Update checkout button
           updateCheckoutButton(tier);
         })
         .catch(err => {
@@ -140,7 +220,15 @@
 
     // Handle checkout (payment or free downgrade)
     checkoutBtn.addEventListener('click', function() {
-      console.log("Checkout clicked");
+      if (this.disabled) return;
+      
+      console.log("Checkout clicked for tier:", selectedTier);
+      
+      // Prevent clicking current tier
+      if (selectedTier === currentTier) {
+        console.log('Cannot checkout for current tier');
+        return;
+      }
       
       checkoutBtn.disabled = true;
       checkoutBtn.textContent = 'Processing...';
@@ -165,7 +253,7 @@
         console.error("Checkout failed:", error);
         alert('Processing failed: ' + error.message);
         checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Pay & Change Membership';
+        updateCheckoutButton(selectedTier);
       });
     });
   </script>

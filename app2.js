@@ -1474,8 +1474,8 @@ app.post('/admin/member/delete/:id', (req, res) => {
           });
         }
 
-        // Step 3: Delete from purchase table
-        const deletePurchaseQuery = 'DELETE FROM purchase WHERE fk_MemberID = ?';
+        // Step 3: Delete from allpurchases table
+        const deletePurchaseQuery = 'DELETE FROM allpurchases WHERE fk_MemberID = ?';
         connection.query(deletePurchaseQuery, [memberId], (err) => {
           if (err) {
             console.error('Error deleting purchase records:', err);
@@ -2001,7 +2001,6 @@ app.get('/member/membership-success', (req, res) => {
 });
 
 
-
 // Route to show all events
 app.get('/events', (req, res) => {
   const query = `
@@ -2419,7 +2418,7 @@ app.post('/admin/deleteItem/:id', (req, res) => {
       }
 
       // Step 1: Delete all purchase records for this item
-      const deletePurchasesSql = 'DELETE FROM purchaseitem WHERE fk_ItemID = ?';
+      const deletePurchasesSql = 'DELETE FROM purchasestoreitem WHERE fk_ItemID = ?';
       
       connection.query(deletePurchasesSql, [itemId], (purchaseErr, purchaseResult) => {
         if (purchaseErr) {
@@ -2471,7 +2470,7 @@ app.post('/admin/deleteItem/:id', (req, res) => {
 
   } else {
     // NORMAL DELETE: Check purchase history first
-    const checkPurchasesSql = 'SELECT COUNT(*) as purchaseCount FROM purchaseitem WHERE fk_ItemID = ?';
+    const checkPurchasesSql = 'SELECT COUNT(*) as purchaseCount FROM purchasestoreitem WHERE fk_ItemID = ?';
     
     connection.query(checkPurchasesSql, [itemId], (checkErr, checkResults) => {
       if (checkErr) {
@@ -3042,7 +3041,7 @@ app.post('/store/checkout/confirm', async (req, res) => {
   
   // ✅ UPDATED: Create main purchase record with DiscountAmount and CashbackEarned
   const purchaseSql = `
-    INSERT INTO purchase
+    INSERT INTO allpurchases
     (fk_MemberID, PurchaseDate, TotalAmount, DiscountAmount, CashbackUsed, FinalAmountPaid)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
@@ -3105,7 +3104,7 @@ function processStoreItems(storeItems, purchaseID, callback) {
     const itemTotalAmount = item.price * item.quantity;
     
     const itemSql = `
-      INSERT INTO purchaseitem
+      INSERT INTO purchasestoreitem
       (fk_PurchaseTransactionID, fk_ItemID, Quantity, TotalAmount)
       VALUES (?, ?, ?, ?)
     `;
@@ -3415,7 +3414,7 @@ app.get('/store/past-orders', (req, res) => {
         DiscountAmount,
         CashbackUsed,
         FinalAmountPaid
-      FROM purchase
+      FROM allpurchases
       WHERE fk_MemberID = ?
       ORDER BY PurchaseDate DESC
     `;
@@ -3501,7 +3500,7 @@ app.get('/store/past-orders', (req, res) => {
                 COALESCE(i.Category, 'N/A') as Category,
                 i.storeitempic,
                 COALESCE(i.is_active, FALSE) as is_active
-              FROM purchaseitem pi
+              FROM purchasestoreitem pi
               LEFT JOIN storeitem i ON pi.fk_ItemID = i.ItemID
               WHERE pi.fk_PurchaseTransactionID = ?
             `;
