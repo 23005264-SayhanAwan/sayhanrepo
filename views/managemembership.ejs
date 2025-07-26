@@ -13,16 +13,17 @@
     }
     .container {
       margin-top: 50px;
-      max-width: 600px;
+      max-width: 700px;
     }
     .membership-tier {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px;
+      padding: 15px;
       border: 1px solid white;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       background-color: #1a1d29;
+      border-radius: 8px;
     }
     .selected {
       background-color: #28a745 !important;
@@ -34,12 +35,17 @@
       color: white !important;
       border: none;
     }
+    .disabled-tier {
+      background-color: #2c2c2c !important;
+      opacity: 0.5;
+    }
     .select-btn {
       border-radius: 6px;
-      padding: 5px 15px;
+      padding: 8px 20px;
       background-color: #f49b00;
       color: white;
       border: none;
+      font-weight: 500;
     }
     .select-btn:hover:not(:disabled) {
       background-color: #d88700;
@@ -52,13 +58,14 @@
     .checkout-btn {
       display: block;
       margin: 30px auto;
-      padding: 10px 25px;
+      padding: 12px 30px;
       font-size: 16px;
       background-color: #f49b00;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       color: white;
+      font-weight: 500;
     }
     .checkout-btn:hover:not(:disabled) {
       background-color: #d88700;
@@ -80,6 +87,24 @@
       margin-top: 4px;
       font-weight: 400;
     }
+    .upgrade-info {
+      background-color: #1f2937;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #f49b00;
+    }
+    .restriction-text {
+      color: #dc3545;
+      font-size: 11px;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .upgrade-price {
+      color: #28a745;
+      font-weight: bold;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -89,47 +114,102 @@
     <h2 class="text-center">Manage Membership</h2>
     <p class="text-center"><strong>Current Tier:</strong> <span id="current-tier-display"><%= currentTier %></span></p>
 
-    <% const tiers = [
-         { 
-           name: 'Gold', 
-           price: '$15.', 
-           description: '$15'
-         },
-         { 
-           name: 'Silver', 
-           price: '$9.99', 
-           description: '$9.99' 
-         },
-         { 
-           name: 'Bronze', 
-           price: 'Free', 
-           description: 'Free. Base Tier' 
-         }
-       ]; %>
+    <!-- Upgrade Information -->
+    <div class="upgrade-info">
+      <h5>💡 Upgrade Rules:</h5>
+      <ul class="mb-0">
+        <% if (currentTier === 'Bronze') { %>
+          <li>You can upgrade to <strong>Silver</strong> ($24.99) or <strong>Gold</strong> ($39.99)</li>
+        <% } else if (currentTier === 'Silver') { %>
+          <li>You can upgrade to <strong>Gold</strong> for just <span class="upgrade-price">$15.00</span> (discounted!)</li>
+          <li class="text-muted">No downgrades available - keep your Silver benefits!</li>
+        <% } else if (currentTier === 'Gold') { %>
+          <li class="text-success">🏆 You have the highest tier! No upgrades needed.</li>
+          <li class="text-muted">No downgrades available - enjoy your premium benefits!</li>
+        <% } %>
+      </ul>
+    </div>
+
+    <% 
+      const tiers = [
+        { 
+          name: 'Gold', 
+          fullPrice: '$39.99',
+          upgradePrice: currentTier === 'Silver' ? '$15.00' : '$39.99',
+          description: currentTier === 'Silver' ? 
+            '$15.00 upgrade fee.' :
+            '$39.99 one-time.'
+        },
+        { 
+          name: 'Silver', 
+          fullPrice: '$24.99',
+          upgradePrice: '$24.99',
+          description: '$24.99 one-time' 
+        },
+        { 
+          name: 'Bronze', 
+          fullPrice: 'Free',
+          upgradePrice: 'Free',
+          description: 'Free Base tier.' 
+        }
+      ]; 
+    %>
+    
     <% tiers.forEach(tier => { %>
-      <div class="membership-tier">
-        <div>
-          <span><%= tier.name %></span>
+      <% 
+        const isCurrent = tier.name === currentTier;
+        const isDisabled = (currentTier === 'Gold') || 
+                          (currentTier === 'Silver' && tier.name === 'Bronze') ||
+                          (tier.name === 'Bronze' && currentTier !== 'Bronze');
+        const canUpgrade = !isCurrent && !isDisabled;
+      %>
+      
+      <div class="membership-tier <%= isDisabled ? 'disabled-tier' : '' %>">
+        <div style="flex: 1;">
+          <div class="d-flex align-items-center">
+            <span style="font-size: 18px; font-weight: 600;"><%= tier.name %></span>
+            <% if (tier.name === 'Gold' && currentTier === 'Silver') { %>
+              <span class="badge bg-success ms-2">DISCOUNTED!</span>
+            <% } %>
+          </div>
+          
           <small class="tier-description d-block"><%= tier.description %></small>
-          <% if (tier.name === currentTier) { %>
+          
+          <% if (isCurrent) { %>
             <small class="current-tier-indicator">Your Current Tier</small>
+          <% } else if (isDisabled) { %>
+            <% if (currentTier === 'Gold') { %>
+              <small class="restriction-text">You already have the highest tier!</small>
+            <% } else if (currentTier === 'Silver' && tier.name === 'Bronze') { %>
+              <small class="restriction-text">No downgrades available</small>
+            <% } else if (tier.name === 'Bronze') { %>
+              <small class="restriction-text">Cannot downgrade to Bronze</small>
+            <% } %>
           <% } %>
         </div>
+        
         <button 
           type="button" 
-          class="select-btn <% if (tier.name === currentTier) { %>current-tier<% } %>" 
+          class="select-btn <%= isCurrent ? 'current-tier' : '' %>" 
           data-tier="<%= tier.name %>" 
-          data-is-current="<%= tier.name === currentTier ? 'true' : 'false' %>">
-          <% if (tier.name === currentTier) { %>Current<% } else { %>Select<% } %>
+          data-is-current="<%= isCurrent ? 'true' : 'false' %>"
+          <%= isDisabled ? 'disabled' : '' %>>
+          <% if (isCurrent) { %>
+            Current
+          <% } else if (isDisabled) { %>
+            Unavailable
+          <% } else { %>
+            Select
+          <% } %>
         </button>
       </div>
     <% }) %>
 
-    <button id="checkout-button" class="checkout-btn" disabled>Select a Different Tier</button>
+    <button id="checkout-button" class="checkout-btn" disabled>Select a Tier to Upgrade</button>
   </div>
 
   <script>
-    const buttons = document.querySelectorAll('.select-btn');
+    const buttons = document.querySelectorAll('.select-btn:not([disabled])');
     const checkoutBtn = document.getElementById('checkout-button');
     const currentTier = '<%= currentTier %>';
     let selectedTier = null;
@@ -139,16 +219,19 @@
     // Update checkout button text and state based on selected tier
     function updateCheckoutButton(tier) {
       if (!tier || tier === currentTier) {
-        // No tier selected or current tier selected
-        checkoutBtn.textContent = tier === currentTier ? 'Already Your Current Tier' : 'Select a Different Tier';
+        checkoutBtn.textContent = tier === currentTier ? 'Already Your Current Tier' : 'Select a Tier to Upgrade';
         checkoutBtn.disabled = true;
         checkoutBtn.classList.add('disabled');
-      } else if (tier === 'Bronze') {
-        checkoutBtn.textContent = 'Downgrade to Bronze (Free)';
-        checkoutBtn.disabled = false;
-        checkoutBtn.classList.remove('disabled');
       } else {
-        checkoutBtn.textContent = `Upgrade to ${tier}`;
+        // Calculate price based on upgrade path
+        let price = '';
+        if (tier === 'Gold') {
+          price = currentTier === 'Silver' ? '$15.00' : '$39.99';
+        } else if (tier === 'Silver') {
+          price = '$24.99';
+        }
+        
+        checkoutBtn.textContent = `Upgrade to ${tier} - Pay ${price}`;
         checkoutBtn.disabled = false;
         checkoutBtn.classList.remove('disabled');
       }
@@ -177,8 +260,14 @@
           body: JSON.stringify({ tier })
         })
         .then(res => {
-          if (!res.ok) throw new Error('Failed to select tier');
-          
+          if (!res.ok) {
+            return res.json().then(data => {
+              throw new Error(data.error || 'Failed to select tier');
+            });
+          }
+          return res.json();
+        })
+        .then(data => {
           // Update UI state
           selectedTier = tier;
           
@@ -194,16 +283,13 @@
               // Keep current tier button as "Current"
               btn.textContent = 'Current';
               btn.classList.add('current-tier');
-              btn.disabled = true;
             } else if (btnTier === tier) {
               // Mark selected tier
               btn.classList.add('selected');
               btn.textContent = 'Selected';
-              btn.disabled = false;
             } else {
               // Other tiers show "Select"
               btn.textContent = 'Select';
-              btn.disabled = false;
               btn.classList.remove('current-tier');
             }
           });
@@ -213,12 +299,12 @@
         })
         .catch(err => {
           console.error('Failed to select tier:', err);
-          alert('Failed to select tier. Please try again.');
+          alert('Error: ' + err.message);
         });
       });
     });
 
-    // Handle checkout (payment or free downgrade)
+    // Handle checkout (payment)
     checkoutBtn.addEventListener('click', function() {
       if (this.disabled) return;
       
@@ -239,11 +325,12 @@
       })
       .then(res => res.json())
       .then(data => {
-        if (data.redirect) {
-          // Free tier - redirect directly
-          window.location.href = data.redirect;
-        } else if (data.url) {
-          // Paid tier - go to Stripe
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        if (data.url) {
+          // Go to Stripe
           window.location.href = data.url;
         } else {
           throw new Error('No checkout URL received');

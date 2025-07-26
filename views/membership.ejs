@@ -65,6 +65,13 @@
       background-color: #d88700;
       color: white;
     }
+
+    .lounge-note {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #ffc107;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -77,7 +84,7 @@
       <thead>
         <tr>
           <th>Tier</th>
-          <th>Price (monthly)</th>
+          <th>Price (one-time)</th>
           <th>Cashback</th>
           <th>Discount</th>
         </tr>
@@ -85,24 +92,33 @@
       <tbody>
         <tr>
           <td>Gold</td>
-          <td>$15</td>
+          <td>$39.99</td>
           <td>5%</td>
           <td>5%</td>
         </tr>
         <tr>
           <td>Silver</td>
-          <td>$10</td>
+          <td>$24.99</td>
           <td>3%</td>
           <td>3%</td>
         </tr>
         <tr>
           <td>Bronze</td>
-          <td>$0</td>
+          <td>Free</td>
           <td>0%</td>
           <td>0%</td>
         </tr>
       </tbody>
     </table>
+
+    <div class="info-note">
+      <p><strong> Silver tier members can upgrade to Gold by paying an additional $15.</strong></p>
+
+    <div class="lounge-note">
+      *Gold tier members have EXCLUSIVE access to the club's premier lounge.
+    </div>
+
+    
 
     <div class="current-tier">
       <strong>Your membership:</strong> <span class="text-warning"><%= currentTier %></span>

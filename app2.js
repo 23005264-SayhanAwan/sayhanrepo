@@ -1741,7 +1741,6 @@ app.get('/membership', (req, res) => {
     }
 
     if (results.length === 0) {
-      // fallback if tier not found
       return res.render('membership', { currentTier: 'Unknown', member });
     }
 
@@ -1763,96 +1762,58 @@ app.get('/managemembership', (req, res) => {
     }
 
     const currentTier = results.length > 0 ? results[0].TierName : 'Not Assigned';
-    // FIXED: Pass both currentTier AND member to managemembership
     res.render('managemembership', { currentTier, member });
   });
 });
 
-// Legacy update route (if you still need it)
-app.post('/update-membership', (req, res) => {
-  const member = req.session.member;
-  if (!member) return res.redirect('/login');
-
-  const newTier = req.body.tier;
-  if (!newTier) return res.status(400).send('Tier not selected');
-
-  const getTierIdSql = 'SELECT TierID FROM membershiptier WHERE TierName = ?';
-  connection.query(getTierIdSql, [newTier], (err, results) => {
-    if (err || results.length === 0) {
-      console.error('Error finding tier ID:', err);
-      return res.status(500).send('Failed to find selected tier');
-    }
-
-    const tierId = results[0].TierID;
-
-    const updateSql = 'UPDATE members SET fk_TierID = ? WHERE MemberID = ?';
-    connection.query(updateSql, [tierId, member.MemberID], (updateErr, updateResults) => {
-      if (updateErr) {
-        console.error('Error updating membership:', updateErr);
-        return res.status(500).send('Failed to update membership');
-      }
-
-      // Update session with new tier ID
-      req.session.member.fk_TierID = tierId;
-      
-      // Redirect instead of rendering to refresh the page data
-      res.redirect('/managemembership');
-    });
-  });
-});
-
-// AJAX tier selection route
+// AJAX tier selection route with upgrade restrictions
 app.post('/member/managemembership/select', (req, res) => {
   const { tier } = req.body;
+  const member = req.session.member;
   
   if (!tier || !['Gold', 'Silver', 'Bronze'].includes(tier)) {
     return res.status(400).json({ error: 'Invalid tier' });
   }
 
-  // Store selected tier in session temporarily
-  req.session.selectedTier = tier;
-  
-  res.json({ success: true });
-});
-
-// Direct checkout route (without Stripe)
-app.post('/member/managemembership/checkout', (req, res) => {
-  const member = req.session.member;
-  const selectedTier = req.session.selectedTier;
-  
-  if (!member || !selectedTier) {
-    return res.redirect('/managemembership');
+  if (!member) {
+    return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  const getTierIdSql = 'SELECT TierID FROM membershiptier WHERE TierName = ?';
-  connection.query(getTierIdSql, [selectedTier], (err, results) => {
-    if (err || results.length === 0) {
-      console.error('Error finding tier ID:', err);
-      return res.status(500).send('Failed to find selected tier');
+  // Get current tier to check upgrade restrictions
+  const sql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
+  connection.query(sql, [member.fk_TierID], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
     }
 
-    const tierId = results[0].TierID;
+    const currentTier = results.length > 0 ? results[0].TierName : 'Bronze';
 
-    const updateSql = 'UPDATE members SET fk_TierID = ? WHERE MemberID = ?';
-    connection.query(updateSql, [tierId, member.MemberID], (updateErr) => {
-      if (updateErr) {
-        console.error('Error updating membership:', updateErr);
-        return res.status(500).send('Failed to update membership');
-      }
+    // ✅ UPDATED: Upgrade restrictions
+    if (currentTier === 'Gold') {
+      return res.status(400).json({ 
+        error: 'Gold members cannot downgrade. You already have the highest tier!' 
+      });
+    }
 
-      // Update session with new tier
-      req.session.member.fk_TierID = tierId;
-      
-      // Clear selected tier from session
-      delete req.session.selectedTier;
-      
-      // Redirect to refresh the page with updated data
-      res.redirect('/managemembership');
-    });
+    if (currentTier === 'Silver' && tier === 'Bronze') {
+      return res.status(400).json({ 
+        error: 'Silver members cannot downgrade to Bronze. You can only upgrade to Gold!' 
+      });
+    }
+
+    if (currentTier === tier) {
+      return res.status(400).json({ 
+        error: 'You are already on this tier!' 
+      });
+    }
+
+    // Store selected tier in session temporarily
+    req.session.selectedTier = tier;
+    res.json({ success: true });
   });
 });
 
-// Create Stripe checkout session for membership
+// ✅ UPDATED: Create checkout session with new pricing and upgrade logic
 app.post('/member/managemembership/create-checkout-session', async (req, res) => {
   const member = req.session.member;
   const selectedTier = req.session.selectedTier;
@@ -1861,89 +1822,107 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
     return res.status(400).json({ error: 'No member or tier selected' });
   }
 
-  // Hardcoded tier prices - Bronze is free
-  const tierPrices = {
-    'Gold': 15, // Updated to match your table
-    'Silver': 10, // Updated to match your table
-    'Bronze': 0 // Free tier
-  };
+  // Get current tier
+  const getCurrentTierSql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
+  connection.query(getCurrentTierSql, [member.fk_TierID], async (tierErr, tierResults) => {
+    if (tierErr) {
+      return res.status(500).json({ error: 'Database error' });
+    }
 
-  const price = tierPrices[selectedTier];
-  if (price === undefined) {
-    return res.status(400).json({ error: 'Invalid tier selected' });
-  }
+    const currentTier = tierResults.length > 0 ? tierResults[0].TierName : 'Bronze';
 
-  try {
-    // Get tier ID from database
-    const getTierSql = 'SELECT TierID FROM membershiptier WHERE TierName = ?';
-    connection.query(getTierSql, [selectedTier], async (err, results) => {
-      if (err || results.length === 0) {
-        return res.status(500).json({ error: 'Failed to find tier details' });
+    // ✅ UPDATED: New pricing structure
+    let price = 0;
+    let description = '';
+
+    if (selectedTier === 'Gold') {
+      if (currentTier === 'Bronze') {
+        price = 39.99; // Full price for Bronze to Gold
+        description = 'Upgrade from Bronze to Gold - Full Access';
+      } else if (currentTier === 'Silver') {
+        price = 15.00; // Upgrade price for Silver to Gold
+        description = 'Upgrade from Silver to Gold - Additional Features';
       }
-
-      const tierID = results[0].TierID;
-
-      // If Bronze (free tier), process immediately without Stripe
-      if (selectedTier === 'Bronze' || price === 0) {
-        // Update member's tier directly for free tier
-        const updateSql = 'UPDATE members SET fk_TierID = ? WHERE MemberID = ?';
-        connection.query(updateSql, [tierID, member.MemberID], (updateErr) => {
-          if (updateErr) {
-            console.error('Error updating membership:', updateErr);
-            return res.status(500).json({ error: 'Failed to update membership' });
-          }
-
-          // Update session with new tier
-          req.session.member.fk_TierID = tierID;
-          
-          // Clear selected tier
-          delete req.session.selectedTier;
-          
-          console.log('✅ Membership updated to Bronze (free)!');
-          res.json({ 
-            redirect: '/member/membership-success',
-            isFree: true 
-          });
-        });
-        return;
+    } else if (selectedTier === 'Silver') {
+      if (currentTier === 'Bronze') {
+        price = 24.99; // Full price for Bronze to Silver
+        description = 'Upgrade from Bronze to Silver';
       }
+    }
 
-      // For paid tiers, create Stripe session
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [{
-          price_data: {
-            currency: 'sgd',
-            product_data: { 
-              name: `${selectedTier} Membership`,
-              description: `Upgrade to ${selectedTier} membership tier`
+    // Validation
+    if (currentTier === 'Gold') {
+      return res.status(400).json({ error: 'Gold members cannot downgrade' });
+    }
+
+    if (currentTier === 'Silver' && selectedTier === 'Bronze') {
+      return res.status(400).json({ error: 'Silver members cannot downgrade to Bronze' });
+    }
+
+    if (currentTier === selectedTier) {
+      return res.status(400).json({ error: 'You are already on this tier' });
+    }
+
+    try {
+      // Get tier ID from database
+      const getTierSql = 'SELECT TierID FROM membershiptier WHERE TierName = ?';
+      connection.query(getTierSql, [selectedTier], async (err, results) => {
+        if (err || results.length === 0) {
+          return res.status(500).json({ error: 'Failed to find tier details' });
+        }
+
+        const tierID = results[0].TierID;
+
+        // Handle Bronze (this should not happen given restrictions, but keep for safety)
+        if (selectedTier === 'Bronze') {
+          return res.status(400).json({ error: 'Cannot downgrade to Bronze' });
+        }
+
+        // ✅ UPDATED: Create one-time payment session with new pricing
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: [{
+            price_data: {
+              currency: 'sgd',
+              product_data: { 
+                name: `${selectedTier} Membership Upgrade`,
+                description: description
+              },
+              unit_amount: Math.round(price * 100), // Convert to cents
             },
-            unit_amount: Math.round(price * 100), // Convert to cents
-          },
-          quantity: 1,
-        }],
-        mode: 'payment',
-        success_url: 'http://localhost:3000/member/membership-success',
-        cancel_url: 'http://localhost:3000/managemembership',
+            quantity: 1,
+          }],
+          mode: 'payment', // One-time payment
+          success_url: 'http://localhost:3000/member/membership-success',
+          cancel_url: 'http://localhost:3000/managemembership',
+          metadata: {
+            member_id: member.MemberID.toString(),
+            tier_name: selectedTier,
+            tier_id: tierID.toString(),
+            current_tier: currentTier,
+            upgrade_price: price.toString()
+          }
+        });
+
+        // Store tier info in session for after payment
+        req.session.pendingMembershipTier = {
+          tierID: tierID,
+          tierName: selectedTier,
+          price: price,
+          currentTier: currentTier
+        };
+
+        res.json({ url: session.url });
       });
 
-      // Store tier info in session for after payment
-      req.session.pendingMembershipTier = {
-        tierID: tierID,
-        tierName: selectedTier,
-        price: price
-      };
-
-      res.json({ url: session.url });
-    });
-
-  } catch (stripeError) {
-    console.error('Stripe error:', stripeError);
-    res.status(500).json({ error: 'Payment processing failed' });
-  }
+    } catch (stripeError) {
+      console.error('Stripe error:', stripeError);
+      res.status(500).json({ error: 'Payment processing failed' });
+    }
+  });
 });
 
-// Membership success page
+// ✅ UPDATED: Membership success page
 app.get('/member/membership-success', (req, res) => {
   const member = req.session.member;
   if (!member) return res.redirect('/login');
@@ -1965,7 +1944,7 @@ app.get('/member/membership-success', (req, res) => {
       // Update session with new tier
       req.session.member.fk_TierID = pendingTier.tierID;
       
-      console.log(`✅ Paid membership updated successfully! Member ${member.MemberID} upgraded to ${pendingTier.tierName}`);
+      console.log(`✅ Paid membership updated successfully! Member ${member.MemberID} upgraded from ${pendingTier.currentTier} to ${pendingTier.tierName} for $${pendingTier.price}`);
       
       // Clear pending data
       delete req.session.pendingMembershipTier;
@@ -1974,12 +1953,14 @@ app.get('/member/membership-success', (req, res) => {
       // Render success page with the NEW tier
       res.render('membershipsuccess', {
         member: req.session.member,
-        newTier: pendingTier.tierName
+        newTier: pendingTier.tierName,
+        previousTier: pendingTier.currentTier,
+        upgradePaid: pendingTier.price
       });
     });
   } else {
-    // No pending upgrade - possibly direct Bronze downgrade
-    console.log('No pending tier found - possibly direct Bronze change');
+    // No pending upgrade
+    console.log('No pending tier found');
     
     // Get current tier from database
     const getTierSql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
@@ -1987,14 +1968,18 @@ app.get('/member/membership-success', (req, res) => {
       if (err || results.length === 0) {
         return res.render('membershipsuccess', {
           member: member,
-          newTier: 'Unknown'
+          newTier: 'Unknown',
+          previousTier: null,
+          upgradePaid: 0
         });
       }
 
       const currentTier = results[0].TierName;
       res.render('membershipsuccess', {
         member: member,
-        newTier: currentTier
+        newTier: currentTier,
+        previousTier: null,
+        upgradePaid: 0
       });
     });
   }
