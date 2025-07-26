@@ -2113,6 +2113,7 @@ app.get('/events', (req, res) => {
   const query = `
     SELECT * FROM event 
     WHERE EventDate > NOW() 
+    AND (deleted IS NULL OR deleted = 0)
     ORDER BY EventDate ASC
   `;
   connection.query(query, (err, results) => {
@@ -2127,7 +2128,7 @@ app.get('/events', (req, res) => {
   });
 });
 
-// FIXED: Route to show specific event details - with date validation
+// FIXED: Route to show specific event details - with date validation AND deleted filter
 app.get('/event/:id', (req, res) => {
   const eventId = req.params.id;
   const member = req.session.member;
@@ -2137,7 +2138,8 @@ app.get('/event/:id', (req, res) => {
            CASE WHEN e.EventDate > NOW() THEN 1 ELSE 0 END AS isUpcoming
     FROM event e
     LEFT JOIN ticket t ON e.EventID = t.Fk_EventID
-    WHERE e.EventID = ?
+    WHERE e.EventID = ? 
+    AND (e.deleted IS NULL OR e.deleted = 0)
   `;
 
   const ticketCountQuery = 'SELECT COUNT(*) AS ticketsBought FROM ticketpurchase WHERE Fk_EventID = ?';
@@ -2145,7 +2147,7 @@ app.get('/event/:id', (req, res) => {
   connection.query(eventQuery, [eventId], (err, eventResult) => {
     if (err || eventResult.length === 0) {
       console.error('Error fetching event:', err);
-      return res.status(500).send('Event not found');
+      return res.status(404).send('Event not found or no longer available');
     }
 
     const event = eventResult[0];
@@ -2180,26 +2182,8 @@ app.get('/event/:id', (req, res) => {
   });
 });
 
-app.get('/Admin/events', (req, res) => {
-  const admin = req.session.admin;
-  if (!admin) return res.redirect('/login'); // Or handle unauthorized
 
-  res.render('admincreateevent', { admin });
-});
 
-function showFields(type) {
-  document.querySelectorAll('.dynamic-section').forEach(el => el.style.display = 'none');
-  if (type === 'Club Match') {
-    document.getElementById('matchFields').style.display = 'block';
-  } else if (type === 'Training Session') {
-    document.getElementById('trainingFields').style.display = 'block';
-  } else if (type === 'AGM') {
-    document.getElementById('agmFields').style.display = 'block';
-  } else if (type === 'Trial') {
-    document.getElementById('trialFields').style.display = 'block';
-  } else if (type === 'Regular Event') {
-  }
-}
 
 // UPDATED: Create event route with start and end times for all events
 app.post('/Admin/events/create', upload.single('eventpic'), (req, res) => {
