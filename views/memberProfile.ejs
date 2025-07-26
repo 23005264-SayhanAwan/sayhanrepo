@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0c0f18;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .profile-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+    
+    .profile-card {
+      background-color: #1a1d29;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      margin-bottom: 30px;
+    }
+    
+    .profile-picture-section {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #f49b00;
+      margin-bottom: 15px;
+    }
+    
+    .btn-upload {
+      background-color: #f49b00;
+      border: none;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    
+    .btn-upload:hover {
+      background-color: #d88700;
+      color: white;
+    }
+    
+    .form-section {
+      margin-bottom: 25px;
+    }
+    
+    .form-section h5 {
+      color: #f49b00;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #f49b00;
+      padding-bottom: 10px;
+    }
+    
+    .form-control {
+      background-color: #2b2f40;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    
+    .form-control:focus {
+      background-color: #2b2f40;
+      border-color: #f49b00;
+      color: white;
+      box-shadow: 0 0 0 0.2rem rgba(244, 155, 0, 0.25);
+    }
+    
+    .form-label {
+      color: #b8c6db;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .btn-save {
+      background-color: #28a745;
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    
+    .btn-save:hover {
+      background-color: #218838;
+      color: white;
+    }
+    
+    .btn-cancel {
+      background-color: #6c757d;
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      margin-left: 10px;
+    }
+    
+    .btn-cancel:hover {
+      background-color: #5a6268;
+      color: white;
+    }
+    
+    .membership-info {
+      background: linear-gradient(135deg, #1a1d29, #2b2f40);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .membership-tier {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .gold-tier {
+      color: #ffd700;
+    }
+    
+    .silver-tier {
+      color: #c0c0c0;
+    }
+    
+    .bronze-tier {
+      color: #cd7f32;
+    }
+    
+    .join-date {
+      color: #b8c6db;
+      font-size: 14px;
+    }
+    
+    .alert {
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .edit-section {
+      display: none;
+    }
+    
+    .view-section {
+      display: block;
+    }
+    
+    .edit-mode .edit-section {
+      display: block;
+    }
+    
+    .edit-mode .view-section {
+      display: none;
+    }
+    
+    .info-item {
+      background-color: #2b2f40;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .info-label {
+      color: #f49b00;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    
+    .info-value {
+      color: white;
+      font-size: 16px;
+    }
+    
+    .edit-btn {
+      background-color: #f49b00;
+      border: none;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    
+    .edit-btn:hover {
+      background-color: #d88700;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/Membernav', { member: member }) %>
+
+  <div class="profile-container">
+    <div class="profile-card">
+      <h2 class="text-center mb-4">👤 My Profile</h2>
+      
+      <!-- Success/Error Messages -->
+      <% if (typeof message !== 'undefined' && message) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <%= message %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <!-- Profile Picture Section -->
+      <div class="profile-picture-section">
+        <img 
+          src="<%= member.Member_ProfilePicture ? '/images/' + member.Member_ProfilePicture : '/images/profilepc.jpeg' %>" 
+          alt="Profile Picture" 
+          class="profile-picture"
+          id="profileImage"
+        />
+        <div>
+          <form id="profilePicForm" action="/member/profile/update-picture" method="POST" enctype="multipart/form-data" style="display: inline;">
+            <input type="file" id="profileUpload" name="profileImage" accept="image/*" style="display: none;" onchange="submitProfilePicture()">
+            <button type="button" class="btn-upload" onclick="document.getElementById('profileUpload').click()">
+              📸 Change Picture
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Profile Information -->
+      <div id="profileContent">
+        <!-- View Mode -->
+        <div class="view-section">
+          <button type="button" class="edit-btn" onclick="toggleEditMode()">✏️ Edit Profile</button>
+          
+          <div class="form-section">
+            <h5>📋 Personal Information</h5>
+            
+            <div class="info-item">
+              <div class="info-label">Full Name</div>
+              <div class="info-value"><%= member.Member_FullName %></div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Email Address</div>
+              <div class="info-value"><%= member.Member_Email %></div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Phone Number</div>
+              <div class="info-value"><%= member.Member_Phone || 'Not provided' %></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Mode -->
+        <div class="edit-section">
+          <form action="/member/profile/update" method="POST">
+            <div class="form-section">
+              <h5>📋 Personal Information</h5>
+              
+              <div class="mb-3">
+                <label for="fullName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="fullName" name="fullName" value="<%= member.Member_FullName %>" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" value="<%= member.Member_Email %>" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" name="phone" value="<%= member.Member_Phone || '' %>" placeholder="Enter your phone number">
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="btn-save">💾 Save Changes</button>
+              <button type="button" class="btn-cancel" onclick="toggleEditMode()">❌ Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Membership & Account Info -->
+    <div class="profile-card">
+      <h5 class="text-center mb-4">🎯 Account Information</h5>
+      
+      <div class="membership-info">
+        <div class="membership-tier <%= (currentTier || 'Bronze').toLowerCase() %>-tier">
+          🏆 <%= currentTier || 'Bronze' %> Member
+        </div>
+        <div class="join-date">
+          Member since: <%= new Date(member.JoinDate).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          }) %>
+        </div>
+        <div class="mt-3">
+          <a href="/membership" class="btn-upload">View Membership Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleEditMode() {
+      const content = document.getElementById('profileContent');
+      content.classList.toggle('edit-mode');
+    }
+
+    function submitProfilePicture() {
+      const form = document.getElementById('profilePicForm');
+      const fileInput = document.getElementById('profileUpload');
+      
+      if (fileInput.files.length > 0) {
+        form.submit();
+      }
+    }
+  </script>
+</body>
+</html>

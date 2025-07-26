@@ -115,7 +115,7 @@ app.get('/', (req, res) => {
 // Retrieve restaurant items (UPDATED - exclude removed items)
 app.get('/restaurant', (req, res) => {
   const member = req.session.member;
-  const message = req.query.message; // ✅ ADD THIS: Declare message variable
+  const message = req.query.message; //  ADD THIS: Declare message variable
 
   if (!member) {
     return res.redirect('/login');
@@ -141,8 +141,8 @@ app.get('/restaurant', (req, res) => {
     res.render('restaurant', { 
       foodItems: results, 
       member,
-      message: message  // ✅ Now message is properly declared
-    }); // ✅ FIXED: Remove extra semicolon
+      message: message  //  Now message is properly declared
+    }); //  FIXED: Remove extra semicolon
   });
 });
 
@@ -215,7 +215,7 @@ app.post('/restaurant/remove-from-cart/:id', (req, res) => {
 /// Routes for Admin Restaurant (Store Style) - COMPLETE REPLACEMENT
 
 // GET all restaurant items - Updated to handle showAll and message parameters
-// ✅ CORRECT VERSION - Add the missing 'items' line
+//  CORRECT VERSION - Add the missing 'items' line
 app.get('/admin/items', (req, res) => {
     if (!req.session.admin) return res.redirect('/login');
     
@@ -234,7 +234,7 @@ app.get('/admin/items', (req, res) => {
             return res.status(500).send('Error fetching restaurant items');
         }
         
-        // ✅ THE CRITICAL LINE THAT'S MISSING:
+        //  THE CRITICAL LINE THAT'S MISSING:
         res.render('adminItemList', {
             items: results || [],        
             admin: req.session.admin,
@@ -481,7 +481,7 @@ app.post('/admin/items/delete/:id', (req, res) => {
         
       } else {
         // Item has never been ordered - safe to delete normally
-        console.log(`✅ Restaurant item ${itemId} has no orders, safe to delete`);
+        console.log(` Restaurant item ${itemId} has no orders, safe to delete`);
         
         const deleteSql = 'DELETE FROM restaurantitem WHERE ItemID = ?';
         
@@ -832,6 +832,128 @@ app.get('/Member', (req, res) => {
         });
       });
     });
+  });
+});
+
+app.get('/member/profile', (req, res) => {
+  const member = req.session.member;
+  if (!member) return res.redirect('/login');
+
+  // Get member's current tier
+  const tierSql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
+  connection.query(tierSql, [member.fk_TierID], (err, tierResults) => {
+    if (err) {
+      console.error('Error fetching tier:', err);
+      return res.status(500).send('Error loading profile');
+    }
+
+    const currentTier = tierResults.length > 0 ? tierResults[0].TierName : 'Bronze';
+    
+    res.render('memberProfile', {
+      member,
+      currentTier,
+      message: req.query.message || null,
+      error: req.query.error || null
+    });
+  });
+});
+
+// Update profile information (personal details only)
+app.post('/member/profile/update', (req, res) => {
+  const member = req.session.member;
+  if (!member) return res.redirect('/login');
+
+  const { fullName, email, phone } = req.body;
+
+  // Validate required fields
+  if (!fullName || !email) {
+    return res.redirect('/member/profile?error=' + encodeURIComponent('Name and email are required'));
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.redirect('/member/profile?error=' + encodeURIComponent('Please enter a valid email address'));
+  }
+
+  // Update profile information
+  const updateSql = `
+    UPDATE members 
+    SET Member_FullName = ?, 
+        Member_Email = ?, 
+        Member_Phone = ?
+    WHERE MemberID = ?
+  `;
+
+  connection.query(updateSql, [fullName, email, phone, member.MemberID], (err, result) => {
+    if (err) {
+      console.error('Error updating profile:', err);
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.redirect('/member/profile?error=' + encodeURIComponent('Email address already in use'));
+      }
+      return res.redirect('/member/profile?error=' + encodeURIComponent('Error updating profile'));
+    }
+
+    // Update session data
+    req.session.member.Member_FullName = fullName;
+    req.session.member.Member_Email = email;
+    req.session.member.Member_Phone = phone;
+
+    console.log(`Profile updated for member ${member.MemberID}`);
+    res.redirect('/member/profile?message=' + encodeURIComponent('Profile updated successfully!'));
+  });
+});
+
+// Update profile picture
+app.post('/member/profile/update-picture', upload.single('profileImage'), (req, res) => {
+  const member = req.session.member;
+  if (!member) return res.redirect('/login');
+
+  if (!req.file) {
+    return res.redirect('/member/profile?error=' + encodeURIComponent('Please select an image file'));
+  }
+
+  const profilePicturePath = req.file.filename;
+
+  // Update database with new profile picture
+  const updatePictureSql = 'UPDATE members SET Member_ProfilePicture = ? WHERE MemberID = ?';
+  
+  connection.query(updatePictureSql, [profilePicturePath, member.MemberID], (err, result) => {
+    if (err) {
+      console.error('Error updating profile picture:', err);
+      return res.redirect('/member/profile?error=' + encodeURIComponent('Error updating profile picture'));
+    }
+
+    // Update session data
+    req.session.member.Member_ProfilePicture = profilePicturePath;
+
+    console.log(`Profile picture updated for member ${member.MemberID}: ${profilePicturePath}`);
+    res.redirect('/member/profile?message=' + encodeURIComponent('Profile picture updated successfully!'));
+  });
+});
+
+// Legacy profile picture upload route (if still needed for navbar)
+app.post('/Member/uploadProfilePic', upload.single('profileImage'), (req, res) => {
+  const member = req.session.member;
+  if (!member) return res.redirect('/login');
+
+  if (!req.file) {
+    return res.redirect('/Member?error=' + encodeURIComponent('Please select an image file'));
+  }
+
+  const profilePicturePath = req.file.filename;
+
+  const updatePictureSql = 'UPDATE members SET Member_ProfilePicture = ? WHERE MemberID = ?';
+  
+  connection.query(updatePictureSql, [profilePicturePath, member.MemberID], (err, result) => {
+    if (err) {
+      console.error('Error updating profile picture:', err);
+      return res.redirect('/Member?error=' + encodeURIComponent('Error updating profile picture'));
+    }
+
+    req.session.member.Member_ProfilePicture = profilePicturePath;
+    console.log(`Profile picture updated via legacy route for member ${member.MemberID}`);
+    res.redirect('/Member');
   });
 });
 
@@ -1523,7 +1645,7 @@ app.post('/admin/member/delete/:id', (req, res) => {
                     });
                   }
 
-                  console.log(`✅ Member ${memberId} and all related records deleted successfully`);
+                  console.log(` Member ${memberId} and all related records deleted successfully`);
                   res.redirect('/admin/members');
                 });
               });
@@ -1788,7 +1910,7 @@ app.post('/member/managemembership/select', (req, res) => {
 
     const currentTier = results.length > 0 ? results[0].TierName : 'Bronze';
 
-    // ✅ UPDATED: Upgrade restrictions
+    //  UPDATED: Upgrade restrictions
     if (currentTier === 'Gold') {
       return res.status(400).json({ 
         error: 'Gold members cannot downgrade. You already have the highest tier!' 
@@ -1813,7 +1935,7 @@ app.post('/member/managemembership/select', (req, res) => {
   });
 });
 
-// ✅ UPDATED: Create checkout session with new pricing and upgrade logic
+//  UPDATED: Create checkout session with new pricing and upgrade logic
 app.post('/member/managemembership/create-checkout-session', async (req, res) => {
   const member = req.session.member;
   const selectedTier = req.session.selectedTier;
@@ -1831,7 +1953,7 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
 
     const currentTier = tierResults.length > 0 ? tierResults[0].TierName : 'Bronze';
 
-    // ✅ UPDATED: New pricing structure
+    //  UPDATED: New pricing structure
     let price = 0;
     let description = '';
 
@@ -1878,7 +2000,7 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
           return res.status(400).json({ error: 'Cannot downgrade to Bronze' });
         }
 
-        // ✅ UPDATED: Create one-time payment session with new pricing
+        //  UPDATED: Create one-time payment session with new pricing
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
           line_items: [{
@@ -1922,7 +2044,7 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
   });
 });
 
-// ✅ UPDATED: Membership success page
+//  UPDATED: Membership success page
 app.get('/member/membership-success', (req, res) => {
   const member = req.session.member;
   if (!member) return res.redirect('/login');
@@ -1944,7 +2066,7 @@ app.get('/member/membership-success', (req, res) => {
       // Update session with new tier
       req.session.member.fk_TierID = pendingTier.tierID;
       
-      console.log(`✅ Paid membership updated successfully! Member ${member.MemberID} upgraded from ${pendingTier.currentTier} to ${pendingTier.tierName} for $${pendingTier.price}`);
+      console.log(` Paid membership updated successfully! Member ${member.MemberID} upgraded from ${pendingTier.currentTier} to ${pendingTier.tierName} for $${pendingTier.price}`);
       
       // Clear pending data
       delete req.session.pendingMembershipTier;
@@ -2474,7 +2596,7 @@ app.post('/admin/deleteItem/:id', (req, res) => {
         
       } else {
         // Item has never been purchased - safe to delete normally
-        console.log(`✅ Item ${itemId} has no purchases, safe to delete`);
+        console.log(` Item ${itemId} has no purchases, safe to delete`);
         
         const deleteSql = 'DELETE FROM storeitem WHERE ItemID = ?';
         
@@ -2526,7 +2648,7 @@ app.post('/store/add-to-cart/:id', (req, res) => {
     // FIXED: Now properly uses the quantity from the form
     const existing = req.session.cart.find(i => i.id === item.ItemID && i.type !== 'ticket');
     if (existing) {
-      existing.quantity += quantity; // ✅ Use quantity from form
+      existing.quantity += quantity; //  Use quantity from form
     } else {
       req.session.cart.push({
         id: item.ItemID,
@@ -2534,11 +2656,11 @@ app.post('/store/add-to-cart/:id', (req, res) => {
         name: item.Name,
         price: item.Price,
         storeitempic: item.storeitempic,
-        quantity: quantity // ✅ Use quantity from form instead of hardcoded 1
+        quantity: quantity //  Use quantity from form instead of hardcoded 1
       });
     }
 
-    // ✅ FIXED: Redirect back to store with success message (same as restaurant)
+    //  FIXED: Redirect back to store with success message (same as restaurant)
     const itemName = item.Name || 'Item';
     const successMessage = `${itemName} (x${quantity}) added to cart successfully!`;
     res.redirect(`/store-items?message=${encodeURIComponent(successMessage)}`);
@@ -3024,7 +3146,7 @@ app.post('/store/checkout/confirm', async (req, res) => {
 
   const orderTimestamp = new Date();
   
-  // ✅ UPDATED: Create main purchase record with DiscountAmount and CashbackEarned
+  //  UPDATED: Create main purchase record with DiscountAmount and CashbackEarned
   const purchaseSql = `
     INSERT INTO allpurchases
     (fk_MemberID, PurchaseDate, TotalAmount, DiscountAmount, CashbackUsed, FinalAmountPaid)
@@ -3116,7 +3238,7 @@ function processStoreItems(storeItems, purchaseID, callback) {
           if (stockErr) {
             console.error('Error updating store stock:', stockErr);
           } else {
-            console.log(`✅ Store stock reduced for item ${item.id}: -${item.quantity}`);
+            console.log(` Store stock reduced for item ${item.id}: -${item.quantity}`);
           }
         });
       }
@@ -3129,7 +3251,7 @@ function processStoreItems(storeItems, purchaseID, callback) {
   });
 }
 
-// ✅ UPDATED: Restaurant items processing - using only TotalAmount, removed FinalAmountPaid and CashbackUsed
+//  UPDATED: Restaurant items processing - using only TotalAmount, removed FinalAmountPaid and CashbackUsed
 function processRestaurantItems(restaurantItems, purchaseID, memberID, orderTimestamp, callback) {
   let itemsProcessed = 0;
   const totalRestaurantItems = restaurantItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -3149,7 +3271,7 @@ function processRestaurantItems(restaurantItems, purchaseID, memberID, orderTime
         memberID,
         item.id,
         orderTimestamp,
-        item.price,  // ✅ Individual item price stored in TotalAmount
+        item.price,  //  Individual item price stored in TotalAmount
         purchaseID
       ], (restaurantErr, restaurantResult) => {
         if (restaurantErr) {
@@ -3187,7 +3309,7 @@ function processTickets(tickets, purchaseID, memberID, orderTimestamp, callback)
         memberID,
         ticket.id,
         orderTimestamp,
-        ticket.price,  // ✅ Now using TotalAmount instead of FinalAmountPaid
+        ticket.price,  //  Now using TotalAmount instead of FinalAmountPaid
         purchaseID
       ], (ticketErr, ticketResult) => {
         if (ticketErr) {
@@ -3251,7 +3373,7 @@ function processIndividualCashbackUsage(selectedCashbackItems, purchaseID, membe
       if (usageErr) {
         console.error('Error recording cashback usage:', usageErr);
       } else {
-        console.log(`✅ Cashback usage recorded: -$${item.amountUsed.toFixed(2)} from cashback ${item.id}`);
+        console.log(` Cashback usage recorded: -$${item.amountUsed.toFixed(2)} from cashback ${item.id}`);
       }
       
       // Update the original cashback record if partially used
@@ -3266,7 +3388,7 @@ function processIndividualCashbackUsage(selectedCashbackItems, purchaseID, membe
           if (updateErr) {
             console.error('Error updating original cashback record:', updateErr);
           } else {
-            console.log(`✅ Original cashback ${item.id} updated: remaining $${(item.originalAmount - item.amountUsed).toFixed(2)}`);
+            console.log(` Original cashback ${item.id} updated: remaining $${(item.originalAmount - item.amountUsed).toFixed(2)}`);
           }
           
           cashbackOperations++;
@@ -3286,7 +3408,7 @@ function processIndividualCashbackUsage(selectedCashbackItems, purchaseID, membe
           if (deleteErr) {
             console.error('Error marking cashback as used:', deleteErr);
           } else {
-            console.log(`✅ Cashback ${item.id} fully used`);
+            console.log(` Cashback ${item.id} fully used`);
           }
           
           cashbackOperations++;
@@ -3333,7 +3455,7 @@ function recordCashbackEarning(memberID, cashbackEarned, purchaseID, callback) {
     if (earningErr) {
       console.error('Error recording cashback earning:', earningErr);
     } else {
-      console.log(`✅ Cashback earning recorded: +${cashbackEarned.toFixed(2)}`);
+      console.log(` Cashback earning recorded: +${cashbackEarned.toFixed(2)}`);
     }
     callback();
   });
@@ -3357,7 +3479,7 @@ function completeOrder(req, res, purchaseID, cashbackEarned) {
     if (balanceErr) {
       console.error('Error updating member balance:', balanceErr);
     } else {
-      console.log('✅ Member balance updated from cashback records');
+      console.log(' Member balance updated from cashback records');
     }
     
     // Clear session
@@ -3390,7 +3512,7 @@ app.get('/store/past-orders', (req, res) => {
 
     console.log('Fetching unified past orders for MemberID:', memberId);
 
-    // ✅ UPDATED: Get all purchase records with DiscountAmount
+    //  UPDATED: Get all purchase records with DiscountAmount
     const mainOrdersSql = `
       SELECT 
         PurchaseTransactionID,
@@ -3412,7 +3534,7 @@ app.get('/store/past-orders', (req, res) => {
 
       console.log('Main orders found:', orderResults.length);
 
-      // ✅ UPDATED: Get standalone ticket purchases using TotalAmount
+      //  UPDATED: Get standalone ticket purchases using TotalAmount
       const standaloneTicketsSql = `
         SELECT 
           tp.TicketPurchaseID,
@@ -3435,7 +3557,7 @@ app.get('/store/past-orders', (req, res) => {
 
         console.log('Standalone ticket groups found:', standaloneTickets.length);
 
-        // ✅ UPDATED: Combine orders using TotalAmount
+        //  UPDATED: Combine orders using TotalAmount
         const allOrderGroups = [
           ...orderResults.map(order => ({ ...order, OrderType: 'main' })),
           ...standaloneTickets.map(ticket => ({
@@ -3474,7 +3596,7 @@ app.get('/store/past-orders', (req, res) => {
           const totalSubOperations = 3; // Store items + Restaurant items + Tickets
 
           if (order.OrderType === 'main') {
-            // ✅ UPDATED: Get store items using TotalAmount
+            //  UPDATED: Get store items using TotalAmount
             const storeItemsSql = `
               SELECT 
                 pi.fk_ItemID, 
@@ -3503,7 +3625,7 @@ app.get('/store/past-orders', (req, res) => {
               checkComplete();
             });
 
-            // ✅ UPDATED: Get restaurant items using TotalAmount
+            //  UPDATED: Get restaurant items using TotalAmount
             const restaurantItemsSql = `
               SELECT 
                 rb.fk_ItemID,
@@ -3537,7 +3659,7 @@ app.get('/store/past-orders', (req, res) => {
               checkComplete();
             });
 
-            // ✅ UPDATED: Get tickets using TotalAmount instead of FinalAmountPaid
+            //  UPDATED: Get tickets using TotalAmount instead of FinalAmountPaid
             const ticketsSql = `
               SELECT 
                 tp.TicketPurchaseID, 
@@ -3574,7 +3696,7 @@ app.get('/store/past-orders', (req, res) => {
             orderDetails.storeItems = [];
             orderDetails.restaurantItems = [];
             
-            // ✅ UPDATED: Get tickets for standalone orders using TotalAmount
+            //  UPDATED: Get tickets for standalone orders using TotalAmount
             const standaloneTicketDetailsSql = `
               SELECT 
                 tp.TicketPurchaseID, 
@@ -3622,7 +3744,7 @@ app.get('/store/past-orders', (req, res) => {
         });
 
         function renderUnifiedOrdersPage() {
-          // ✅ UPDATED: Sort by order number (newest first) instead of date
+          //  UPDATED: Sort by order number (newest first) instead of date
           detailedOrders.sort((a, b) => {
             // Extract numeric order ID for proper sorting
             const getOrderNumber = (order) => {
@@ -4049,7 +4171,7 @@ app.get('/Admin/ticketpage', (req, res) => {
     ORDER BY e.deleted ASC, e.EventDate DESC
   `;
 
-  // ✅ UPDATED: Use TotalAmount instead of FinalAmountPaid
+  //  UPDATED: Use TotalAmount instead of FinalAmountPaid
   const ticketStatsQuery = `
     SELECT Fk_EventID, COUNT(*) AS ticketsSold, SUM(TotalAmount) AS totalEarned
     FROM ticketpurchase
@@ -4267,13 +4389,13 @@ app.post('/Admin/delete-ticket/:eventId', (req, res) => {
   });
 });
 
-// ✅ UPDATED: Event purchasers route with TotalAmount
+//  UPDATED: Event purchasers route with TotalAmount
 app.get('/Admin/event/:id/purchasers', (req, res) => {
   const eventId = req.params.id;
   const admin = req.session.admin;
   if (!admin) return res.redirect('/login');
 
-  // ✅ UPDATED: Join with ticket table to get the actual ticket price
+  //  UPDATED: Join with ticket table to get the actual ticket price
   const query = `
     SELECT 
       m.MemberID, 
@@ -4297,7 +4419,7 @@ app.get('/Admin/event/:id/purchasers', (req, res) => {
       return res.status(500).send('Error loading purchasers');
     }
 
-    // ✅ DEBUG: Log the results to see what we're getting
+    //  DEBUG: Log the results to see what we're getting
     console.log('=== TICKET PURCHASERS DEBUG ===');
     console.log('Event ID:', eventId);
     console.log('Number of purchasers found:', results.length);
@@ -4410,7 +4532,7 @@ app.get('/Member/cashback', (req, res) => {
           
           if (Math.abs(calculatedBalance - dbBalance) > 0.01) {
             balanceMatch = false;
-            console.warn('⚠️ Balance mismatch on cashback page:');
+            console.warn('  Balance mismatch on cashback page:');
             console.warn('  Database balance:', dbBalance);
             console.warn('  Calculated balance (positive only):', calculatedBalance);
             
@@ -4418,7 +4540,7 @@ app.get('/Member/cashback', (req, res) => {
             const updateBalanceSql = `UPDATE members SET CashbackBalance = ? WHERE MemberID = ?`;
             connection.query(updateBalanceSql, [calculatedBalance, memberId], (updateErr) => {
               if (!updateErr) {
-                console.log('✅ Database balance auto-corrected to:', calculatedBalance);
+                console.log(' Database balance auto-corrected to:', calculatedBalance);
                 databaseBalance = calculatedBalance;
                 balanceMatch = true;
               }

@@ -40,15 +40,6 @@
       align-items: center;
     }
 
-    .profile-pic {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid white;
-      cursor: pointer;
-    }
-
     /* Dropdown fixes */
     .dropdown-menu {
       background-color: #1a1f2e;
@@ -156,7 +147,7 @@
           <li class="nav-item"><a class="nav-link" href="/Member">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="/Booking">Booking</a></li>
           
-          <!-- FIXED: Store dropdown - changed href from "/store-items" to "#" -->
+          <!-- Store dropdown -->
           <li class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle" 
@@ -184,35 +175,23 @@
           <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
           <li class="nav-item"><a class="nav-link" href="/store/past-orders">Orders</a></li>
           
-          <!-- Profile picture dropdown -->
+          <!--  UPDATED: Profile dropdown button -->
           <li class="nav-item dropdown">
             <a
-              class="nav-link dropdown-toggle d-flex align-items-center"
+              class="nav-link dropdown-toggle"
               href="#"
               id="profileDropdown"
               role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <img 
-                id="profilePicImg"
-                src="<%= member.Member_ProfilePicture ? '/images/' + member.Member_ProfilePicture + '?' + Date.now() : '/images/profilepc.jpeg' %>" 
-                alt="Profile Picture" 
-                class="profile-pic"
-              />
+              Profile
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-              <li>
-                <form id="profilePicForm" action="/Member/uploadProfilePic" method="POST" enctype="multipart/form-data" style="margin:0;">
-                  <button type="button" class="dropdown-item" onclick="document.getElementById('profileUploadInput').click();">
-                    Change Profile Picture
-                  </button>
-                  <input type="file" id="profileUploadInput" name="profileImage" accept="image/*" style="display: none;" onchange="document.getElementById('profilePicForm').submit();" />
-                </form>
-              </li>
+              <li><a class="dropdown-item" href="/member/profile">👤 View Profile</a></li>
               <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+              <li><a class="dropdown-item" href="/logout">🚪 Logout</a></li>
             </ul>
           </li>
         </ul>
@@ -232,9 +211,8 @@
       console.log('Bootstrap loaded successfully');
       
       // Let Bootstrap initialize dropdowns automatically
-      // No need to manually initialize - Bootstrap 5 does this automatically
-
-      // Just add debug logging for store dropdown
+      
+      // Add debug logging for store dropdown
       const storeDropdown = document.getElementById('storeDropdown');
       if (storeDropdown) {
         storeDropdown.addEventListener('shown.bs.dropdown', function() {
@@ -243,20 +221,6 @@
         
         storeDropdown.addEventListener('hidden.bs.dropdown', function() {
           console.log('Store dropdown closed');
-        });
-      }
-
-      // Handle profile picture upload
-      const profileForm = document.getElementById('profilePicForm');
-      if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
-          setTimeout(function() {
-            var img = document.getElementById('profilePicImg');
-            if (img) {
-              var newSrc = "<%= member.Member_ProfilePicture ? '/images/' + member.Member_ProfilePicture : '/images/profilepc.jpeg' %>?" + new Date().getTime();
-              img.src = newSrc;
-            }
-          }, 1000);
         });
       }
     });
