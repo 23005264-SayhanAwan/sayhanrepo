@@ -432,7 +432,7 @@ app.post('/admin/items/delete/:id', (req, res) => {
   
   if (forceDelete) {
     // FORCE DELETE: Remove item regardless of order history
-    console.log(`🔥 FORCE DELETE requested for restaurant item ${itemId}`);
+    console.log(` FORCE DELETE requested for restaurant item ${itemId}`);
     
     // Start transaction to ensure data consistency
     connection.beginTransaction((err) => {
@@ -485,7 +485,7 @@ app.post('/admin/items/delete/:id', (req, res) => {
               });
             }
 
-            console.log(`🔥 FORCE DELETE completed for restaurant item ${itemId} and all order records`);
+            console.log(` FORCE DELETE completed for restaurant item ${itemId} and all order records`);
             const successMessage = encodeURIComponent('Restaurant item and ALL order history permanently deleted');
             res.redirect(`/admin/items?message=${successMessage}`);
           });
@@ -508,7 +508,7 @@ app.post('/admin/items/delete/:id', (req, res) => {
 
       if (orderCount > 0) {
         // Item has been ordered - redirect with warning and force delete option
-        console.log(`⚠️ Restaurant item ${itemId} has ${orderCount} orders, offering force delete`);
+        console.log(` Restaurant item ${itemId} has ${orderCount} orders, offering force delete`);
         const warningMessage = encodeURIComponent(`Cannot delete: ${orderCount} order record(s) exist. Use 'Unlist' to hide, or 'Force Delete' to permanently remove everything.`);
         res.redirect(`/admin/items?message=${warningMessage}&showForceDelete=${itemId}`);
         
@@ -530,7 +530,7 @@ app.post('/admin/items/delete/:id', (req, res) => {
             return res.redirect(`/admin/items?message=${notFoundMessage}`);
           }
           
-          console.log(`🗑️ Restaurant item ${itemId} deleted (no order history)`);
+          console.log(` Restaurant item ${itemId} deleted (no order history)`);
           const successMessage = encodeURIComponent('Restaurant item permanently deleted successfully');
           res.redirect(`/admin/items?message=${successMessage}`);
         });
@@ -2605,7 +2605,7 @@ app.post('/admin/deleteItem/:id', (req, res) => {
               });
             }
 
-            console.log(`🔥 FORCE DELETE completed for item ${itemId} and all purchase records`);
+            console.log(` FORCE DELETE completed for item ${itemId} and all purchase records`);
             const successMessage = encodeURIComponent('Item and ALL purchase history permanently deleted');
             res.redirect(`/admin/store-items?message=${successMessage}`);
           });
@@ -2628,7 +2628,7 @@ app.post('/admin/deleteItem/:id', (req, res) => {
 
       if (purchaseCount > 0) {
         // Item has been purchased - redirect with warning and force delete option
-        console.log(`⚠️ Item ${itemId} has ${purchaseCount} purchases, offering force delete`);
+        console.log(` Item ${itemId} has ${purchaseCount} purchases, offering force delete`);
         const warningMessage = encodeURIComponent(`Cannot delete: ${purchaseCount} purchase record(s) exist. Use 'Unlist' to hide, or 'Force Delete' to permanently remove everything.`);
         res.redirect(`/admin/store-items?message=${warningMessage}&showForceDelete=${itemId}`);
         
@@ -2650,7 +2650,7 @@ app.post('/admin/deleteItem/:id', (req, res) => {
             return res.redirect(`/admin/store-items?message=${notFoundMessage}`);
           }
           
-          console.log(`🗑️ Store item ${itemId} deleted (no purchase history)`);
+          console.log(` Store item ${itemId} deleted (no purchase history)`);
           const successMessage = encodeURIComponent('Store item permanently deleted successfully');
           res.redirect(`/admin/store-items?message=${successMessage}`);
         });
@@ -3141,7 +3141,7 @@ app.post('/store/checkout', async (req, res) => {
 
 // UPDATED: Checkout confirm route - Now includes restaurant item support
 app.post('/store/checkout/confirm', async (req, res) => {
-  console.log('🚀 CHECKOUT CONFIRM ROUTE CALLED!');
+  console.log(' CHECKOUT CONFIRM ROUTE CALLED!');
   console.log('=== CONFIRM UNIFIED CHECKOUT WITH RESTAURANT SUPPORT ===');
 
   if (!req.session.member || !req.session.pendingOrder) {

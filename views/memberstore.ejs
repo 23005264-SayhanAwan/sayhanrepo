@@ -187,13 +187,13 @@
                 <!-- Stock Display -->
                 <div class="stock-info">
                   <% if (stock > 20) { %>
-                    <span class="stock-high">✅ <%= stock %> in stock</span>
+                    <span class="stock-high"> <%= stock %> in stock</span>
                   <% } else if (stock > 5) { %>
-                    <span class="stock-medium">⚠️ <%= stock %> left</span>
+                    <span class="stock-medium"> <%= stock %> left</span>
                   <% } else if (stock > 0) { %>
-                    <span class="stock-low">🔥 Only <%= stock %> left!</span>
+                    <span class="stock-low"> Only <%= stock %> left!</span>
                   <% } else { %>
-                    <span class="out-of-stock">❌ Out of stock</span>
+                    <span class="out-of-stock"> Out of stock</span>
                   <% } %>
                 </div>
 

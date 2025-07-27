@@ -93,7 +93,7 @@
   <%- include('partials/Membernav.ejs') %>
 
   <div class="container">
-    <h1>📢 All Announcements</h1>
+    <h1> All Announcements</h1>
 
     <% if (announcements.length === 0) { %>
       <div class="text-center mt-5">
@@ -122,7 +122,7 @@
 
             <form action="/Member/calendar/add" method="POST">
               <input type="hidden" name="announcementID" value="<%= announcement.AnnouncementID %>">
-              <button type="submit" class="btn btn-calendar" style="color: white;">➕ Add to Calendar</button>
+              <button type="submit" class="btn btn-calendar" style="color: white;"> Add to Calendar</button>
             </form>
           </div>
         </div>

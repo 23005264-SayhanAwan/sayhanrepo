@@ -248,7 +248,7 @@
       <div id="profileContent">
         <!-- View Mode -->
         <div class="view-section">
-          <button type="button" class="edit-btn" onclick="toggleEditMode()">✏️ Edit Profile</button>
+          <button type="button" class="edit-btn" onclick="toggleEditMode()"> Edit Profile</button>
           
           <div class="form-section">
             <h5>📋 Personal Information</h5>
@@ -274,7 +274,7 @@
         <div class="edit-section">
           <form action="/member/profile/update" method="POST">
             <div class="form-section">
-              <h5>📋 Personal Information</h5>
+              <h5> Personal Information</h5>
               
               <div class="mb-3">
                 <label for="fullName" class="form-label">Full Name</label>
@@ -293,8 +293,8 @@
             </div>
 
             <div class="text-center">
-              <button type="submit" class="btn-save">💾 Save Changes</button>
-              <button type="button" class="btn-cancel" onclick="toggleEditMode()">❌ Cancel</button>
+              <button type="submit" class="btn-save"> Save Changes</button>
+              <button type="button" class="btn-cancel" onclick="toggleEditMode()"> Cancel</button>
             </div>
           </form>
         </div>
@@ -303,11 +303,11 @@
 
     <!-- Membership & Account Info -->
     <div class="profile-card">
-      <h5 class="text-center mb-4">🎯 Account Information</h5>
+      <h5 class="text-center mb-4"> Account Information</h5>
       
       <div class="membership-info">
         <div class="membership-tier <%= (currentTier || 'Bronze').toLowerCase() %>-tier">
-          🏆 <%= currentTier || 'Bronze' %> Member
+           <%= currentTier || 'Bronze' %> Member
         </div>
         <div class="join-date">
           Member since: <%= new Date(member.JoinDate).toLocaleDateString('en-US', { 

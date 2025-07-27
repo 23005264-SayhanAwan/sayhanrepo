@@ -212,7 +212,7 @@
         <% if (restaurantItems.length > 0) { %>
           <div class="cart-section">
             <div class="section-header restaurant-section-header">
-              <h4 class="mb-0">🍽️ Restaurant Items</h4>
+              <h4 class="mb-0"> Restaurant Items</h4>
             </div>
             <div class="table-responsive">
               <table class="table table-striped mb-0">
@@ -275,7 +275,7 @@
         <% if (tickets.length > 0) { %>
           <div class="cart-section">
             <div class="section-header ticket-section-header">
-              <h4 class="mb-0">🎫 Event Tickets</h4>
+              <h4 class="mb-0"> Event Tickets</h4>
             </div>
             <div class="table-responsive">
               <table class="table table-striped mb-0">
@@ -294,15 +294,15 @@
                     <tr>
                       <td>
                         <strong><%= ticket.name %></strong>
-                        <br><small class="text-muted">🎟️ Digital Ticket</small>
+                        <br><small class="text-muted"> Digital Ticket</small>
                       </td>
                       <td>
                         <div>
                           <span class="badge bg-info mb-1">
-                            📅 <%= new Date(ticket.eventDate).toLocaleDateString() %>
+                             <%= new Date(ticket.eventDate).toLocaleDateString() %>
                           </span>
                           <br>
-                          <small class="text-muted">📍 <%= ticket.location %></small>
+                          <small class="text-muted"> <%= ticket.location %></small>
                         </div>
                       </td>
                       <td>$<%= ticket.price.toFixed(2) %></td>
@@ -336,7 +336,7 @@
         
         <div class="row mb-3">
           <div class="col-md-6">
-            <button type="submit" class="btn btn-primary">🔄 Update Quantities</button>
+            <button type="submit" class="btn btn-primary"> Update Quantities</button>
           </div>
           <div class="col-md-6 text-end">
             <h4>Cart Total: $<%= totalAmount.toFixed(2) %></h4>
@@ -346,25 +346,25 @@
       
       <!-- Enhanced Order Summary -->
       <div class="order-summary">
-        <h5>📋 Order Summary</h5>
+        <h5> Order Summary</h5>
         
         <% if (storeItemsTotal > 0) { %>
           <div class="summary-row">
-            <span class="summary-label">🛍️ Store Items:</span>
+            <span class="summary-label"> Store Items:</span>
             <span class="summary-value">$<%= storeItemsTotal.toFixed(2) %></span>
           </div>
         <% } %>
         
         <% if (restaurantItemsTotal > 0) { %>
           <div class="summary-row">
-            <span class="summary-label">🍽️ Restaurant Items:</span>
+            <span class="summary-label"> Restaurant Items:</span>
             <span class="summary-value">$<%= restaurantItemsTotal.toFixed(2) %></span>
           </div>
         <% } %>
         
         <% if (ticketsTotal > 0) { %>
           <div class="summary-row">
-            <span class="summary-label">🎫 Event Tickets:</span>
+            <span class="summary-label"> Event Tickets:</span>
             <span class="summary-value">$<%= ticketsTotal.toFixed(2) %></span>
           </div>
         <% } %>
@@ -376,7 +376,7 @@
         
         <% if (discountAmount > 0) { %>
           <div class="summary-row">
-            <span class="summary-label">🏷️ Discount (<%= (discountRate * 100).toFixed(0) %>%):</span>
+            <span class="summary-label"> Discount (<%= (discountRate * 100).toFixed(0) %>%):</span>
             <span class="summary-value discount-value">-$<%= discountAmount.toFixed(2) %></span>
           </div>
         <% } %>
@@ -387,7 +387,7 @@
         </div>
         
         <div class="summary-row">
-          <span class="summary-label">💰 Cashback Applied:</span>
+          <span class="summary-label"> Cashback Applied:</span>
           <span class="summary-value cashback-value" id="cashback-applied">-$0.00</span>
         </div>
         
@@ -399,7 +399,7 @@
         <% if (ticketsTotal > 0 || restaurantItemsTotal > 0) { %>
           <div class="mt-3">
             <small class="text-info">
-              💡 <strong>Note:</strong> Membership discounts and cashback apply to your entire order including store items, restaurant items, and tickets.
+               <strong>Note:</strong> Membership discounts and cashback apply to your entire order including store items, restaurant items, and tickets.
             </small>
           </div>
         <% } %>
@@ -408,7 +408,7 @@
       <!-- Cashback Selection -->
       <% if (cashbackRecords && cashbackRecords.length > 0) { %>
         <div class="cashback-selection">
-          <h5>💰 Select Cashback to Use</h5>
+          <h5> Select Cashback to Use</h5>
           <p class="text-muted mb-3">You have $<%= totalAvailableCashback.toFixed(2) %> available cashback. Select which ones to use:</p>
           
           <div class="cashback-controls">
@@ -456,7 +456,7 @@
                   </div>
                   <div class="col-md-2">
                     <% if (record.DaysLeft <= 30) { %>
-                      <span class="badge bg-warning text-dark">⏰ <%= record.DaysLeft %> days</span>
+                      <span class="badge bg-warning text-dark"> <%= record.DaysLeft %> days</span>
                     <% } else { %>
                       <span class="badge bg-success"><%= record.DaysLeft %> days</span>
                     <% } %>
@@ -468,7 +468,7 @@
           
           <div class="mt-3">
             <small class="text-muted">
-              💡 <strong>Tip:</strong> Items with yellow background expire within 30 days. Use them first to avoid losing cashback!
+               <strong>Tip:</strong> Items with yellow background expire within 30 days. Use them first to avoid losing cashback!
             </small>
           </div>
         </div>
@@ -490,7 +490,7 @@
             </div>
             
             <button id="checkout-button" class="btn btn-success btn-lg w-100">
-              <span id="button-text">🔒 Complete Purchase</span>
+              <span id="button-text"> Complete Purchase</span>
               <span id="spinner" class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
             </button>
           </div>
@@ -499,9 +499,9 @@
       
       <!-- Continue Shopping -->
       <div class="mt-3 d-flex gap-2">
-        <a href="/store-items" class="btn btn-outline-primary">🛍️ Continue Shopping</a>
-        <a href="/restaurant" class="btn btn-outline-success">🍽️ Order More Food</a>
-        <a href="/events" class="btn btn-outline-success">🎫 Browse Events</a>
+        <a href="/store-items" class="btn btn-outline-primary"> Continue Shopping</a>
+        <a href="/restaurant" class="btn btn-outline-success"> Order More Food</a>
+        <a href="/events" class="btn btn-outline-success"> Browse Events</a>
       </div>
     <% } %>
   </div>
@@ -679,7 +679,7 @@
             throw new Error(confirmData.error || 'Failed to save order');
           }
           
-          alert('🎉 Payment successful! Your order has been placed.');
+          alert(' Payment successful! Your order has been placed.');
           window.location.href = '/store-items';
         } else {
           throw new Error('Payment did not succeed. Status: ' + paymentIntent.status);
@@ -692,7 +692,7 @@
         errorDiv.textContent = error.message || 'An unexpected error occurred. Please try again.';
         
         button.disabled = false;
-        buttonText.textContent = '🔒 Complete Purchase';
+        buttonText.textContent = ' Complete Purchase';
         spinner.classList.add('d-none');
       }
     });
