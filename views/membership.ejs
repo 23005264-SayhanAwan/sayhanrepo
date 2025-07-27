@@ -48,6 +48,12 @@
       font-size: 1.2rem;
     }
 
+    .expiry-date {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #ffc107;
+    }
+
     .btn-manage {
       margin-top: 20px;
       padding: 12px 24px;
@@ -123,6 +129,20 @@
     <div class="current-tier">
       <strong>Your membership:</strong> <span class="text-warning"><%= currentTier %></span>
     </div>
+
+    <% if (typeof expiryDate !== 'undefined' && expiryDate && expiryDate !== '0000-00-00') { %>
+      <div class="expiry-date">
+        <small>Expires on: <%= new Date(expiryDate).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }) %></small>
+      </div>
+    <% } else if (currentTier !== 'Bronze') { %>
+      <div class="expiry-date">
+        <small>Expiry date not set</small>
+      </div>
+    <% } %>
 
     <a href="/managemembership" class="btn-manage">
       Manage Membership

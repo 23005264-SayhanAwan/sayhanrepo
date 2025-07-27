@@ -1886,21 +1886,36 @@ app.get('/membership', (req, res) => {
     return res.redirect('/login');
   }
 
-  // Get the membership tier name from membershiptier table by fk_TierID
-  const sql = 'SELECT TierName FROM membershiptier WHERE TierID = ?';
+  // Get the membership tier name and expiry date from database
+  const sql = `
+    SELECT mt.TierName, m.ExpiryDate 
+    FROM membershiptier mt 
+    JOIN members m ON mt.TierID = m.fk_TierID 
+    WHERE m.MemberID = ?
+  `;
 
-  connection.query(sql, [member.fk_TierID], (err, results) => {
+  connection.query(sql, [member.MemberID], (err, results) => {
     if (err) {
-      console.error('Error fetching membership tier:', err);
+      console.error('Error fetching membership details:', err);
       return res.status(500).send('Internal Server Error');
     }
 
     if (results.length === 0) {
-      return res.render('membership', { currentTier: 'Unknown', member });
+      return res.render('membership', { 
+        currentTier: 'Unknown', 
+        member,
+        expiryDate: null 
+      });
     }
 
     const currentTier = results[0].TierName;
-    res.render('membership', { currentTier, member });
+    const expiryDate = results[0].ExpiryDate;
+    
+    res.render('membership', { 
+      currentTier, 
+      member,
+      expiryDate 
+    });
   });
 });
 
@@ -2077,7 +2092,7 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
   });
 });
 
-//  UPDATED: Membership success page
+//  UPDATED: Membership success page with expiry date handling
 app.get('/member/membership-success', (req, res) => {
   const member = req.session.member;
   if (!member) return res.redirect('/login');
@@ -2088,31 +2103,90 @@ app.get('/member/membership-success', (req, res) => {
   if (pendingTier) {
     console.log('Processing pending tier upgrade:', pendingTier);
     
-    // Update the member's tier for paid upgrades
-    const updateSql = 'UPDATE members SET fk_TierID = ? WHERE MemberID = ?';
-    connection.query(updateSql, [pendingTier.tierID, member.MemberID], (updateErr) => {
+    // Check if upgrading from Silver to Gold (preserve original expiry date)
+    if (pendingTier.currentTier === 'Silver' && pendingTier.tierName === 'Gold') {
+      console.log('Silver to Gold upgrade - preserving original expiry date');
+      
+      // Only update tier, keep existing expiry date
+      const updateSql = 'UPDATE members SET fk_TierID = ? WHERE MemberID = ?';
+      console.log('Executing SQL:', updateSql, 'with values:', [pendingTier.tierID, member.MemberID]);
+      
+      connection.query(updateSql, [pendingTier.tierID, member.MemberID], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error('Error updating membership after payment:', updateErr);
+          return res.status(500).send('Failed to update membership');
+        }
+        
+        console.log('Update result:', updateResult);
+        
+        // Update session with new tier
+        req.session.member.fk_TierID = pendingTier.tierID;
+        
+        console.log(`Silver to Gold upgrade completed! Member ${member.MemberID} upgraded to ${pendingTier.tierName} for ${pendingTier.price} - Expiry date preserved`);
+        
+        // Clear pending data
+        delete req.session.pendingMembershipTier;
+        delete req.session.selectedTier;
+        
+        // Render success page with the NEW tier
+        res.render('membershipsuccess', {
+          member: req.session.member,
+          newTier: pendingTier.tierName,
+          previousTier: pendingTier.currentTier,
+          upgradePaid: pendingTier.price,
+          expiryDate: 'preserved' // Indicate expiry was preserved
+        });
+      });
+      
+    } else {
+      // Bronze to Silver/Gold - set new expiry date (1 year from now)
+      const currentDate = new Date();
+      const expiryDate = new Date(currentDate);
+      expiryDate.setFullYear(currentDate.getFullYear() + 1);
+      
+      // Format date for MySQL (YYYY-MM-DD format)
+      const year = expiryDate.getFullYear();
+      const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+      const day = String(expiryDate.getDate()).padStart(2, '0');
+      const formattedExpiryDate = `${year}-${month}-${day}`;
+      
+      console.log('Setting new expiry date to:', formattedExpiryDate);
+      
+      // Update the member's tier AND expiry date for paid upgrades
+      const updateSql = 'UPDATE members SET fk_TierID = ?, ExpiryDate = ? WHERE MemberID = ?';
+      console.log('Executing SQL:', updateSql, 'with values:', [pendingTier.tierID, formattedExpiryDate, member.MemberID]);
+      
+      connection.query(updateSql, [pendingTier.tierID, formattedExpiryDate, member.MemberID], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error('Error updating membership after payment:', updateErr);
+          return res.status(500).send('Failed to update membership');
+        }
+        
+        console.log('Update result:', updateResult);
       if (updateErr) {
         console.error('Error updating membership after payment:', updateErr);
         return res.status(500).send('Failed to update membership');
       }
 
-      // Update session with new tier
-      req.session.member.fk_TierID = pendingTier.tierID;
-      
-      console.log(` Paid membership updated successfully! Member ${member.MemberID} upgraded from ${pendingTier.currentTier} to ${pendingTier.tierName} for $${pendingTier.price}`);
-      
-      // Clear pending data
-      delete req.session.pendingMembershipTier;
-      delete req.session.selectedTier;
-      
-      // Render success page with the NEW tier
-      res.render('membershipsuccess', {
-        member: req.session.member,
-        newTier: pendingTier.tierName,
-        previousTier: pendingTier.currentTier,
-        upgradePaid: pendingTier.price
+        // Update session with new tier
+        req.session.member.fk_TierID = pendingTier.tierID;
+        
+        console.log(`Paid membership updated successfully! Member ${member.MemberID} upgraded from ${pendingTier.currentTier} to ${pendingTier.tierName} for ${pendingTier.price}. Expires on: ${formattedExpiryDate}`);
+        
+        // Clear pending data
+        delete req.session.pendingMembershipTier;
+        delete req.session.selectedTier;
+        
+        // Render success page with the NEW tier and expiry info
+        res.render('membershipsuccess', {
+          member: req.session.member,
+          newTier: pendingTier.tierName,
+          previousTier: pendingTier.currentTier,
+          upgradePaid: pendingTier.price,
+          expiryDate: formattedExpiryDate
+        });
       });
-    });
+    }
   } else {
     // No pending upgrade
     console.log('No pending tier found');
@@ -2125,7 +2199,8 @@ app.get('/member/membership-success', (req, res) => {
           member: member,
           newTier: 'Unknown',
           previousTier: null,
-          upgradePaid: 0
+          upgradePaid: 0,
+          expiryDate: null
         });
       }
 
@@ -2134,9 +2209,78 @@ app.get('/member/membership-success', (req, res) => {
         member: member,
         newTier: currentTier,
         previousTier: null,
-        upgradePaid: 0
+        upgradePaid: 0,
+        expiryDate: null
       });
     });
+  }
+});
+
+// NEW: Function to check and handle expired memberships
+function checkExpiredMemberships() {
+  const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+  
+  const expiredMembersSql = `
+    UPDATE members 
+    SET fk_TierID = 3 
+    WHERE ExpiryDate < ? AND fk_TierID IN (1, 2) AND ExpiryDate IS NOT NULL
+  `;
+  
+  connection.query(expiredMembersSql, [currentDate], (err, results) => {
+    if (err) {
+      console.error('Error checking expired memberships:', err);
+      return;
+    }
+    
+    if (results.affectedRows > 0) {
+      console.log(`${results.affectedRows} expired memberships reverted to Bronze tier`);
+    }
+  });
+}
+
+// NEW: Run expiry check every hour (3600000 ms)
+setInterval(checkExpiredMemberships, 3600000);
+
+// NEW: Also run on server startup
+checkExpiredMemberships();
+
+// NEW: Middleware to check user's membership expiry on each request
+app.use((req, res, next) => {
+  if (req.session.member) {
+    const currentDate = new Date().toISOString().split('T')[0];
+    
+    // Check if current user's membership has expired
+    const checkUserExpirySql = `
+      SELECT fk_TierID, ExpiryDate 
+      FROM members 
+      WHERE MemberID = ? AND ExpiryDate < ? AND fk_TierID IN (1, 2) AND ExpiryDate IS NOT NULL
+    `;
+    
+    connection.query(checkUserExpirySql, [req.session.member.MemberID, currentDate], (err, results) => {
+      if (err) {
+        console.error('Error checking user expiry:', err);
+        return next();
+      }
+      
+      if (results.length > 0) {
+        // User's membership has expired, revert to Bronze
+        const revertSql = 'UPDATE members SET fk_TierID = 3 WHERE MemberID = ?';
+        connection.query(revertSql, [req.session.member.MemberID], (revertErr) => {
+          if (revertErr) {
+            console.error('Error reverting expired membership:', revertErr);
+          } else {
+            // Update session
+            req.session.member.fk_TierID = 3;
+            console.log(`User ${req.session.member.MemberID} membership expired, reverted to Bronze`);
+          }
+          next();
+        });
+      } else {
+        next();
+      }
+    });
+  } else {
+    next();
   }
 });
 
