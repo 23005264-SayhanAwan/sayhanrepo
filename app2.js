@@ -454,7 +454,7 @@ app.post('/admin/items/delete/:id', (req, res) => {
           });
         }
 
-        console.log(`🗑️ Deleted ${billResult.affectedRows} restaurant bill records for item ${itemId}`);
+        console.log(` Deleted ${billResult.affectedRows} restaurant bill records for item ${itemId}`);
 
         // Step 2: Delete the item itself
         const deleteItemSql = 'DELETE FROM restaurantitem WHERE ItemID = ?';
