@@ -2140,17 +2140,21 @@ app.get('/member/membership-success', (req, res) => {
       
     } else {
       // Bronze to Silver/Gold - set new expiry date (1 year from now)
-      const currentDate = new Date();
-      const expiryDate = new Date(currentDate);
-      expiryDate.setFullYear(currentDate.getFullYear() + 1);
-      
+      //const currentDate = new Date();
+      //const expiryDate = new Date(currentDate);
+      //expiryDate.setFullYear(currentDate.getFullYear() + 1);
+      //commented out for 1 year expiry(commmented out section is for 1 hr expiry testing purposes)
       // Format date for MySQL (YYYY-MM-DD format)
-      const year = expiryDate.getFullYear();
-      const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-      const day = String(expiryDate.getDate()).padStart(2, '0');
-      const formattedExpiryDate = `${year}-${month}-${day}`;
-      
+      //const year = expiryDate.getFullYear();
+      //const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+      //const day = String(expiryDate.getDate()).padStart(2, '0');
+      //const formattedExpiryDate = `${year}-${month}-${day}`;
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1); // Add 1 year
+      const formattedExpiryDate = expiryDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
       console.log('Setting new expiry date to:', formattedExpiryDate);
+      
       
       // Update the member's tier AND expiry date for paid upgrades
       const updateSql = 'UPDATE members SET fk_TierID = ?, ExpiryDate = ? WHERE MemberID = ?';
