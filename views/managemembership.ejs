@@ -116,15 +116,15 @@
 
     <!-- Upgrade Information -->
     <div class="upgrade-info">
-      <h5>💡 Upgrade Rules:</h5>
-      <ul class="mb-0">
+      <h5>Upgrade Rules:</h5>
+      <ul class="mb-0"><!--removes bottom space after unordered list-->
         <% if (currentTier === 'Bronze') { %>
           <li>You can upgrade to <strong>Silver</strong> ($24.99) or <strong>Gold</strong> ($39.99)</li>
         <% } else if (currentTier === 'Silver') { %>
           <li>You can upgrade to <strong>Gold</strong> for just <span class="upgrade-price">$15.00</span> (discounted!)</li>
           <li class="text-muted">No downgrades available - keep your Silver benefits!</li>
         <% } else if (currentTier === 'Gold') { %>
-          <li class="text-success">🏆 You have the highest tier! No upgrades needed.</li>
+          <li class="text-success">You have the highest tier! No upgrades needed.</li>
           <li class="text-muted">No downgrades available - enjoy your premium benefits!</li>
         <% } %>
       </ul>
@@ -209,10 +209,10 @@
   </div>
 
   <script>
-    const buttons = document.querySelectorAll('.select-btn:not([disabled])');
-    const checkoutBtn = document.getElementById('checkout-button');
-    const currentTier = '<%= currentTier %>';
-    let selectedTier = null;
+    const buttons = document.querySelectorAll('.select-btn:not([disabled])'); //selects all upgrade btn with class .select-btn and nt disabled
+    const checkoutBtn = document.getElementById('checkout-button');//gets's "select tier to upgrade button" user mst choose user valid tier. starts out disabled cus dw ppl clickling it bfr selecting
+    const currentTier = '<%= currentTier %>';//injects current tier into js string
+    let selectedTier = null;//cus haven click anyt yet
 
     console.log('Current tier:', currentTier);
 
@@ -232,7 +232,7 @@
         }
         
         checkoutBtn.textContent = `Upgrade to ${tier} - Pay ${price}`;
-        checkoutBtn.disabled = false;
+        checkoutBtn.disabled = false; //button becomes active
         checkoutBtn.classList.remove('disabled');
       }
     }
@@ -240,7 +240,7 @@
     // Initialize the checkout button state
     updateCheckoutButton(currentTier);
 
-    buttons.forEach(button => {
+    buttons.forEach(button => { //adding click event for each u[grade button and when clicked it runs]
       button.addEventListener('click', function () {
         const tier = this.dataset.tier;
         const isCurrent = this.dataset.isCurrent === 'true';
@@ -253,7 +253,7 @@
           return;
         }
 
-        // Store selection on server
+        // Store selection on server send post request to mem/mang/sel
         fetch('/member/managemembership/select', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -269,7 +269,7 @@
         })
         .then(data => {
           // Update UI state
-          selectedTier = tier;
+          selectedTier = tier; //saves teir locally so other parts of the app can use the tier
           
           // Reset all buttons to default state
           buttons.forEach(btn => {
