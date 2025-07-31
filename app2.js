@@ -245,6 +245,7 @@ app.post('/restaurant/remove-from-cart/:id', (req, res) => {
   res.redirect('/cart');
 });
 
+//kamaliadmin
 /// Routes for Admin Restaurant 
 
 // GET all restaurant items - Updated to handle showAll and message parameters
