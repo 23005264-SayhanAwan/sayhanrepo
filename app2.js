@@ -1879,11 +1879,11 @@ app.get('/product/:id', (req, res) => {
 
 //kamali
 // Member Routes
-app.get('/membership', (req, res) => {
-  const member = req.session.member;
+app.get('/membership', (req, res) => { //req-incoming req res-resp u get
+  const member = req.session.member; //get data
 
   if (!member) {
-    return res.redirect('/login');
+    return res.redirect('/login'); // no member than redirect to login
   }
 
   // Get the membership tier name and expiry date from database
@@ -1908,7 +1908,7 @@ app.get('/membership', (req, res) => {
       });
     }
 
-    const currentTier = results[0].TierName;
+    const currentTier = results[0].TierName;// its 0 cus query returns a array of rows but u only need one row per member
     const expiryDate = results[0].ExpiryDate;
     
     res.render('membership', { 
@@ -1936,12 +1936,12 @@ app.get('/managemembership', (req, res) => {
   });
 });
 
-// AJAX tier selection route with upgrade restrictions
+// tier selection route with upgrade restrictions
 app.post('/member/managemembership/select', (req, res) => {
   const { tier } = req.body;
   const member = req.session.member;
   
-  if (!tier || !['Gold', 'Silver', 'Bronze'].includes(tier)) {
+  if (!tier || !['Gold', 'Silver', 'Bronze'].includes(tier)) { //make sure no nulls are sent
     return res.status(400).json({ error: 'Invalid tier' });
   }
 
@@ -1999,7 +1999,7 @@ app.post('/member/managemembership/create-checkout-session', async (req, res) =>
       return res.status(500).json({ error: 'Database error' });
     }
 
-    const currentTier = tierResults.length > 0 ? tierResults[0].TierName : 'Bronze';
+    const currentTier = tierResults.length > 0 ? tierResults[0].TierName : 'Bronze';//if query returns a result, extract the tier name. or else its bronze by default
 
     //  UPDATED: New pricing structure
     let price = 0;
@@ -2208,7 +2208,7 @@ app.get('/member/membership-success', (req, res) => {
         });
       }
 
-      const currentTier = results[0].TierName;
+      const currentTier = results[0].TierName;//if u did an upgrade this will get your new tier name
       res.render('membershipsuccess', {
         member: member,
         newTier: currentTier,
@@ -2243,10 +2243,10 @@ function checkExpiredMemberships() {
 }
 
 // NEW: Run expiry check every hour (3600000 ms)
-setInterval(checkExpiredMemberships, 3600000);
+//setInterval(checkExpiredMemberships, 3600000);
 
 // NEW: Also run on server startup
-checkExpiredMemberships();
+//checkExpiredMemberships();
 
 // NEW: Middleware to check user's membership expiry on each request
 app.use((req, res, next) => {
