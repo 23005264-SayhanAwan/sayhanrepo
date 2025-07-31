@@ -115,7 +115,7 @@ app.get('/', (req, res) => {
 // Retrieve restaurant items (UPDATED - exclude removed items)
 app.get('/restaurant', (req, res) => {
   const member = req.session.member;
-  const message = req.query.message;
+  const message = req.query.message;//retrieves optional messages like success messages frm ?message=Item+Added...
 
   if (!member) {
     return res.redirect('/login');
@@ -181,7 +181,7 @@ app.get('/restaurant-alternative', (req, res) => {
 
 
 
-// NEW: Add restaurant item to cart (SIMPLE VERSION - matches your store items)
+// NEW: Add restaurant item to cart (SIMPLE VERSION )
 app.post('/restaurant/add-to-cart/:id', (req, res) => {
   const itemId = req.params.id;
   const quantity = parseInt(req.body.quantity) || 1;
@@ -228,12 +228,12 @@ app.post('/restaurant/add-to-cart/:id', (req, res) => {
 
     console.log('Restaurant item added to cart:', item.Name, 'x' + quantity);
     
-    // Simple redirect to cart (like your store items)
+    // Simple redirect to cart 
     res.redirect('/restaurant?message=Food item added to cart successfully');
   });
 });
 
-// NEW: Remove restaurant item from cart (SIMPLE VERSION)
+// NEW: Remove restaurant item from cart 
 app.post('/restaurant/remove-from-cart/:id', (req, res) => {
   if (!req.session.cart) return res.redirect('/cart');
   
@@ -245,10 +245,9 @@ app.post('/restaurant/remove-from-cart/:id', (req, res) => {
   res.redirect('/cart');
 });
 
-/// Routes for Admin Restaurant (Store Style) - COMPLETE REPLACEMENT
+/// Routes for Admin Restaurant 
 
 // GET all restaurant items - Updated to handle showAll and message parameters
-//  CORRECT VERSION - Add the missing 'items' line
 app.get('/admin/items', (req, res) => {
     if (!req.session.admin) return res.redirect('/login');
     
@@ -267,7 +266,7 @@ app.get('/admin/items', (req, res) => {
             return res.status(500).send('Error fetching restaurant items');
         }
         
-        //  THE CRITICAL LINE THAT'S MISSING:
+
         res.render('adminItemList', {
             items: results || [],        
             admin: req.session.admin,
