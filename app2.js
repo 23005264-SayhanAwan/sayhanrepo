@@ -2140,15 +2140,6 @@ app.get('/member/membership-success', (req, res) => {
       
     } else {
       // Bronze to Silver/Gold - set new expiry date (1 year from now)
-      //const currentDate = new Date();
-      //const expiryDate = new Date(currentDate);
-      //expiryDate.setFullYear(currentDate.getFullYear() + 1);
-      //commented out for 1 year expiry(commmented out section is for 1 hr expiry testing purposes)
-      // Format date for MySQL (YYYY-MM-DD format)
-      //const year = expiryDate.getFullYear();
-      //const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-      //const day = String(expiryDate.getDate()).padStart(2, '0');
-      //const formattedExpiryDate = `${year}-${month}-${day}`;
       const expiryDate = new Date();
       expiryDate.setFullYear(expiryDate.getFullYear() + 1); // Add 1 year
       const formattedExpiryDate = expiryDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
@@ -2243,10 +2234,10 @@ function checkExpiredMemberships() {
 }
 
 // NEW: Run expiry check every hour (3600000 ms)
-//setInterval(checkExpiredMemberships, 3600000);
+setInterval(checkExpiredMemberships, 3600000);
 
 // NEW: Also run on server startup
-//checkExpiredMemberships();
+checkExpiredMemberships();
 
 // NEW: Middleware to check user's membership expiry on each request
 app.use((req, res, next) => {
